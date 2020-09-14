@@ -878,11 +878,11 @@ class HandAnalysis(Qtw.QGroupBox):
     def getCurrentPrediction(self)->str:
         return self.currentPrediction
 
-class TrainingWidget(Qtw.QMainWindow):
+class MainWindow(Qtw.QMainWindow):
     def __init__(self, parent = None):
         ## Init
-        super(TrainingWidget, self).__init__(parent)
-        self.setWindowTitle("Hand pose classifier")
+        super(MainWindow, self).__init__(parent)
+        self.setWindowTitle("OpenHand classifier")
         self.parent = parent
         mainWidget = Qtw.QWidget(self)
         self.setCentralWidget(mainWidget)
@@ -1129,6 +1129,6 @@ if __name__ == "__main__":
     from PyQt5.QtCore import QCoreApplication
     import sys
     app = Qtw.QApplication(sys.argv)
-    trainingWidget = TrainingWidget()
-    trainingWidget.show()
+    mainWindow = MainWindow()
+    mainWindow.show()
     sys.exit(app.exec_())

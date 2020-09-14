@@ -1,2 +1,0 @@
-python VideoAnalysis.py
-pause
