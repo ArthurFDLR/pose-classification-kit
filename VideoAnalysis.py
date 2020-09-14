@@ -808,7 +808,7 @@ class HandAnalysis(Qtw.QGroupBox):
         else:
             self.layout.addWidget(self.classGraphWidget)
     
-    def setClassifierModel(self, model:tf.keras.models, classOutputs):
+    def setClassifierModel(self, model, classOutputs): #model:tf.keras.models
         self.modelClassifier = model
         self.classOutputs = classOutputs
     
@@ -860,20 +860,21 @@ class HandAnalysis(Qtw.QGroupBox):
         self.classGraphWidget.setTitle(title)
     
     def newModelLoaded(self, urlModel:str, classOutputs:list, handID:int):
-        if urlModel == 'None':
-            self.modelClassifier = None
-            self.classOutputs = []
-            self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
-        
-        else:
-            if handID == self.handID:
-                self.modelClassifier = tf.keras.models.load_model(urlModel)
-                self.classOutputs = classOutputs
+        if TF_LOADED:
+            if urlModel == 'None':
+                self.modelClassifier = None
+                self.classOutputs = []
                 self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
-                self.modelClassifier = tf.keras.models.load_model(urlModel)
-                self.classOutputs = classOutputs
-                self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
-        
+            
+            else:
+                if handID == self.handID:
+                    self.modelClassifier = tf.keras.models.load_model(urlModel)
+                    self.classOutputs = classOutputs
+                    self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
+                    self.modelClassifier = tf.keras.models.load_model(urlModel)
+                    self.classOutputs = classOutputs
+                    self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
+            
     def getCurrentPrediction(self)->str:
         return self.currentPrediction
 
@@ -1124,144 +1125,10 @@ class PoseClassifierWidget(Qtw.QWidget):
         self.classifierSelector.clear()
         self.classifierSelector.addItems(self.getAvailableClassifiers())
 
-class HandSignalDetector(Qtw.QWidget):
-    def __init__(self, parent=None):
-        super().__init__()
-        self.parent = parent
-        self.classOutputs = []
-
-        layout = Qtw.QGridLayout(self)
-        self.setLayout(layout)
-
-        self.cameraInput = CameraInput()
-
-        self.videoViewer = VideoViewer(self.cameraInput.getAvailableCam())
-        self.videoViewer.camera_selector.currentIndexChanged.connect(self.cameraInput.select_camera)
-        self.videoViewer.refreshButton.clicked.connect(self.refreshCameraList)
-        layout.addWidget(self.videoViewer,0,0,1,3)
-
-        videoHeight = 480 # 480p
-        self.AnalysisThread = VideoAnalysisThread(self.cameraInput, False)
-        self.AnalysisThread.newMat.connect(self.analyseNewImage)
-        self.AnalysisThread.setResolutionStream(int(videoHeight * (16.0/9.0)), videoHeight)
-        self.AnalysisThread.start()
-        self.AnalysisThread.setState(True)
-        self.videoViewer.setVideoSize(int(videoHeight * (16.0/9.0)), videoHeight)
-
-        self.leftHandAnalysis = HandAnalysis(0, showInput=False)
-        self.rightHandAnalysis = HandAnalysis(1, showInput=False)
-
-        self.tableWidget = Qtw.QTableWidget()
-        self.tableWidget.setRowCount(0)
-        self.tableWidget.setColumnCount(1)
-        self.tableWidget.setHorizontalHeaderLabels(['Class'])
-        self.tableWidget.setEditTriggers(Qtw.QAbstractItemView.NoEditTriggers)
-        self.tableWidget.setFocusPolicy(Qt.NoFocus)
-        self.tableWidget.setSelectionMode(Qtw.QAbstractItemView.NoSelection)
-        self.tableWidget.setMinimumWidth(200)
-        self.tableWidget.setMaximumWidth(200)
-
-        layout.addWidget(self.leftHandAnalysis, 1,0,1,1)
-        layout.addWidget(self.rightHandAnalysis, 1,1,1,1)
-        layout.addWidget(self.tableWidget,1,2,1,1)
-
-        self.detailedView(False)
-
-        self.loadModel('24Output-2x128-17epochs')
-
-    
-    def refreshCameraList(self):
-        camList = self.cameraInput.refreshCameraList()
-        if not camList:
-            print('No camera')
-        else:
-            self.videoViewer.camera_selector.clear()
-            self.videoViewer.camera_selector.addItems([c.description() for c in camList])
-    
-    def analyseNewImage(self, matImage:np.ndarray): # Call each time AnalysisThread emit a new pix
-        self.videoViewer.setInfoText(self.AnalysisThread.getInfoText())
-        
-        leftHandKeypoints, leftAccuracy = self.AnalysisThread.getHandData(0)
-        rightHandKeypoints, rightAccuracy = self.AnalysisThread.getHandData(1)
-        poseKeypoints = self.AnalysisThread.getBodyData()
-        raisingLeft, raisingRight = self.AnalysisThread.isRaisingHand()
-
-        self.leftHandAnalysis.updatePredictedClass(leftHandKeypoints)
-        self.rightHandAnalysis.updatePredictedClass(rightHandKeypoints)
-
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        scale = 1
-        color = (255, 0, 255)
-        print('Left:' + self.leftHandAnalysis.getCurrentPrediction())
-        print('Right:' + self.rightHandAnalysis.getCurrentPrediction())
-
-        if isHandData(leftHandKeypoints):
-            position = (poseKeypoints[7][0],poseKeypoints[7][1]) # (0,0) <=> left-up corner
-            cv2.putText(matImage, self.leftHandAnalysis.getCurrentPrediction(), position, font, scale, color, 2, cv2.LINE_AA)
-        if isHandData(rightHandKeypoints):
-            position = (poseKeypoints[4][0],poseKeypoints[4][1]) # (0,0) <=> left-up corner
-            cv2.putText(matImage, self.rightHandAnalysis.getCurrentPrediction(), position, font, scale, color, 2, cv2.LINE_AA)
-        self.videoViewer.setImage(mat2QImage(matImage))
-    
-    def loadModel(self, name:str):
-        ''' Load full (structures + weigths) h5 model.
-        
-            Args:
-                name (string): Name of the model. The folder .\models\name must contain: modelName_right.h5, modelName_left.h5, class.txt
-        '''
-        if name != 'None':
-            urlFolder = pathlib.Path(__file__).parent.absolute() / 'Models' / name
-            if os.path.isdir(urlFolder):
-                urlRight = urlFolder / (name + '_right.h5')
-                urlLeft = urlFolder / (name + '_left.h5')
-                urlClass = urlFolder / 'class.txt'
-                if os.path.isfile(urlClass):
-                    with open(urlClass, "r") as file:
-                        first_line = file.readline()
-                    self.classOutputs = first_line.split(',')
-                    self.tableWidget.setRowCount(len(self.classOutputs))
-                    for i,elem in enumerate(self.classOutputs):
-                        self.tableWidget.setItem(i,0, Qtw.QTableWidgetItem(elem))
-                    print('Class model loaded.')
-                if os.path.isfile(urlRight):
-                    self.rightHandAnalysis.newModelLoaded(str(urlRight), self.classOutputs, 1)
-                    print('Right hand model loaded.')
-                if os.path.isfile(urlLeft):
-                    self.leftHandAnalysis.newModelLoaded(str(urlLeft), self.classOutputs, 0)
-                    print('Left hand model loaded.')
-        else:
-            print('None')
-            self.modelRight = None
-            self.modelLeft = None
-            self.classOutputs = []
-            self.leftHandAnalysis.newModelLoaded('None', self.classOutputs, -1)
-            self.rightHandAnalysis.newModelLoaded('None', self.classOutputs, -1)
-            self.tableWidget.setRowCount(0)
-    
-    @pyqtSlot(bool)
-    def detailedView(self, b:bool):
-        if b:
-            self.leftHandAnalysis.show()
-            self.rightHandAnalysis.show()
-            self.tableWidget.show()
-        else:
-            self.leftHandAnalysis.hide()
-            self.rightHandAnalysis.hide()
-            self.tableWidget.hide()
-        
-
-
 if __name__ == "__main__":
     from PyQt5.QtCore import QCoreApplication
     import sys
-    FULL_APP = False
     app = Qtw.QApplication(sys.argv)
-    
-    if FULL_APP:
-        trainingWidget = TrainingWidget()
-        trainingWidget.show()
-    else:
-        handSignalDetector = HandSignalDetector()
-        handSignalDetector.show()
-
+    trainingWidget = TrainingWidget()
+    trainingWidget.show()
     sys.exit(app.exec_())
