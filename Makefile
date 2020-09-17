@@ -1,6 +1,6 @@
 # run
 run:
-	poetry run python .\openhand_classifier\VideoAnalysis.py
+	poetry run python .\openhand_classifier
 
 # formatting
 

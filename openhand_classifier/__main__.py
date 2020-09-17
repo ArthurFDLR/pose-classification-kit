@@ -1,14 +1,11 @@
 import time
 import sys
 import pyqtgraph as pg
+import sys
 
 from PyQt5 import QtWidgets, QtGui
 
-import DatasetController
-import VideoInput
-import HandAnalysis
-import PoseClassifier
-
+from widget_custom import DatasetController, VideoInput, HandAnalysis, PoseClassifier
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent = None):
@@ -176,10 +173,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.realTimeHandDraw = state
     
 
-if __name__ == "__main__":
-    from PyQt5.QtCore import QCoreApplication
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    mainWindow = MainWindow()
-    mainWindow.show()
-    sys.exit(app.exec_())
+app = QtWidgets.QApplication(sys.argv)
+mainWindow = MainWindow()
+mainWindow.show()
+sys.exit(app.exec_())

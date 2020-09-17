@@ -6,7 +6,7 @@ import numpy as np
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt,  pyqtSignal, pyqtSlot
 
-from Util import SwitchButton, ScrollLabel, VLine, mat2QImage, isHandData
+from .Util import SwitchButton, ScrollLabel, VLine, mat2QImage, isHandData
 
 
 class DatasetControllerWidget(QtWidgets.QWidget):

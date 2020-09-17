@@ -5,7 +5,7 @@ import os
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
-import Util
+from .Util import isHandData
 
 SHOW_TF_WARNINGS = False
 if not SHOW_TF_WARNINGS:
@@ -84,7 +84,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
             self.handGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
 
             self.updatePredictedClass(handKeypoints)
-            if Util.isHandData(handKeypoints):
+            if isHandData(handKeypoints):
 
                 colors = ['r','y','g','b','m']
                 data = [handKeypoints[:, 0:5],

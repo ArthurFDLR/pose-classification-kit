@@ -10,7 +10,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QBuffer
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtMultimedia import QCameraInfo, QCamera, QCameraImageCapture
 
-import Util
+from .Util import mat2QImage
 
 
 # Path to OpenPose installation folder on your system.
@@ -44,7 +44,7 @@ class CameraInput(QtWidgets.QMainWindow):
         self.lastImage = QPixmap(10, 10).toImage()
         self.lastID = None
         self.save_path = ""
-        self.tmpUrl = str(pathlib.Path(__file__).parent.absolute() / 'Data' / 'tmp.png')
+        self.tmpUrl = str(pathlib.Path(__file__).parent.absolute() / 'tmp.png') # / 'Data' 
 
         self.capture = None
 
@@ -223,7 +223,7 @@ class VideoAnalysisThread(QThread):
                         self.newMat.emit(frameOutput)
 
                         if self.qimageEmission:
-                            image = Util.mat2QImage(frameOutput)
+                            image = mat2QImage(frameOutput)
                             self.newPixmap.emit(image.scaled(self.videoWidth, self.videoHeight, Qt.KeepAspectRatio))
 
     @pyqtSlot(bool)
