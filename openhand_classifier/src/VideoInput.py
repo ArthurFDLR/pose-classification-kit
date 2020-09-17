@@ -5,11 +5,8 @@ import time
 import numpy as np
 import sys
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot, QBuffer
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtMultimedia import QCameraInfo, QCamera, QCameraImageCapture
-
+from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, \
+                pyqtSignal, pyqtSlot
 from .Util import mat2QImage
 
 
@@ -33,15 +30,15 @@ class CameraInput(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(CameraInput, self).__init__(*args, **kwargs)
 
-        self.available_cameras = QCameraInfo.availableCameras()
+        self.available_cameras = QtMultimedia.QCameraInfo.availableCameras()
         
         if not self.available_cameras:
             print('No camera')
             pass #quit
 
-        self.buffer = QBuffer
-        #self.lastImage = QImage('.\\Data\\tempInit.png')
-        self.lastImage = QPixmap(10, 10).toImage()
+        self.buffer = QtCore.QBuffer
+        #self.lastImage = QtGui.QImage('.\\Data\\tempInit.png')
+        self.lastImage = QtGui.QPixmap(10, 10).toImage()
         self.lastID = None
         self.save_path = ""
         self.tmpUrl = str(pathlib.Path(__file__).parent.absolute() / 'tmp.png') # / 'Data' 
@@ -51,7 +48,7 @@ class CameraInput(QtWidgets.QMainWindow):
         self.select_camera(0)
     
     def refreshCameraList(self):
-        self.available_cameras = QCameraInfo.availableCameras()
+        self.available_cameras = QtMultimedia.QCameraInfo.availableCameras()
         if not self.available_cameras:
             print('No camera')
             return None
@@ -64,12 +61,12 @@ class CameraInput(QtWidgets.QMainWindow):
 
     def select_camera(self, i):
         if len(self.available_cameras) > 0:
-            self.camera = QCamera(self.available_cameras[i])
-            self.camera.setCaptureMode(QCamera.CaptureStillImage)
+            self.camera = QtMultimedia.QCamera(self.available_cameras[i])
+            self.camera.setCaptureMode(QtMultimedia.QCamera.CaptureStillImage)
             self.camera.start()
 
-            self.capture = QCameraImageCapture(self.camera)
-            self.capture.setCaptureDestination(QCameraImageCapture.CaptureToBuffer)
+            self.capture = QtMultimedia.QCameraImageCapture(self.camera)
+            self.capture.setCaptureDestination(QtMultimedia.QCameraImageCapture.CaptureToBuffer)
 
             self.capture.imageCaptured.connect(self.storeLastFrame)
 
@@ -85,7 +82,7 @@ class CameraInput(QtWidgets.QMainWindow):
         else: 
             return None
 
-    def storeLastFrame(self, idImg:int, preview:QImage):
+    def storeLastFrame(self, idImg:int, preview:QtGui.QImage):
         self.lastImage = preview
         self.lastID = idImg
     
@@ -140,22 +137,22 @@ class VideoViewerWidget(QtWidgets.QGroupBox):
 
         self.autoAdjustable = False
 
-    @pyqtSlot(QImage)
-    def setImage(self, image:QImage):
-        self.currentPixmap = QPixmap.fromImage(image)
-        self.rawCamFeed.setPixmap(self.currentPixmap.scaled(self.rawCamFeed.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+    @pyqtSlot(QtGui.QImage)
+    def setImage(self, image:QtGui.QImage):
+        self.currentPixmap = QtGui.QPixmap.fromImage(image)
+        self.rawCamFeed.setPixmap(self.currentPixmap.scaled(self.rawCamFeed.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
     
     def resizeEvent(self, event):
         if self.autoAdjustable:
             try:
                 w = self.rawCamFeed.width()
                 h = self.rawCamFeed.height()
-                self.rawCamFeed.setPixmap(self.currentPixmap.scaled(w,h, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                self.rawCamFeed.setPixmap(self.currentPixmap.scaled(w,h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
                 self.rawCamFeed.setMinimumSize(100,100)
 
                 w = self.pepperCamFeed.width()
                 h = self.pepperCamFeed.height()
-                self.pepperCamFeed.setPixmap(self.pepperCamFeed.scaled(w,h, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                self.pepperCamFeed.setPixmap(self.pepperCamFeed.scaled(w,h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
                 self.pepperCamFeed.setMinimumSize(100,100)
             except:
                 pass
@@ -171,8 +168,8 @@ class VideoViewerWidget(QtWidgets.QGroupBox):
 
 
 
-class VideoAnalysisThread(QThread):
-    newPixmap = pyqtSignal(QImage)
+class VideoAnalysisThread(QtCore.QThread):
+    newPixmap = pyqtSignal(QtGui.QImage)
     newMat = pyqtSignal(np.ndarray)
     def __init__(self, videoSource, qimageEmission:bool=True):
         super().__init__()
@@ -224,7 +221,7 @@ class VideoAnalysisThread(QThread):
 
                         if self.qimageEmission:
                             image = mat2QImage(frameOutput)
-                            self.newPixmap.emit(image.scaled(self.videoWidth, self.videoHeight, Qt.KeepAspectRatio))
+                            self.newPixmap.emit(image.scaled(self.videoWidth, self.videoHeight, QtCore.Qt.KeepAspectRatio))
 
     @pyqtSlot(bool)
     def setState(self, s:bool):

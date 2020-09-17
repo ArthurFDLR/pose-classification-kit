@@ -3,9 +3,9 @@ import sys
 import pyqtgraph as pg
 import sys
 
-from PyQt5 import QtWidgets, QtGui
+from src.qt import QtWidgets, QtGui
 
-from widget_custom import DatasetController, VideoInput, HandAnalysis, PoseClassifier
+from src import DatasetController, VideoInput, HandAnalysis, PoseClassifier
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent = None):

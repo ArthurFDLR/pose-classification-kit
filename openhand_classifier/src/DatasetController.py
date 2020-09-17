@@ -3,9 +3,7 @@ import numpy as np
 from datetime import date
 import numpy as np
 
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtCore import Qt,  pyqtSignal, pyqtSlot
-
+from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
 from .Util import SwitchButton, ScrollLabel, VLine, mat2QImage, isHandData
 
 
@@ -32,10 +30,10 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.fileLabel.setText('No file selected')
         self.fileLabel.setMaximumHeight(60)
         self.fileLabel.setMinimumWidth(180)
-        self.layout.addWidget(self.fileLabel, 0,0,1,9, Qt.AlignTop)
+        self.layout.addWidget(self.fileLabel, 0,0,1,9, QtCore.Qt.AlignTop)
 
         #self.saveButton = QtWidgets.QPushButton('Save dataset')
-        #self.layout.addWidget(self.saveButton, 0,7,1,1, Qt.AlignTop)
+        #self.layout.addWidget(self.saveButton, 0,7,1,1, QtCore.Qt.AlignTop)
         #self.saveButton.clicked.connect(self.writeDataToTxt)
 
         self.visuCheckbox = QtWidgets.QCheckBox('Visualize imported dataset')
@@ -44,11 +42,11 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.visuCheckbox.setEnabled(False)
 
         self.minusButton = QtWidgets.QToolButton()
-        self.minusButton.setArrowType(Qt.LeftArrow)
+        self.minusButton.setArrowType(QtCore.Qt.LeftArrow)
         self.layout.addWidget(self.minusButton, 1,1,1,1)
         self.minusButton.setEnabled(False)
         self.minusButton.clicked.connect(lambda: self.setCurrentDataIndex(self.currentDataIndex-1))
-        QtWidgets.QShortcut(Qt.Key_Left, self, lambda: self.setCurrentDataIndex(self.currentDataIndex-1))
+        QtWidgets.QShortcut(QtCore.Qt.Key_Left, self, lambda: self.setCurrentDataIndex(self.currentDataIndex-1))
 
         self.currentIndexLine = QtWidgets.QLineEdit(str(self.currentDataIndex))
         self.currentIndexLine.setValidator(QtGui.QDoubleValidator())
@@ -62,11 +60,11 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.maxIndexLabel, 1,3,1,1)
         
         self.plusButton = QtWidgets.QToolButton()
-        self.plusButton.setArrowType(Qt.RightArrow)
+        self.plusButton.setArrowType(QtCore.Qt.RightArrow)
         self.layout.addWidget(self.plusButton, 1,4,1,1)
         self.plusButton.setEnabled(False)
         self.plusButton.clicked.connect(lambda: self.setCurrentDataIndex(self.currentDataIndex+1))
-        QtWidgets.QShortcut(Qt.Key_Right, self, lambda: self.setCurrentDataIndex(self.currentDataIndex+1))
+        QtWidgets.QShortcut(QtCore.Qt.Key_Right, self, lambda: self.setCurrentDataIndex(self.currentDataIndex+1))
 
         self.deleteButton = QtWidgets.QPushButton('Delete entry')
         self.deleteButton.setEnabled(False)
@@ -277,11 +275,11 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.folderLabel.setMaximumHeight(35)
         self.folderLabel.setMinimumWidth(200)
         #self.folderLabel.setStyleSheet("background-color:#000000;")
-        self.layout.addWidget(self.folderLabel, 0,0,1,5, Qt.AlignTop)
+        self.layout.addWidget(self.folderLabel, 0,0,1,5, QtCore.Qt.AlignTop)
 
         self.folderButton = QtWidgets.QPushButton('Change root folder')
         self.folderButton.clicked.connect(self.changeSavingFolder)
-        self.layout.addWidget(self.folderButton, 0,5,1,1, Qt.AlignTop)
+        self.layout.addWidget(self.folderButton, 0,5,1,1, QtCore.Qt.AlignTop)
 
         self.handSelection = HandSelectionWidget(self)
         self.layout.addWidget(self.handSelection, 1,0,1,1)
@@ -303,7 +301,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.layout.addWidget(self.createButton,1,5,1,1)
         self.createButton.clicked.connect(self.createDataset)
         #verticalSpacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        #self.layout.addItem(verticalSpacer, 2, 0, Qt.AlignTop)
+        #self.layout.addItem(verticalSpacer, 2, 0, QtCore.Qt.AlignTop)
     
     def createDataset(self):
         self.isRecording = True

@@ -1,9 +1,8 @@
 import cv2
 import numpy as np
 
-from PyQt5 import QtWidgets as Qtw
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt, QRect, pyqtSignal
+from .qt import QtWidgets, QtCore, QtGui, pyqtSignal
+
 
 def isHandData( keypoints):
     b = False
@@ -49,7 +48,7 @@ def resizeCvFrame(frame, ratio:float):
     resized = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA) 
     return resized
 
-class SwitchButton(Qtw.QPushButton):
+class SwitchButton(QtWidgets.QPushButton):
     clickedChecked = pyqtSignal(bool)
 
     def __init__(self, parent = None):
@@ -62,9 +61,9 @@ class SwitchButton(Qtw.QPushButton):
     def paintEvent(self, event):
         label = "ON" if self.isChecked() else "OFF"
         if self.isEnabled():
-            bg_color = Qt.green if self.isChecked() else Qt.red
+            bg_color = QtCore.Qt.green if self.isChecked() else QtCore.Qt.red
         else:
-            bg_color = Qt.gray
+            bg_color = QtCore.Qt.gray
 
         radius = 10
         width = 32
@@ -75,17 +74,17 @@ class SwitchButton(Qtw.QPushButton):
         painter.translate(center)
         painter.setBrush(QtGui.QColor(0,0,0))
 
-        pen = QtGui.QPen(Qt.black)
+        pen = QtGui.QPen(QtCore.Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
 
-        painter.drawRoundedRect(QRect(-width, -radius, 2*width, 2*radius), radius, radius)
+        painter.drawRoundedRect(QtCore.QRect(-width, -radius, 2*width, 2*radius), radius, radius)
         painter.setBrush(QtGui.QBrush(bg_color))
-        sw_rect = QRect(-radius, -radius, width + radius, 2*radius)
+        sw_rect = QtCore.QRect(-radius, -radius, width + radius, 2*radius)
         if not self.isChecked():
             sw_rect.moveLeft(-width)
         painter.drawRoundedRect(sw_rect, radius, radius)
-        painter.drawText(sw_rect, Qt.AlignCenter, label)
+        painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
     
     def click(self):
         b = self.isChecked()
@@ -94,16 +93,16 @@ class SwitchButton(Qtw.QPushButton):
     #def setEnabled(self):
 
 
-class ScrollLabel(Qtw.QScrollArea): 
+class ScrollLabel(QtWidgets.QScrollArea): 
     def __init__(self):
         super().__init__()
 
         self.setWidgetResizable(True) 
-        content = Qtw.QWidget(self) 
+        content = QtWidgets.QWidget(self) 
         self.setWidget(content) 
-        lay = Qtw.QVBoxLayout(content) 
-        self.label = Qtw.QLabel(content) 
-        self.label.setAlignment(Qt.AlignLeft | Qt.AlignTop) 
+        lay = QtWidgets.QVBoxLayout(content) 
+        self.label = QtWidgets.QLabel(content) 
+        self.label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop) 
         lay.addWidget(self.label) 
 
     def setText(self, text): 
@@ -118,7 +117,7 @@ def euler_to_quaternion(roll, pitch, yaw):
 
         return [qx, qy, qz, qw]
 
-class VLine(Qtw.QFrame):
+class VLine(QtWidgets.QFrame):
     # a simple VLine, like the one you get from designer
     def __init__(self):
         super(VLine, self).__init__()

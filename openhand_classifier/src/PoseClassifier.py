@@ -1,7 +1,6 @@
 import os
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, pyqtSignal
+from .qt import QtWidgets, QtCore, pyqtSignal
 
 
 class PoseClassifierWidget(QtWidgets.QWidget):
@@ -37,7 +36,7 @@ class PoseClassifierWidget(QtWidgets.QWidget):
         self.tableWidget.setHorizontalHeaderLabels(['Class'])
         #self.tableWidget.setEnabled(False)
         self.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self.tableWidget.setFocusPolicy(Qt.NoFocus)
+        self.tableWidget.setFocusPolicy(QtCore.Qt.NoFocus)
         self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.layout.addWidget(self.tableWidget,0,0,1,3)
 

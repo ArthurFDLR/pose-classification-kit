@@ -2,8 +2,7 @@ import pyqtgraph as pg
 import numpy as np
 import os
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from .qt import QtWidgets, QtCore
 
 from .Util import isHandData
 
@@ -58,7 +57,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
             self.handGraphWidget.setYRange(-1.0, 1.0)
             self.handGraphWidget.setAspectLocked(True)
 
-            self.graphSplitter = QtWidgets.QSplitter(Qt.Vertical)
+            self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
             self.graphSplitter.addWidget(self.handGraphWidget)
             self.graphSplitter.addWidget(self.classGraphWidget)
             self.graphSplitter.setStretchFactor(0,2)
