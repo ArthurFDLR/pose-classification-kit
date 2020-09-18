@@ -2,7 +2,13 @@ import pyqtgraph as pg
 import numpy as np
 import os
 
-from .qt import QtWidgets, QtCore
+from matplotlib.backends.qt_compat import QtCore, QtWidgets
+from matplotlib.backends.backend_qt5agg import FigureCanvas, NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
+
+from .qt import QtWidgets, QtCore, \
+    PYSIDE2_LOADED, PYQT5_LOADED
 
 from .Util import isHandData
 
@@ -29,6 +35,46 @@ except:
     TF_LOADED = False
 
 
+class HandPlotWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QtWidgets.QVBoxLayout(self)
+        self.static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        layout.addWidget(self.static_canvas)
+
+        self.ax = self.static_canvas.figure.subplots()
+        self.ax.set_xlim([-1.,1.])
+        self.ax.set_ylim([-1.,1.])
+        self.ax.set_aspect('equal')
+
+        self.fingerLines = [
+            Line2D([], [], color='r'),
+            Line2D([], [], color='y'),
+            Line2D([], [], color='g'),
+            Line2D([], [], color='b'),
+            Line2D([], [], color='m')]
+
+        for line in self.fingerLines:
+            self.ax.add_line(line)
+    
+    def plotHand(self, handKeypoints):
+        if isHandData(handKeypoints):
+            colors = ['r','y','g','b','m']
+            data = [handKeypoints[:, 0:5],
+                    np.insert(handKeypoints[:, 5:9].T, 0, handKeypoints[:,0], axis=0).T,
+                    np.insert(handKeypoints[:, 9:13].T, 0, handKeypoints[:,0], axis=0).T,
+                    np.insert(handKeypoints[:, 13:17].T, 0, handKeypoints[:,0], axis=0).T,
+                    np.insert(handKeypoints[:, 17:21].T, 0, handKeypoints[:,0], axis=0).T]
+            for i,line in enumerate(self.fingerLines):
+                line.set_data(data[i][0], data[i][1])
+        self.static_canvas.draw()
+    
+    def clear(self):
+        for line in self.fingerLines:
+            line.set_data([], [])
+        self.static_canvas.draw()
+
+
 class HandAnalysisWidget(QtWidgets.QGroupBox):
     def __init__(self, handID:int, showInput:bool=True):
         super().__init__(('Right' if handID == 1 else 'left') + ' hand analysis')
@@ -51,12 +97,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.classGraphWidget.addItem(self.outputGraph)
 
         if self.showInput:
-            self.handGraphWidget = pg.PlotWidget()
-            self.handGraphWidget.setBackground('w')
-            self.handGraphWidget.setXRange(-1.0, 1.0)
-            self.handGraphWidget.setYRange(-1.0, 1.0)
-            self.handGraphWidget.setAspectLocked(True)
-
+            self.handGraphWidget = HandPlotWidget()
             self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
             self.graphSplitter.addWidget(self.handGraphWidget)
             self.graphSplitter.addWidget(self.classGraphWidget)
@@ -79,21 +120,12 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
             accuracy (float): Global accuracy of detection of the pose.
         '''
         if self.showInput:
-            self.handGraphWidget.clear()
-            self.handGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
-
+            #self.handGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
             self.updatePredictedClass(handKeypoints)
             if isHandData(handKeypoints):
+                self.handGraphWidget.plotHand(handKeypoints)
+            
 
-                colors = ['r','y','g','b','m']
-                data = [handKeypoints[:, 0:5],
-                        np.insert(handKeypoints[:, 5:9].T, 0, handKeypoints[:,0], axis=0).T,
-                        np.insert(handKeypoints[:, 9:13].T, 0, handKeypoints[:,0], axis=0).T,
-                        np.insert(handKeypoints[:, 13:17].T, 0, handKeypoints[:,0], axis=0).T,
-                        np.insert(handKeypoints[:, 17:21].T, 0, handKeypoints[:,0], axis=0).T]
-                for i in range(len(data)):
-                    self.handGraphWidget.plot(data[i][0], data[i][1], symbol='o', symbolSize=7, symbolBrush=(colors[i]))
-    
     def updatePredictedClass(self, keypoints:np.ndarray):
         ''' Draw keypoints of a hand pose in the widget.
         
