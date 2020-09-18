@@ -46,7 +46,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.minusButton, 1,1,1,1)
         self.minusButton.setEnabled(False)
         self.minusButton.clicked.connect(lambda: self.setCurrentDataIndex(self.currentDataIndex-1))
-        QtWidgets.QShortcut(QtCore.Qt.Key_Left, self, lambda: self.setCurrentDataIndex(self.currentDataIndex-1))
+        QtWidgets.QShortcut(QtGui.QKeySequence("left"), self, lambda: self.setCurrentDataIndex(self.currentDataIndex-1))
 
         self.currentIndexLine = QtWidgets.QLineEdit(str(self.currentDataIndex))
         self.currentIndexLine.setValidator(QtGui.QDoubleValidator())
@@ -64,7 +64,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.plusButton, 1,4,1,1)
         self.plusButton.setEnabled(False)
         self.plusButton.clicked.connect(lambda: self.setCurrentDataIndex(self.currentDataIndex+1))
-        QtWidgets.QShortcut(QtCore.Qt.Key_Right, self, lambda: self.setCurrentDataIndex(self.currentDataIndex+1))
+        QtWidgets.QShortcut(QtGui.QKeySequence("right"), self, lambda: self.setCurrentDataIndex(self.currentDataIndex+1))
 
         self.deleteButton = QtWidgets.QPushButton('Delete entry')
         self.deleteButton.setEnabled(False)
