@@ -5,17 +5,14 @@ run:
 # formatting
 
 fmt-black:
-	poetry run black beancount_n26/ tests/
+	poetry run black openhand_classifier/ tests/
 
 # lint
 
 lint-black:
-	poetry run black --check beancount_n26/ tests/
+	poetry run black --check openhand_classifier/src/ tests/
 
-lint-flake8:
-	poetry run flake8 beancount_n26/ tests/
-
-lint: lint-black lint-flake8
+lint: lint-black
 
 # test
 
