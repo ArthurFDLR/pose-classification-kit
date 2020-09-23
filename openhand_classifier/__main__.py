@@ -117,7 +117,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.AnalysisThread.terminate()
             #self.cameraInput.terminate()
             time.sleep(1.0)
-            print(self.cameraInput.deleteTmpImage())
+            #print(self.cameraInput.deleteTmpImage())
         else:
             event.ignore()
     
