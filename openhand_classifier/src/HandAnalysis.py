@@ -46,17 +46,12 @@ class BarGraphWidget(QtWidgets.QWidget):
         self.ax.set_xlim(0.0, 1.0)
         self.ax.set_ylim(0.0, 1.0)
 
-        font = {'family': 'serif',
-            'color':  'darkred',
-            'weight': 'normal',
-            'fontsize': 'smaller',
-        }
-
-        self.initPlot(self.nbrCategories)
+        self.changeCategories([])
         self.updateValues(np.random.rand(self.nbrCategories))
     
-    def initPlot(self, nbrBar:int):
-        self.nbrCategories = nbrBar
+    def changeCategories(self, categories:int):
+        self.clear()
+        self.nbrCategories = len(categories)
         if self.nbrCategories == 0:
             bottom = 0
             top = 0
@@ -94,6 +89,17 @@ class BarGraphWidget(QtWidgets.QWidget):
             barpath, facecolor='green', alpha=0.5) #edgecolor='yellow', 
         self.ax.add_patch(patch)
 
+        # Add category names
+        font = {'family': 'serif',
+            'color':  'darkred',
+            'weight': 'normal',
+            'fontsize': 'large',
+        }
+
+        for i, cat in enumerate(categories):
+            posy = (bottom[i]*2 + top[i])/3.
+            self.ax.text(0.01, posy, cat, fontdict=font)
+
         self.canvas.draw()
 
     def updateValues(self, values:np.ndarray):
@@ -101,10 +107,8 @@ class BarGraphWidget(QtWidgets.QWidget):
         self.verts[3::5, 0] = values + self.offset_nullValue
         self.canvas.draw()
     
-    def changeCategories(self, categories):
-        self.initPlot(len(categories))
-        for cat in categories:
-            self.ax.text(0.01, 0.5, r'$\cos(2 \pi t) \exp(-t)$', fontdict=font)
+    def clear(self):
+        self.ax.clear()
 
 
 class HandPlotWidget(QtWidgets.QWidget):
