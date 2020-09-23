@@ -1,6 +1,5 @@
 import time
 import sys
-import pyqtgraph as pg
 import sys
 
 from src.qt import QtWidgets, QtGui
@@ -48,14 +47,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.AnalysisThread.start()
         self.AnalysisThread.setState(True)
-
-        self.graphWidget = pg.PlotWidget()
-        self.graphWidget.setBackground('w')
-        self.graphWidget.setXRange(-1.0, 1.0)
-        self.graphWidget.setYRange(-1.0, 1.0)
-        #self.graphWidget.setMinimumSize(videoHeight,videoHeight)
-        self.graphWidget.setAspectLocked(True)
-        #self.layout.addWidget(self.graphWidget, 0,1,2,1)
 
         self.classifierWidget = PoseClassifier.PoseClassifierWidget(self)
         self.layout.addWidget(self.classifierWidget,2,2,1,2)
