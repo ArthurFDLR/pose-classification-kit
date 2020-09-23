@@ -38,7 +38,7 @@ class PoseClassifierWidget(QtWidgets.QWidget):
         self.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableWidget.setFocusPolicy(QtCore.Qt.NoFocus)
         self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
-        self.layout.addWidget(self.tableWidget,0,0,1,3)
+        #self.layout.addWidget(self.tableWidget,0,0,1,3)
 
 
     def loadModel(self, name:str):

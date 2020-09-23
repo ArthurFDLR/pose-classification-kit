@@ -58,7 +58,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.layout.addWidget(self.graphWidget, 0,1,2,1)
 
         self.classifierWidget = PoseClassifier.PoseClassifierWidget(self)
-        self.layout.addWidget(self.classifierWidget,1,1,1,1)
+        self.layout.addWidget(self.classifierWidget,2,2,1,2)
 
         self.leftHandAnalysis = HandAnalysis.HandAnalysisWidget(0)
         self.classifierWidget.newClassifierModel_Signal.connect(self.leftHandAnalysis.newModelLoaded)

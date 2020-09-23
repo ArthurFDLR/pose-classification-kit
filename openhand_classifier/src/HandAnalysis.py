@@ -98,7 +98,7 @@ class BarGraphWidget(QtWidgets.QWidget):
 
         for i, cat in enumerate(categories):
             posy = (bottom[i]*2 + top[i])/3.
-            self.ax.text(0.01, posy, cat, fontdict=font)
+            self.ax.text(0.05, posy, cat, fontdict=font)
 
         self.canvas.draw()
 
