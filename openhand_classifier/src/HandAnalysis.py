@@ -1,11 +1,9 @@
-import pyqtgraph as pg
 import numpy as np
 import os
 
 from matplotlib.backends.qt_compat import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvas, NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
-from matplotlib.lines import Line2D
+from matplotlib import figure, lines, patches, path
 
 from .qt import QtWidgets, QtCore, \
     PYSIDE2_LOADED, PYQT5_LOADED
@@ -35,24 +33,98 @@ except:
     TF_LOADED = False
 
 
+class BarGraphWidget(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        layout = QtWidgets.QVBoxLayout(self)
+        self.canvas = FigureCanvas(figure.Figure(figsize=(5, 3)))
+        layout.addWidget(self.canvas)
+
+        self.nbrCategories = 0
+        self.offset_nullValue = .01
+        self.ax = self.canvas.figure.subplots()
+        self.ax.set_xlim(0.0, 1.0)
+        self.ax.set_ylim(0.0, 1.0)
+
+        font = {'family': 'serif',
+            'color':  'darkred',
+            'weight': 'normal',
+            'fontsize': 'smaller',
+        }
+
+        self.initPlot(self.nbrCategories)
+        self.updateValues(np.random.rand(self.nbrCategories))
+    
+    def initPlot(self, nbrBar:int):
+        self.nbrCategories = nbrBar
+        if self.nbrCategories == 0:
+            bottom = 0
+            top = 0
+            left = 0
+            right = self.offset_nullValue
+            nrects = 0
+
+        else:
+            bins = np.array([float(i)/self.nbrCategories for i in range(self.nbrCategories+1)])
+
+            bottom = bins[:-1] + (.1/self.nbrCategories)
+            top = bins[1:] - (.1/self.nbrCategories)
+            left = np.zeros(len(top))
+            right = left + self.offset_nullValue
+            nrects = len(top)
+
+        nverts = nrects * (1 + 3 + 1)
+        self.verts = np.zeros((nverts, 2))
+        codes = np.full(nverts, path.Path.LINETO)
+        codes[0::5] = path.Path.MOVETO
+        codes[4::5] = path.Path.CLOSEPOLY
+        self.verts[0::5, 0] = left
+        self.verts[0::5, 1] = bottom
+        self.verts[1::5, 0] = left
+        self.verts[1::5, 1] = top
+        self.verts[2::5, 0] = right
+        self.verts[2::5, 1] = top
+        self.verts[3::5, 0] = right
+        self.verts[3::5, 1] = bottom
+
+        patch = None
+
+        barpath = path.Path(self.verts, codes)
+        patch = patches.PathPatch(
+            barpath, facecolor='green', alpha=0.5) #edgecolor='yellow', 
+        self.ax.add_patch(patch)
+
+        self.canvas.draw()
+
+    def updateValues(self, values:np.ndarray):
+        self.verts[2::5, 0] = values + self.offset_nullValue
+        self.verts[3::5, 0] = values + self.offset_nullValue
+        self.canvas.draw()
+    
+    def changeCategories(self, categories):
+        self.initPlot(len(categories))
+        for cat in categories:
+            self.ax.text(0.01, 0.5, r'$\cos(2 \pi t) \exp(-t)$', fontdict=font)
+
+
 class HandPlotWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         layout = QtWidgets.QVBoxLayout(self)
-        self.static_canvas = FigureCanvas(Figure(figsize=(5, 3)))
-        layout.addWidget(self.static_canvas)
+        self.canvas = FigureCanvas(figure.Figure(figsize=(5, 3)))
+        layout.addWidget(self.canvas)
 
-        self.ax = self.static_canvas.figure.subplots()
+        self.ax = self.canvas.figure.subplots()
         self.ax.set_xlim([-1.,1.])
         self.ax.set_ylim([-1.,1.])
         self.ax.set_aspect('equal')
 
         self.fingerLines = [
-            Line2D([], [], color='r'),
-            Line2D([], [], color='y'),
-            Line2D([], [], color='g'),
-            Line2D([], [], color='b'),
-            Line2D([], [], color='m')]
+            lines.Line2D([], [], color='r'),
+            lines.Line2D([], [], color='y'),
+            lines.Line2D([], [], color='g'),
+            lines.Line2D([], [], color='b'),
+            lines.Line2D([], [], color='m')]
 
         for line in self.fingerLines:
             self.ax.add_line(line)
@@ -67,12 +139,12 @@ class HandPlotWidget(QtWidgets.QWidget):
                     np.insert(handKeypoints[:, 17:21].T, 0, handKeypoints[:,0], axis=0).T]
             for i,line in enumerate(self.fingerLines):
                 line.set_data(data[i][0], data[i][1])
-        self.static_canvas.draw()
+        self.canvas.draw()
     
     def clear(self):
         for line in self.fingerLines:
             line.set_data([], [])
-        self.static_canvas.draw()
+        self.canvas.draw()
 
 
 class HandAnalysisWidget(QtWidgets.QGroupBox):
@@ -88,13 +160,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.layout=QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
 
-        self.classGraphWidget = pg.PlotWidget()
-        self.classGraphWidget.setBackground('w')
-        self.classGraphWidget.setYRange(0.0, 1.0)
-        self.classGraphWidget.setTitle('Predicted class: ')
-
-        self.outputGraph = pg.BarGraphItem(x=range(len(self.classOutputs)), height=[0]*len(self.classOutputs), width=0.6, brush='k')
-        self.classGraphWidget.addItem(self.outputGraph)
+        self.classGraphWidget = BarGraphWidget()
 
         if self.showInput:
             self.handGraphWidget = HandPlotWidget()
@@ -124,6 +190,8 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
             self.updatePredictedClass(handKeypoints)
             if isHandData(handKeypoints):
                 self.handGraphWidget.plotHand(handKeypoints)
+            else:
+                self.handGraphWidget.clear()
             
 
     def updatePredictedClass(self, keypoints:np.ndarray):
@@ -133,7 +201,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
             keypoints (np.ndarray((3,21),float)): Coordinates x, y and the accuracy score for each 21 key points.
         '''
 
-        prediction = [0]*len(self.classOutputs)
+        prediction = [0 for i in self.classOutputs]
         title = 'Predicted class: None'
         if type(keypoints) != type(None):
             inputData = []
@@ -147,24 +215,20 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
                 self.currentPrediction = self.classOutputs[np.argmax(prediction)]
                 title = 'Predicted class: ' + self.currentPrediction
 
-        self.outputGraph.setOpts(height=prediction)
-        self.classGraphWidget.setTitle(title)
+        self.classGraphWidget.updateValues(np.array(prediction))
     
     def newModelLoaded(self, urlModel:str, classOutputs:list, handID:int):
         if TF_LOADED:
             if urlModel == 'None':
                 self.modelClassifier = None
                 self.classOutputs = []
-                self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
-            
+                self.classGraphWidget.changeCategories(self.classOutputs)
             else:
                 if handID == self.handID:
                     self.modelClassifier = tf.keras.models.load_model(urlModel)
                     self.classOutputs = classOutputs
-                    self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
-                    self.modelClassifier = tf.keras.models.load_model(urlModel)
-                    self.classOutputs = classOutputs
-                    self.outputGraph.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
+                    self.classGraphWidget.changeCategories(self.classOutputs)
+                    #self.classGraphWidget.setOpts(x=range(1,len(self.classOutputs)+1), height=[0]*len(self.classOutputs))
             
     def getCurrentPrediction(self)->str:
         return self.currentPrediction

@@ -320,7 +320,10 @@ class VideoAnalysisThread(QtCore.QThread):
             rightShoulder_x, rightShoulder_y, rightShoulder_a = poseKeypoints[2]
             leftShoulder_x, leftShoulder_y, leftShoulder_a = poseKeypoints[5]
             
-            shoulderSlope = (rightShoulder_y - leftShoulder_y) / (rightShoulder_x - leftShoulder_x)
+            try:
+                shoulderSlope = (rightShoulder_y - leftShoulder_y) / (rightShoulder_x - leftShoulder_x)
+            except:
+                shoulderSlope = 0.0
             shoulderOri = rightShoulder_y - shoulderSlope * rightShoulder_x
 
             if leftHand_a > 0.1:
