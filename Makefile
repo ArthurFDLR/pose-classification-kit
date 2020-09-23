@@ -5,7 +5,7 @@ run:
 # formatting
 
 fmt-black:
-	poetry run black openhand_classifier/src/
+	poetry run black openhand_classifier/src/ tests/
 
 # lint
 
