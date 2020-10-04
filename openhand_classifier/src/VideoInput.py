@@ -5,13 +5,11 @@ import time
 import numpy as np
 import sys
 
+from __init__ import openposePATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
 from .Util import mat2QImage
 
 
-# Path to OpenPose installation folder on your system.
-
-openposePATH = pathlib.Path("C:/") / "Program files" / "OpenPose"
 try:
     sys.path.append(str(openposePATH / "build" / "python" / "openpose" / "Release"))
     releasePATH = openposePATH / "build" / "x64" / "Release"
@@ -214,10 +212,10 @@ class VideoAnalysisThread(QtCore.QThread):
             netRes = 15  # Default 22
             params["net_resolution"] = "-1x" + str(16 * netRes)
 
-        self.opWrapper = op.WrapperPython()
-        self.datum = op.Datum()
-        self.opWrapper.configure(params)
-        self.opWrapper.start()
+            self.opWrapper = op.WrapperPython()
+            self.datum = op.Datum()
+            self.opWrapper.configure(params)
+            self.opWrapper.start()
 
         self.lastTime = time.time()
         self.emissionFPS = 3.0
