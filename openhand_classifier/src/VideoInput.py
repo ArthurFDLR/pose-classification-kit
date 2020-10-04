@@ -5,16 +5,16 @@ import time
 import numpy as np
 import sys
 
-from __init__ import openposePATH
+from __init__ import OPENPOSE_PATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
 from .Util import mat2QImage
 
 
 try:
-    sys.path.append(str(openposePATH / "build" / "python" / "openpose" / "Release"))
-    releasePATH = openposePATH / "build" / "x64" / "Release"
-    binPATH = openposePATH / "build" / "bin"
-    modelsPATH = openposePATH / "models"
+    sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
+    releasePATH = OPENPOSE_PATH / "build" / "x64" / "Release"
+    binPATH = OPENPOSE_PATH / "build" / "bin"
+    modelsPATH = OPENPOSE_PATH / "models"
     os.environ["PATH"] = (
         os.environ["PATH"] + ";" + str(releasePATH) + ";" + str(binPATH) + ";"
     )
@@ -23,7 +23,7 @@ try:
     OPENPOSE_LOADED = True
 except:
     OPENPOSE_LOADED = False
-    print("OpenPose ({}) loading failed.".format(str(openposePATH)))
+    print("OpenPose ({}) loading failed.".format(str(OPENPOSE_PATH)))
 
 
 class CameraInput(QtWidgets.QMainWindow):

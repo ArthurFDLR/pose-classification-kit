@@ -6,4 +6,4 @@ from src.PoseClassifier import *
 from src.DatasetController import *
 
 # Path to OpenPose installation folder on your system.
-openposePATH = pathlib.Path("C:/") / "Program files" / "OpenPose"
+OPENPOSE_PATH = pathlib.Path("C:/") / "Program files" / "OpenPose"
