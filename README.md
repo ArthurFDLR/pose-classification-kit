@@ -75,7 +75,7 @@ Now that coordinates are normalized, the input data is flatten to be fed to the 
 
 <img src="/.github/markdown/formated_hand.png" width="400">
 
-### 3. Dataset creation - [*9809 samples for 24 output categories*](https://github.com/ArthurFDLR/OpenHand-Classifier/tree/master/Datasets)
+### Dataset creation - [*9809 samples for 24 output categories*](https://github.com/ArthurFDLR/OpenHand-Classifier/tree/master/Datasets)
 
 The dataset is composed of several classes. A class is composed of two text files, one for each hand. The dataset is structured as follow:
 
@@ -126,6 +126,7 @@ A couple of minutes of recording with the provided tool is enough to generate en
 
 ### The pose classifier - a simple ANN
 
+🚧 Under construction 🚧
 
 ## User guide
 
