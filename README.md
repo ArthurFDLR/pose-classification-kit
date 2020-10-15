@@ -1,4 +1,4 @@
-# OpenHand classifier
+# <h1 align = "center"> OpenHand classifier
 
 [![Linting](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
@@ -7,7 +7,7 @@ This classifier is build upon the excellent pose estimator [**OpenPose**](https:
 
   - [Installation](#installation)
   - [Under the hood](#under-the-hood)
-    - [OpenPose output](#openpose-output)
+    - [Features extraction](#features-extraction)
     - [Keypoints normalization](#keypoints-normalization)
     - [Dataset creation - *9809 samples for 24 output categories*](#dataset-creation---9809-samples-for-24-output-categories)
     - [The pose classifier - a simple ANN](#the-pose-classifier---a-simple-ann)
@@ -32,7 +32,7 @@ Even if **OpenHand classifier** can run without [**OpenPose**](https://github.co
 
 ## Under the hood
 
-### OpenPose output
+### Features extraction
 
 The 21 hand keypoints (2D) used as input for this classifier are produced by OpenPose. The hand output format is as follow:
 
