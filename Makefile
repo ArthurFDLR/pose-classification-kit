@@ -2,6 +2,12 @@
 run:
 	poetry run python .\openhand_classifier
 
+run37:
+	python37 -m poetry run python .\openhand_classifier
+
+dataset:
+	python37 -m poetry run python .\openhand_classifier\scripts\DatasetBuilder.py
+
 # formatting
 
 fmt-black:
