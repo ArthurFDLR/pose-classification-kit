@@ -13,6 +13,7 @@ numpy = "<1.19.0" # Match tensorflow requirement
 matplotlib = "^3.3.2"
 pyside2 = "^5.15.1"
 pandas = "^1.1.3"
+tqdm = "^4.50.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
