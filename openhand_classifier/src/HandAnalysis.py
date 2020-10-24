@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-from matplotlib.backends.qt_compat import QtCore, QtWidgets
+#from matplotlib.backends.qt_compat import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar,
@@ -50,7 +50,6 @@ class BarGraphWidget(QtWidgets.QWidget):
         self.ax = self.canvas.figure.subplots()
         self.ax.set_xlim(0.0, 1.0)
         self.ax.set_ylim(0.0, 1.0)
-
         self.changeCategories([])
         self.updateValues(np.random.rand(self.nbrCategories))
 
@@ -173,6 +172,9 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
 
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
+        
+        self.predictionLabel = QtWidgets.QLabel(self)
+        self.layout.addWidget(self.predictionLabel)
 
         self.classGraphWidget = BarGraphWidget()
 
@@ -215,7 +217,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         """
 
         prediction = [0 for i in self.classOutputs]
-        title = "Predicted class: None"
+        title = ""
         if type(keypoints) != type(None):
             inputData = []
             for i in range(keypoints.shape[1]):
@@ -226,9 +228,10 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
             if self.modelClassifier is not None:
                 prediction = self.modelClassifier.predict(np.array([inputData]))[0]
                 self.currentPrediction = self.classOutputs[np.argmax(prediction)]
-                title = "Predicted class: " + self.currentPrediction
+                title = self.currentPrediction
 
         self.classGraphWidget.updateValues(np.array(prediction))
+        self.setPredictionText(title)
 
     def newModelLoaded(self, urlModel: str, classOutputs: list, handID: int):
         if TF_LOADED:
@@ -244,3 +247,6 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
 
     def getCurrentPrediction(self) -> str:
         return self.currentPrediction
+    
+    def setPredictionText(self, prediction:str):
+        self.predictionLabel.setText(prediction)
