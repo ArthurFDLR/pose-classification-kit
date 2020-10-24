@@ -8,6 +8,9 @@ run37:
 dataset:
 	python37 -m poetry run python .\openhand_classifier\scripts\DatasetBuilder.py
 
+video_overlay:
+	python37 -m poetry run python .\openhand_classifier\scripts\video_creation.py
+
 # formatting
 
 fmt-black:
