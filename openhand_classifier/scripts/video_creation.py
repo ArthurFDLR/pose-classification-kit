@@ -142,7 +142,7 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
             classifier_labels = first_line.split(",")
 
     # Open video
-    video_path = current_path / 'video' / 'hand_gesture_test.mp4'
+    video_path = current_path / 'video' / 'hand_gesture.mp4'
     video_in = cv2.VideoCapture(str(video_path))
     video_nbr_frame = getFrameNumber(video_in)
 
@@ -166,7 +166,7 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
     opWrapper.start()
 
     # Analyse video
-    print("\n\nPress 'q' to stop analysis")
+    #print("\n\nPress 'q' to stop analysis") Collapse with tqdm
     for _ in tqdm(range(video_nbr_frame), 'Creating video'):
         if not video_in.isOpened():
             break
@@ -184,13 +184,16 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
             else:
                 break
             
+            wrists_positions = [(0, 0),(0, 0)]
+            if datum.poseKeypoints.ndim > 1:
+                body_keypoints = np.array(datum.poseKeypoints[0])
+                wrists_positions = [(body_keypoints[7][0], body_keypoints[7][1]),
+                                    (body_keypoints[4][0], body_keypoints[4][1])]
             hand_keypoints = np.array(datum.handKeypoints)
-            body_keypoints = np.array(datum.poseKeypoints[0])
-            wrists_positions = [(body_keypoints[7][0], body_keypoints[7][1]),
-                                (body_keypoints[4][0], body_keypoints[4][1])]
             hand_data, _ = format_data(hand_keypoints, hand_id)
 
             # OpenHand analysis
+            prediction_label = ''
             if type(hand_data) != type(None):
                 prediction_probabilities = hand_classifiers[hand_id].predict(np.array([hand_data]))[0]
                 prediction_label = classifier_labels[np.argmax(prediction_probabilities)]
