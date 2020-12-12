@@ -3,6 +3,7 @@ import cv2
 import pathlib
 import sys
 import os
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 OPENPOSE_PATH = pathlib.Path("C:/") / "Program files" / "OpenPose"
@@ -124,7 +125,31 @@ def getHeight(video)->int:
 
 def getWidth(video)->int:
     return int(video.get(3))
-    
+
+def create_plot(classifier_labels, prediction_probabilities, save_url):
+    assert(len(classifier_labels) == len(prediction_probabilities))
+    fig, ax = plt.subplots(figsize=(4,10))
+    fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+    plt.box(on=None)
+    plt.tick_params(
+        axis='x',
+        which='both',
+        bottom=False,
+        top=False,
+        labelbottom=False)
+    plt.tick_params(
+        axis='y',
+        direction="in",
+        pad=-50,
+        which='both',
+        left=False,
+        labelleft=True)
+    ax.set_yticks(np.arange(len(prediction_probabilities)))
+    ax.set_yticklabels(classifier_labels)
+    ax.barh(np.arange(len(prediction_probabilities)), prediction_probabilities)
+    fig.savefig(save_url, transparent=True, dpi=108, pad_inches=0.)
+    plt.close(fig)
+
 if __name__ == "__main__" and OPENPOSE_LOADED:
     current_path = pathlib.Path.cwd()
 
@@ -142,12 +167,15 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
             classifier_labels = first_line.split(",")
 
     # Open video
-    video_path = current_path / 'video' / 'hand_gesture.mp4'
+    video_path = current_path / 'video' / 'hand_gesture_raw.mp4'
     video_in = cv2.VideoCapture(str(video_path))
     video_nbr_frame = getFrameNumber(video_in)
 
     # Create output video
-    video_out_path = current_path / 'video' / 'output' / 'output.avi'
+    outputs_name = 'output_test'
+    video_out_path = current_path / 'video' / 'output' / (outputs_name+'.avi')
+    barchart_out_path = current_path / 'video' / 'output' / outputs_name
+    barchart_out_path.mkdir(exist_ok=True)
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     video_out = cv2.VideoWriter(str(video_out_path), fourcc, getFPS(video_in), (getWidth(video_in), getHeight(video_in)))
 
@@ -167,7 +195,7 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
 
     # Analyse video
     #print("\n\nPress 'q' to stop analysis") Collapse with tqdm
-    for _ in tqdm(range(video_nbr_frame), 'Creating video'):
+    for frame_index in tqdm(range(video_nbr_frame), 'Creating video'):
         if not video_in.isOpened():
             break
         else:
@@ -194,15 +222,10 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
 
             # OpenHand analysis
             prediction_label = ''
+            prediction_probabilities = np.zeros(len(classifier_labels))
             if type(hand_data) != type(None):
                 prediction_probabilities = hand_classifiers[hand_id].predict(np.array([hand_data]))[0]
                 prediction_label = classifier_labels[np.argmax(prediction_probabilities)]
-
-            # Overlay result on video
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            scale = 1
-            color = (255, 0, 255)
-            cv2.putText(frame, prediction_label, wrists_positions[hand_id], font, scale, color, 2, cv2.LINE_AA)
 
             # Display image
             cv2.imshow('frame',frame)
@@ -210,9 +233,13 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
             # Write image
             video_out.write(frame)
 
+            # Create probabilities barchart
+            create_plot(classifier_labels[:-1], prediction_probabilities[:-1], barchart_out_path / '{}.png'.format(frame_index))
+            
             # Control
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+
 
     video_in.release()
     video_out.release()
