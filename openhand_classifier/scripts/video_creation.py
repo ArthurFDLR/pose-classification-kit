@@ -129,7 +129,7 @@ def getWidth(video)->int:
 def create_plot(classifier_labels, prediction_probabilities, save_url):
     assert(len(classifier_labels) == len(prediction_probabilities))
     fig, ax = plt.subplots(figsize=(4,10))
-    fig.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+    fig.subplots_adjust(left=0.1, right=0.9, top=0.96, bottom=0.04)
     plt.box(on=None)
     plt.tick_params(
         axis='x',
@@ -146,7 +146,7 @@ def create_plot(classifier_labels, prediction_probabilities, save_url):
         labelleft=True)
     ax.set_yticks(np.arange(len(prediction_probabilities)))
     ax.set_yticklabels(classifier_labels)
-    ax.barh(np.arange(len(prediction_probabilities)), prediction_probabilities)
+    ax.barh(np.arange(len(prediction_probabilities)), prediction_probabilities, color='#9500ff')
     fig.savefig(save_url, transparent=True, dpi=108, pad_inches=0.)
     plt.close(fig)
 
@@ -211,7 +211,6 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
                 frame = datum.cvOutputData
             else:
                 break
-            
             wrists_positions = [(0, 0),(0, 0)]
             if datum.poseKeypoints.ndim > 1:
                 body_keypoints = np.array(datum.poseKeypoints[0])
@@ -226,6 +225,16 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
             if type(hand_data) != type(None):
                 prediction_probabilities = hand_classifiers[hand_id].predict(np.array([hand_data]))[0]
                 prediction_label = classifier_labels[np.argmax(prediction_probabilities)]
+            prediction_label = prediction_label.replace('_', ' ')
+
+            # Overlay result on video
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            scale = 2
+            thickness = 2
+            color = (255, 0, 149)
+            (label_width, label_height), baseline = cv2.getTextSize(prediction_label, font, scale, thickness)
+            txt_position = tuple(map(lambda i, j: int(i - j), wrists_positions[hand_id], (label_width+80, 70)))
+            cv2.putText(frame, prediction_label, txt_position, font, scale, color, thickness, lineType = cv2.LINE_AA)
 
             # Display image
             cv2.imshow('frame',frame)
