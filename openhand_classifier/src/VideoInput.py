@@ -7,7 +7,7 @@ import sys
 
 from __init__ import OPENPOSE_PATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
-from .Util import mat2QImage
+from .Util import mat2QImage, SwitchButton, VLine
 
 
 try:
@@ -26,12 +26,9 @@ except:
     print("OpenPose ({}) loading failed.".format(str(OPENPOSE_PATH)))
 
 
-class CameraInput(QtWidgets.QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super(CameraInput, self).__init__(*args, **kwargs)
-
+class CameraInput():
+    def __init__(self):
         self.available_cameras = QtMultimedia.QCameraInfo.availableCameras()
-
         if not self.available_cameras:
             print("No camera")
             pass  # quit
@@ -113,31 +110,97 @@ class CameraInput(QtWidgets.QMainWindow):
 """
 
 
-class VideoViewerWidget(QtWidgets.QGroupBox):
+class VideoViewerWidget(QtWidgets.QWidget):
     changeCameraID_signal = pyqtSignal
+    stylesheet = """
+    #Video_viewer {
+        background-color: white;
+        border-radius: 3px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QLabel {
+    font-size: 16px;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QPushButton {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: white;
+    padding: 3px;
+    }
+    #OpenPose_button {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: #ffcccc;
+    padding: 3px;
+    }
+    QComboBox {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: white;
+    }
+    QPushButton:hover {
+        border-color: rgb(139, 173, 228);
+    }
+    QPushButton:pressed {
+        background: #cbcbcb;
+    }
+    #OpenPose_button:checked {
+        background: #ccffcc;
+    }
+    """
 
     def __init__(self, availableCameras):
-        super().__init__("Camera feed")
-
+        super().__init__()
         self.availableCameras = availableCameras
 
-        self.layout = QtWidgets.QGridLayout(self)
-        self.setLayout(self.layout)
+        ## Widget style
+        self.setObjectName('Video_viewer')
+        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
+        self.setStyleSheet(self.stylesheet)
 
+        effect = QtWidgets.QGraphicsDropShadowEffect(self)
+        effect.setBlurRadius(10)
+        effect.setOffset(0, 0)
+        effect.setColor(QtCore.Qt.gray)
+        self.setGraphicsEffect(effect)
+
+        ## Widgets initialisation
         self.rawCamFeed = QtWidgets.QLabel(self)
 
         self.infoLabel = QtWidgets.QLabel("No info")
 
         self.refreshButton = QtWidgets.QPushButton("Refresh camera list")
+        self.refreshButton.resize(self.refreshButton.sizeHint())
 
         self.camera_selector = QtWidgets.QComboBox()
         self.camera_selector.addItems([c.description() for c in self.availableCameras])
 
+
+        self.recordButton = QtWidgets.QPushButton("OpenPose analysis")
+        self.recordButton.setObjectName("OpenPose_button")
+        self.recordButton.setCheckable(True)
+        #self.recordButton.clickedChecked.connect(self.startRecording)
+
+        ## Widget structure
+        self.layout = QtWidgets.QGridLayout(self)
+        self.setLayout(self.layout)
+        self.layout.setColumnStretch(0,0)
+        self.layout.setColumnStretch(1,0)
+        self.layout.setColumnStretch(2,0)
+        self.layout.setColumnStretch(3,0)
+        self.layout.setColumnStretch(4,1)
+
         if OPENPOSE_LOADED:
-            self.layout.addWidget(self.rawCamFeed, 0, 0, 1, 3)
-            self.layout.addWidget(self.infoLabel, 1, 2, 1, 1)
+            self.layout.addWidget(self.rawCamFeed, 0, 0, 1, 5)
             self.layout.addWidget(self.refreshButton, 1, 0, 1, 1)
             self.layout.addWidget(self.camera_selector, 1, 1, 1, 1)
+            self.layout.addWidget(VLine(), 1, 2, 1, 1)
+            self.layout.addWidget(self.recordButton, 1, 3, 1, 1)
+            self.layout.addWidget(self.infoLabel, 1, 4, 1, 1)
         else:
             label = QtWidgets.QLabel(
                 "Video analysis impossible.\nCheck OpenPose installation."
@@ -156,28 +219,6 @@ class VideoViewerWidget(QtWidgets.QGroupBox):
                 QtCore.Qt.SmoothTransformation,
             )
         )
-
-    def resizeEvent(self, event):
-        if self.autoAdjustable:
-            try:
-                w = self.rawCamFeed.width()
-                h = self.rawCamFeed.height()
-                pixmap = self.currentPixmap.scaled(
-                    w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
-                )
-                self.rawCamFeed.setPixmap(pixmap)
-                self.rawCamFeed.setMinimumSize(100, 100)
-
-                w = self.pepperCamFeed.width()
-                h = self.pepperCamFeed.height()
-                self.pepperCamFeed.setPixmap(
-                    self.pepperCamFeed.scaled(
-                        w, h, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
-                    )
-                )
-                self.pepperCamFeed.setMinimumSize(100, 100)
-            except:
-                pass
 
     def setVideoSize(self, width: int, height: int):
         self.rawCamFeed.setFixedSize(width, height)

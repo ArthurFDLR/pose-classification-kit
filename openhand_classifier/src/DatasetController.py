@@ -9,6 +9,32 @@ from .Util import SwitchButton, ScrollLabel, VLine, mat2QImage, isHandData
 
 class DatasetControllerWidget(QtWidgets.QWidget):
     realTimeHandDraw_Signal = pyqtSignal(bool)
+    stylesheet = """
+    #Dataset_Controller {
+        background-color: white;
+        border-radius: 3px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    
+    QPushButton {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: white;
+    }
+    QComboBox {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: white;
+    }
+    QPushButton:hover {
+        border-color: rgb(139, 173, 228);
+    }
+    QPushButton:pressed {
+        color: #cbcbcb;
+    }
+    """
 
     def __init__(self, parent):
         super().__init__(parent=parent)
@@ -22,6 +48,17 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.accuracyList = []
         self.currentDataIndex = 0
         self.datasetSaved = True
+
+        ## Widget style
+        self.setObjectName('Dataset_Controller')
+        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
+        self.setStyleSheet(self.stylesheet)
+
+        effect = QtWidgets.QGraphicsDropShadowEffect(self)
+        effect.setBlurRadius(10)
+        effect.setOffset(0, 0)
+        effect.setColor(QtCore.Qt.gray)
+        self.setGraphicsEffect(effect)
 
         ## Widgets initialisation
         self.layout = QtWidgets.QGridLayout(self)

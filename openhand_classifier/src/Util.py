@@ -63,15 +63,16 @@ def resizeCvFrame(frame, ratio: float):
 class SwitchButton(QtWidgets.QPushButton):
     clickedChecked = pyqtSignal(bool)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, fixed_label:str = ''):
         super().__init__(parent)
         self.setCheckable(True)
-        self.setMinimumWidth(66)
-        self.setMinimumHeight(22)
         self.clicked.connect(self.click)
+        self.label = fixed_label
+        self.fixed_label = (len(fixed_label) > 0)
+        self.setMinimumWidth(22 * max(3, len(fixed_label)))
+        self.setMinimumHeight(22)
 
     def paintEvent(self, event):
-        label = "ON" if self.isChecked() else "OFF"
         if self.isEnabled():
             bg_color = QtCore.Qt.green if self.isChecked() else QtCore.Qt.red
         else:
@@ -97,7 +98,10 @@ class SwitchButton(QtWidgets.QPushButton):
         if not self.isChecked():
             sw_rect.moveLeft(-width)
         painter.drawRoundedRect(sw_rect, radius, radius)
-        painter.drawText(sw_rect, QtCore.Qt.AlignCenter, label)
+
+        if not self.fixed_label:
+            self.label = "ON" if self.isChecked() else "OFF"
+        painter.drawText(sw_rect, QtCore.Qt.AlignCenter, self.label)
 
     def click(self):
         b = self.isChecked()
