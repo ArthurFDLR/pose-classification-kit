@@ -1,9 +1,10 @@
 import time
 import sys
 import sys
+import qimage2ndarray
+import numpy as np
 
 from src.qt import QtWidgets, QtGui
-
 from src import DatasetController, VideoInput, HandAnalysis, PoseClassifier
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -27,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.realTimeHandDraw = True
  
         ## Widgets
-        self.cameraInput = VideoInput.CameraInput()
+        self.cameraInput = VideoInput.CameraInput(emission_fps = 10)
 
         self.videoViewer = VideoInput.VideoViewerWidget(self.cameraInput.getAvailableCam())
         self.videoViewer.camera_selector.currentIndexChanged.connect(self.cameraInput.select_camera)
@@ -39,14 +40,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.datasetController.realTimeHandDraw_Signal.connect(self.changeHandDrawingState)
 
         videoHeight = 480 # 480p
-        self.AnalysisThread = VideoInput.VideoAnalysisThread(self.cameraInput)
-        self.AnalysisThread.newPixmap.connect(self.videoViewer.setImage)
-        self.AnalysisThread.newPixmap.connect(self.analyseNewImage)
+        self.AnalysisThread = VideoInput.VideoAnalysisThread()
+        self.cameraInput.newMatAvailable.connect(self.AnalysisThread.newMatAnalysis)
+        self.AnalysisThread.newMat.connect(self.processNewFrame)
         self.AnalysisThread.setResolutionStream(int(videoHeight * (16.0/9.0)), videoHeight)
         self.videoViewer.setVideoSize(int(videoHeight * (16.0/9.0)), videoHeight)
 
-        self.AnalysisThread.start()
         self.AnalysisThread.setState(True)
+        self.videoViewer.recordButton.clicked.connect(self.AnalysisThread.setState)
 
         self.classifierWidget = PoseClassifier.PoseClassifierWidget(self)
         self.layout.addWidget(self.classifierWidget,2,2,1,2)
@@ -95,47 +96,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tfStatusLabel = QtWidgets.QLabel('<span style="color:' + ('green' if HandAnalysis.TF_LOADED else 'red') + '">' + self.tfStatus + '</span>')
         self.statusBar.addWidget(self.tfStatusLabel)
 
-    def closeEvent(self, event):
-        print('Closing')
-        exitBool = True
-        if self.datasetController.isSaved():
-            exitBool = True
-        else:
-            reply = QtGui.QMessageBox.question(self, 'Hand pose classifier',
-                "Do you want to save " + self.datasetController.getPoseName() + ' dataset?', buttons = QtGui.QMessageBox.StandardButtons(QtGui.QMessageBox.Yes|QtGui.QMessageBox.No|QtGui.QMessageBox.Cancel))
-
-            if reply == QtGui.QMessageBox.Cancel:
-                exitBool = False
-            elif reply == QtGui.QMessageBox.No:
-                exitBool = True
-            elif reply == QtGui.QMessageBox.Yes:
-                self.datasetController.writeDataToTxt()
-                exitBool = True
-                
-        if exitBool:
-            event.accept()
-            self.AnalysisThread.terminate()
-            #self.cameraInput.terminate()
-            time.sleep(1.0)
-            #print(self.cameraInput.deleteTmpImage())
-        else:
-            event.ignore()
-    
-    def keyPressEvent(self, event):
-        print(event.key())
-        print(self.datasetController.deleteButton.isEnabled())
-        if event.key() == 16777223 and self.datasetController.deleteButton.isEnabled():
-            self.datasetController.removeEntryDataset(self.datasetController.currentDataIndex)
-    
-    def refreshCameraList(self):
-        camList = self.cameraInput.refreshCameraList()
-        if not camList:
-            print('No camera')
-        else:
-            self.videoViewer.camera_selector.clear()
-            self.videoViewer.camera_selector.addItems([c.description() for c in camList])
-
-    def analyseNewImage(self, image): # Call each time AnalysisThread emit a new pix
+    def processNewFrame(self, frame:np.ndarray):
+        self.videoViewer.setImage(qimage2ndarray.array2qimage(frame))
         self.videoViewer.setInfoText(self.AnalysisThread.getInfoText())
         
         leftHandKeypoints, leftAccuracy = self.AnalysisThread.getHandData(0)
@@ -159,6 +121,45 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.isRecording:
                     if rightAccuracy > self.datasetController.getTresholdValue():
                         self.datasetController.addEntryDataset(rightHandKeypoints, rightAccuracy)
+
+    def closeEvent(self, event):
+        print('Closing')
+        exitBool = True
+        if self.datasetController.isSaved():
+            exitBool = True
+        else:
+            reply = QtGui.QMessageBox.question(self, 'Hand pose classifier',
+                "Do you want to save " + self.datasetController.getPoseName() + ' dataset?', buttons = QtGui.QMessageBox.StandardButtons(QtGui.QMessageBox.Yes|QtGui.QMessageBox.No|QtGui.QMessageBox.Cancel))
+
+            if reply == QtGui.QMessageBox.Cancel:
+                exitBool = False
+            elif reply == QtGui.QMessageBox.No:
+                exitBool = True
+            elif reply == QtGui.QMessageBox.Yes:
+                self.datasetController.writeDataToTxt()
+                exitBool = True
+                
+        if exitBool:
+            event.accept()
+            #self.AnalysisThread.terminate()
+            time.sleep(1.0)
+        else:
+            event.ignore()
+    
+    def keyPressEvent(self, event):
+        print(event.key())
+        print(self.datasetController.deleteButton.isEnabled())
+        if event.key() == 16777223 and self.datasetController.deleteButton.isEnabled():
+            self.datasetController.removeEntryDataset(self.datasetController.currentDataIndex)
+    
+    def refreshCameraList(self):
+        camList = self.cameraInput.refreshCameraList()
+        if not camList:
+            print('No camera')
+        else:
+            self.videoViewer.camera_selector.clear()
+            self.videoViewer.camera_selector.addItems([c.description() for c in camList])
+
 
     def changeHandDrawingState(self, state:bool):
         self.realTimeHandDraw = state

@@ -4,6 +4,7 @@ import os
 import time
 import numpy as np
 import sys
+import qimage2ndarray
 
 from __init__ import OPENPOSE_PATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
@@ -26,8 +27,11 @@ except:
     print("OpenPose ({}) loading failed.".format(str(OPENPOSE_PATH)))
 
 
-class CameraInput():
-    def __init__(self):
+class CameraInput(QtCore.QObject):
+    newMatAvailable = pyqtSignal(np.ndarray)
+
+    def __init__(self, emission_fps):
+        super().__init__()
         self.available_cameras = QtMultimedia.QCameraInfo.availableCameras()
         if not self.available_cameras:
             print("No camera")
@@ -45,6 +49,14 @@ class CameraInput():
         self.capture = None
 
         self.select_camera(0)
+
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.triggerTimer)
+        self.emission_fps = emission_fps
+        self.timer.start(int(1000/self.emission_fps))
+
+    def triggerTimer(self):
+        self.capture.capture()
 
     def refreshCameraList(self):
         self.available_cameras = QtMultimedia.QCameraInfo.availableCameras()
@@ -69,49 +81,23 @@ class CameraInput():
                 QtMultimedia.QCameraImageCapture.CaptureToBuffer
             )
 
-            self.capture.imageCaptured.connect(self.storeLastFrame)
+            self.capture.imageCaptured.connect(self.newImageAvailable)
 
             self.current_camera_name = self.available_cameras[i].description()
             self.save_seq = 0
+            print('\ncamera setup: ', self.current_camera_name)
         else:
             print("No camera.")
 
-    def getLastFrame(self):
-        if self.capture:
-            imageID = self.capture.capture()
-            return self.qImageToMat(self.lastImage)
-        else:
-            return None
+    def newImageAvailable(self, idImg: int, image:QtGui.QImage):
+        incomingImage = image.convertToFormat(QtGui.QImage.Format.Format_RGB32)
+        mat = qimage2ndarray.rgb_view(incomingImage)
+        self.newMatAvailable.emit(mat)
 
-    def storeLastFrame(self, idImg: int, preview: QtGui.QImage):
-        self.lastImage = preview
-        self.lastID = idImg
-
-    def qImageToMat(self, incomingImage):
-        incomingImage.save(self.tmpUrl, "png")
-        mat = cv2.imread(self.tmpUrl)
-        return mat
-
-    def deleteTmpImage(self):
-        os.remove(self.tmpUrl)
-        self.tmpUrl = None
-
-
-""" No temporary files but too slow
-    def qImageToMat(self, incomingImage):
-        incomingImage = incomingImage.convertToFormat(4) #Set to format RGB32
-        width = incomingImage.width()
-        height = incomingImage.height()
-        ptr = incomingImage.bits() #Get pointer to first pixel
-        ptr.setsize(height * width * 4) #Get pointer to full image
-        arr = np.array(ptr).reshape(height, width, 4)  #Copies the data
-        arr = np.delete(arr, 3, 2) #Delete alpha channel
-        return arr
-"""
 
 
 class VideoViewerWidget(QtWidgets.QWidget):
-    changeCameraID_signal = pyqtSignal
+    changeCameraID_signal = pyqtSignal()
     stylesheet = """
     #Video_viewer {
         background-color: white;
@@ -183,7 +169,6 @@ class VideoViewerWidget(QtWidgets.QWidget):
         self.recordButton = QtWidgets.QPushButton("OpenPose analysis")
         self.recordButton.setObjectName("OpenPose_button")
         self.recordButton.setCheckable(True)
-        #self.recordButton.clickedChecked.connect(self.startRecording)
 
         ## Widget structure
         self.layout = QtWidgets.QGridLayout(self)
@@ -230,17 +215,14 @@ class VideoViewerWidget(QtWidgets.QWidget):
             self.infoLabel.setText("")
 
 
-class VideoAnalysisThread(QtCore.QThread):
-    newPixmap = pyqtSignal(QtGui.QImage)
+class VideoAnalysisThread(QtCore.QObject):
     newMat = pyqtSignal(np.ndarray)
 
-    def __init__(self, videoSource, qimageEmission: bool = True):
+    def __init__(self):
         super().__init__()
         self.infoText = ""
         self.personID = 0
         self.running = False
-        self.videoSource = videoSource
-        self.qimageEmission = qimageEmission
 
         ## Starting OpenPose ##
         #######################
@@ -258,38 +240,19 @@ class VideoAnalysisThread(QtCore.QThread):
             self.opWrapper.configure(params)
             self.opWrapper.start()
 
-        self.lastTime = time.time()
-        self.emissionFPS = 3.0
-        self.fixedFps = True
-
         self.videoWidth = 1280
         self.videoHeight = 720
-
-    def run(self):
-        while OPENPOSE_LOADED:
-            if self.running:
-                if (
-                    time.time() - self.lastTime > 1.0 / self.emissionFPS
-                ) or not self.fixedFps:
-                    self.lastTime = time.time()
-
-                    frame = self.videoSource.getLastFrame()
-                    if type(frame) != type(None):
-                        # Check if frame exist, frame!=None is ambigious when frame is an array
-                        frame = self.resizeCvFrame(frame, 0.5)
-                        self.datum.cvInputData = frame
-                        self.opWrapper.emplaceAndPop([self.datum])
-                        frameOutput = self.datum.cvOutputData
-                        self.newMat.emit(frameOutput)
-
-                        if self.qimageEmission:
-                            image = mat2QImage(frameOutput)
-                            image = image.scaled(
-                                self.videoWidth,
-                                self.videoHeight,
-                                QtCore.Qt.KeepAspectRatio,
-                            )
-                            self.newPixmap.emit(image)
+    
+    def newMatAnalysis(self, frame:np.ndarray):
+        if OPENPOSE_LOADED and self.running:
+            if type(frame) != type(None):
+                frame = self.resizeCvFrame(frame, 0.5)
+                self.datum.cvInputData = frame
+                self.opWrapper.emplaceAndPop([self.datum])
+                frameOutput = self.datum.cvOutputData
+                self.newMat.emit(frameOutput)
+        else:
+            self.newMat.emit(frame)
 
     @pyqtSlot(bool)
     def setState(self, s: bool):

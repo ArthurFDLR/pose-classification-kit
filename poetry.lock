@@ -516,6 +516,22 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "qimage2ndarray"
+version = "1.8.3"
+description = "Conversion between QImages and numpy.ndarrays."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numpy = "*"
+
+[package.extras]
+pyqt4 = ["pyqt4"]
+pyqt5 = ["pyqt5"]
+pyside = ["pyside"]
+
+[[package]]
 name = "regex"
 version = "2020.10.11"
 description = "Alternative regular expression module, to replace re."
@@ -744,7 +760,7 @@ testing = ["pytest (>=3.5,<3.7.3 || >3.7.3)", "pytest-checkdocs (>=1.2.3)", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<3.9"
-content-hash = "52f0e392726f0b60efdaa62582f24859074a5ca028fdbb8a8e77b13482c3afc7"
+content-hash = "2cff1b4a21b49d4b09849e3325f59be15e3aa1dec12331207196b90e9d220e4c"
 
 [metadata.files]
 absl-py = [
@@ -1168,6 +1184,10 @@ python-dateutil = [
 pytz = [
     {file = "pytz-2020.1-py2.py3-none-any.whl", hash = "sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed"},
     {file = "pytz-2020.1.tar.gz", hash = "sha256:c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048"},
+]
+qimage2ndarray = [
+    {file = "qimage2ndarray-1.8.3-py3-none-any.whl", hash = "sha256:0ee784e3c3546c74fbfcf6b958e87edb79a690d198f8a4f20ee3ec443d749bdd"},
+    {file = "qimage2ndarray-1.8.3.tar.gz", hash = "sha256:b02bd2dc7de774f954544312ec1020cf2d7e03fdd23ec9eb79901da55ccb3365"},
 ]
 regex = [
     {file = "regex-2020.10.11-cp27-cp27m-win32.whl", hash = "sha256:4f5c0fe46fb79a7adf766b365cae56cafbf352c27358fda811e4a1dc8216d0db"},
