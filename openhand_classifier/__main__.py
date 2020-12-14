@@ -1,10 +1,9 @@
 import time
 import sys
 import sys
-import qimage2ndarray
-import numpy as np
 
 from src.qt import QtWidgets, QtGui
+
 from src import DatasetController, VideoInput, HandAnalysis, PoseClassifier
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -21,7 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.realTimeHandDraw = True
  
         ## Widgets
-        self.cameraInput = VideoInput.CameraInput(emission_fps = 10)
+        self.cameraInput = VideoInput.CameraInput()
 
         self.videoViewer = VideoInput.VideoViewerWidget(self.cameraInput.getAvailableCam())
         self.videoViewer.camera_selector.currentIndexChanged.connect(self.cameraInput.select_camera)
@@ -31,14 +30,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.datasetController.realTimeHandDraw_Signal.connect(self.changeHandDrawingState)
 
         videoHeight = 480 # 480p
-        self.AnalysisThread = VideoInput.VideoAnalysisThread()
-        self.cameraInput.newMatAvailable.connect(self.AnalysisThread.newMatAnalysis)
-        self.AnalysisThread.newMat.connect(self.processNewFrame)
+        self.AnalysisThread = VideoInput.VideoAnalysisThread(self.cameraInput)
+        self.AnalysisThread.newPixmap.connect(self.videoViewer.setImage)
+        self.AnalysisThread.newPixmap.connect(self.analyseNewImage)
         self.AnalysisThread.setResolutionStream(int(videoHeight * (16.0/9.0)), videoHeight)
         self.videoViewer.setVideoSize(int(videoHeight * (16.0/9.0)), videoHeight)
 
+        self.AnalysisThread.start()
         self.AnalysisThread.setState(True)
-        self.videoViewer.recordButton.clicked.connect(self.AnalysisThread.setState)
 
         self.handClassifier = HandAnalysis.HandClassifierWidget()
 
@@ -90,32 +89,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tfStatusLabel = QtWidgets.QLabel('<span style="color:' + ('green' if HandAnalysis.TF_LOADED else 'red') + '">' + self.tfStatus + '</span>')
         self.statusBar.addWidget(self.tfStatusLabel)
 
-    def processNewFrame(self, frame:np.ndarray):
-        self.videoViewer.setImage(qimage2ndarray.array2qimage(frame))
-        self.videoViewer.setInfoText(self.AnalysisThread.getInfoText())
-        
-        leftHandKeypoints, leftAccuracy = self.AnalysisThread.getHandData(0)
-        rightHandKeypoints, rightAccuracy = self.AnalysisThread.getHandData(1)
-        poseKeypoints = self.AnalysisThread.getBodyData()
-        raisingLeft, raisingRight = self.AnalysisThread.isRaisingHand()
-        #print('Gauche: ' + str(raisingLeft))
-        #print('Droite: ' + str(raisingRight))
-
-        if self.realTimeHandDraw:
-            self.leftHandAnalysis.drawHand(leftHandKeypoints, leftAccuracy)
-            self.rightHandAnalysis.drawHand(rightHandKeypoints, rightAccuracy)
-        
-        if self.datasetController.getHandID() == 0: # Recording left hand
-            if type(leftHandKeypoints) != type(None):
-                if self.isRecording:
-                    if leftAccuracy > self.datasetController.getTresholdValue():
-                        self.datasetController.addEntryDataset(leftHandKeypoints, leftAccuracy)
-        else: # Recording right hand
-            if type(rightHandKeypoints) != type(None): # If selected hand detected
-                if self.isRecording:
-                    if rightAccuracy > self.datasetController.getTresholdValue():
-                        self.datasetController.addEntryDataset(rightHandKeypoints, rightAccuracy)
-
     def closeEvent(self, event):
         print('Closing')
         exitBool = True
@@ -135,8 +108,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 
         if exitBool:
             event.accept()
-            #self.AnalysisThread.terminate()
+            self.AnalysisThread.terminate()
+            #self.cameraInput.terminate()
             time.sleep(1.0)
+            #print(self.cameraInput.deleteTmpImage())
         else:
             event.ignore()
     
