@@ -1,8 +1,8 @@
-#from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal
-from openpose_analysis import VideoAnalysis
+from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
+from .openpose_analysis import VideoAnalysis
 
-from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+#from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
+#from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 import qimage2ndarray
 import numpy as np
@@ -36,7 +36,7 @@ class VideoViewerWidget(QtWidgets.QWidget):
         super(VideoViewerWidget, self).__init__(parent)
 
         ## Variables and initialization
-        self._run_analysis = True
+        self.run_analysis = False
         self.displayed_frame = np.array([])
 
         ## Widget Style
@@ -64,13 +64,13 @@ class VideoViewerWidget(QtWidgets.QWidget):
         ## Analysis thread initialization
         self.analysis_thread = QtCore.QThread()
         self.analysis_worker = VideoAnalysis()
-        self.analysis_worker.setState(self._run_analysis)
+        self.analysis_worker.setState(self.run_analysis)
         self.analysis_worker.moveToThread(self.analysis_thread)
 
         self.analysis_thread.started.connect(self.analysis_worker.run_analysis)
         self.analysis_thread.finished.connect(self.analysis_worker.stop)
         self.analysis_thread.finished.connect(self.analysis_worker.deleteLater)
-        self.analysis_thread.finished.connect(self.analysis_worker.deleteLater)
+        self.analysis_thread.finished.connect(self.analysis_thread.deleteLater)
         self.analysis_worker.new_analysed_frame.connect(self.display_frame)
         
         self.analysis_thread.start()
@@ -78,7 +78,7 @@ class VideoViewerWidget(QtWidgets.QWidget):
     @pyqtSlot(np.ndarray)
     def store_last_frame(self, new_frame:np.ndarray): #HWC (BGR) format
         self.analysis_worker.update_input_frame(new_frame)
-        if self._run_analysis:
+        if self.run_analysis:
             self.analysis_worker.update_input_frame(new_frame)
         else:
             self.display_frame(new_frame)
@@ -115,6 +115,85 @@ class VideoViewerWidget(QtWidgets.QWidget):
             self.video_thread.quit()
         super(VideoViewerWidget, self).closeEvent(event)
         event.accept()
+    
+    def analysis_state(self, running:bool):
+        self.run_analysis = running
+        self.analysis_worker.setState(running)
+
+
+class VideoWindow(QtWidgets.QWidget):
+    stylesheet = """
+    #Video_viewer {
+        background-color: white;
+        border-radius: 3px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QLabel {
+    font-size: 16px;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QPushButton {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: white;
+    padding: 3px;
+    }
+    #OpenPose_button {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: #ffcccc;
+    padding: 3px;
+    }
+    QComboBox {
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    font-size: 16px;
+    background: white;
+    }
+    QPushButton:hover {
+        border-color: rgb(139, 173, 228);
+    }
+    QPushButton:pressed {
+        background: #cbcbcb;
+    }
+    #OpenPose_button:checked {
+        background: #ccffcc;
+    }
+    """
+    def __init__(self):
+        super().__init__()
+
+        ## Widget style
+        self.setObjectName('Video_viewer')
+        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
+        self.setStyleSheet(self.stylesheet)
+
+        effect = QtWidgets.QGraphicsDropShadowEffect(self)
+        effect.setBlurRadius(10)
+        effect.setOffset(0, 0)
+        effect.setColor(QtCore.Qt.gray)
+        self.setGraphicsEffect(effect)
+
+        ## Widgets
+        self.video_viewer = VideoViewerWidget()
+
+        self.infoLabel = QtWidgets.QLabel("No info")
+
+        self.analysis_button = QtWidgets.QPushButton("OpenPose analysis")
+        self.analysis_button.setObjectName("OpenPose_button")
+        self.analysis_button.setCheckable(True)
+        self.analysis_button.clicked.connect(self.video_viewer.analysis_state)
+
+        self.layout = QtWidgets.QGridLayout(self)
+        self.setLayout(self.layout)
+        self.layout.setColumnStretch(0,0)
+        self.layout.setColumnStretch(1,1)
+        
+        self.layout.addWidget(self.video_viewer, 0, 0, 1, 2)
+        self.layout.addWidget(self.analysis_button, 1, 0, 1, 1)
+        self.layout.addWidget(self.infoLabel, 1, 1, 1, 1)
 
 
 #poetry run python .\openhand_classifier\src\video_widget.py
@@ -123,7 +202,7 @@ if __name__ == '__main__':
     class MainWindow(QtWidgets.QMainWindow):
         def __init__(self, *args, **kwargs):
             super(MainWindow, self).__init__(*args, **kwargs)
-            self.videoWidget = VideoViewerWidget()
+            self.videoWidget = VideoWindow()
             self.setCentralWidget(self.videoWidget)
             self.setWindowTitle("WebCam")
             self.show()
