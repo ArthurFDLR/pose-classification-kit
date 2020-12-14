@@ -9,6 +9,8 @@ from __init__ import OPENPOSE_PATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
 from .Util import mat2QImage, SwitchButton, VLine
 
+#import qimage2ndarray
+
 
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
@@ -79,7 +81,8 @@ class CameraInput():
     def getLastFrame(self):
         if self.capture:
             imageID = self.capture.capture()
-            return self.qImageToMat(self.lastImage)
+            frame = self.qImageToMat(self.lastImage.mirrored())
+            return frame
         else:
             return None
 
@@ -88,6 +91,7 @@ class CameraInput():
         self.lastID = idImg
 
     def qImageToMat(self, incomingImage):
+        # qimage2ndarray not working...
         incomingImage.save(self.tmpUrl, "png")
         mat = cv2.imread(self.tmpUrl)
         return mat
@@ -95,19 +99,6 @@ class CameraInput():
     def deleteTmpImage(self):
         os.remove(self.tmpUrl)
         self.tmpUrl = None
-
-
-""" No temporary files but too slow
-    def qImageToMat(self, incomingImage):
-        incomingImage = incomingImage.convertToFormat(4) #Set to format RGB32
-        width = incomingImage.width()
-        height = incomingImage.height()
-        ptr = incomingImage.bits() #Get pointer to first pixel
-        ptr.setsize(height * width * 4) #Get pointer to full image
-        arr = np.array(ptr).reshape(height, width, 4)  #Copies the data
-        arr = np.delete(arr, 3, 2) #Delete alpha channel
-        return arr
-"""
 
 
 class VideoViewerWidget(QtWidgets.QWidget):
@@ -179,28 +170,20 @@ class VideoViewerWidget(QtWidgets.QWidget):
         self.camera_selector = QtWidgets.QComboBox()
         self.camera_selector.addItems([c.description() for c in self.availableCameras])
 
-
-        self.recordButton = QtWidgets.QPushButton("OpenPose analysis")
-        self.recordButton.setObjectName("OpenPose_button")
-        self.recordButton.setCheckable(True)
-        #self.recordButton.clickedChecked.connect(self.startRecording)
-
         ## Widget structure
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
         self.layout.setColumnStretch(0,0)
         self.layout.setColumnStretch(1,0)
         self.layout.setColumnStretch(2,0)
-        self.layout.setColumnStretch(3,0)
-        self.layout.setColumnStretch(4,1)
+        self.layout.setColumnStretch(3,1)
 
         if OPENPOSE_LOADED:
             self.layout.addWidget(self.rawCamFeed, 0, 0, 1, 5)
             self.layout.addWidget(self.refreshButton, 1, 0, 1, 1)
             self.layout.addWidget(self.camera_selector, 1, 1, 1, 1)
             self.layout.addWidget(VLine(), 1, 2, 1, 1)
-            self.layout.addWidget(self.recordButton, 1, 3, 1, 1)
-            self.layout.addWidget(self.infoLabel, 1, 4, 1, 1)
+            self.layout.addWidget(self.infoLabel, 1, 3, 1, 1)
         else:
             label = QtWidgets.QLabel(
                 "Video analysis impossible.\nCheck OpenPose installation."

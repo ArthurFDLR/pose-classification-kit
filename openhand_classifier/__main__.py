@@ -14,13 +14,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.parent = parent
         mainWidget = QtWidgets.QWidget(self)
         self.setCentralWidget(mainWidget)
-        self.layout=QtWidgets.QGridLayout(mainWidget)
-        self.layout.setColumnStretch(0,0)
-        self.layout.setColumnStretch(1,0)
-        self.layout.setColumnStretch(2,3)
-        self.layout.setColumnStretch(3,3)
-        
-        mainWidget.setLayout(self.layout)
 
         ## Parameters
         self.isRecording = False
@@ -32,10 +25,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.videoViewer = VideoInput.VideoViewerWidget(self.cameraInput.getAvailableCam())
         self.videoViewer.camera_selector.currentIndexChanged.connect(self.cameraInput.select_camera)
         self.videoViewer.refreshButton.clicked.connect(self.refreshCameraList)
-        self.layout.addWidget(self.videoViewer,0,0,1,2)
         
         self.datasetController = DatasetController.DatasetControllerWidget(self)
-        self.layout.addWidget(self.datasetController,1,0,1,1)
         self.datasetController.realTimeHandDraw_Signal.connect(self.changeHandDrawingState)
 
         videoHeight = 480 # 480p
@@ -48,16 +39,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.AnalysisThread.start()
         self.AnalysisThread.setState(True)
 
-        self.classifierWidget = PoseClassifier.PoseClassifierWidget(self)
-        self.layout.addWidget(self.classifierWidget,2,2,1,2)
+        self.handClassifier = HandAnalysis.HandClassifierWidget()
 
-        self.leftHandAnalysis = HandAnalysis.HandAnalysisWidget(0)
-        self.classifierWidget.newClassifierModel_Signal.connect(self.leftHandAnalysis.newModelLoaded)
-        self.layout.addWidget(self.leftHandAnalysis, 0,2,2,1)
+        self.layout=QtWidgets.QGridLayout(mainWidget)
+        mainWidget.setLayout(self.layout)
+        self.layout.addWidget(self.handClassifier,0,1,3,1)
+        self.layout.addWidget(self.videoViewer,0,0,1,1)
+        self.layout.addWidget(self.datasetController,1,0,1,1)
+        self.layout.setRowStretch(0,0)
+        self.layout.setRowStretch(1,0)
+        self.layout.setRowStretch(2,1)
+        self.layout.setColumnStretch(0,0)
+        self.layout.setColumnStretch(1,1)
 
-        self.rightHandAnalysis = HandAnalysis.HandAnalysisWidget(1)
-        self.classifierWidget.newClassifierModel_Signal.connect(self.rightHandAnalysis.newModelLoaded)
-        self.layout.addWidget(self.rightHandAnalysis, 0,3,2,1)
 
         ## Menu
 
@@ -146,8 +140,8 @@ class MainWindow(QtWidgets.QMainWindow):
         #print('Droite: ' + str(raisingRight))
 
         if self.realTimeHandDraw:
-            self.leftHandAnalysis.drawHand(leftHandKeypoints, leftAccuracy)
-            self.rightHandAnalysis.drawHand(rightHandKeypoints, rightAccuracy)
+            self.handClassifier.leftHandAnalysis.drawHand(leftHandKeypoints, leftAccuracy)
+            self.handClassifier.rightHandAnalysis.drawHand(rightHandKeypoints, rightAccuracy)
         
         if self.datasetController.getHandID() == 0: # Recording left hand
             if type(leftHandKeypoints) != type(None):
