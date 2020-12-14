@@ -11,6 +11,8 @@ from matplotlib import figure, lines, patches, path
 from .qt import QtWidgets, QtCore, PYSIDE2_LOADED, PYQT5_LOADED
 
 from .Util import isHandData
+from .PoseClassifier import PoseClassifierWidget
+
 
 SHOW_TF_WARNINGS = False
 if not SHOW_TF_WARNINGS:
@@ -44,12 +46,12 @@ class BarGraphWidget(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout(self)
         self.canvas = FigureCanvas(figure.Figure(figsize=(5, 3)))
         layout.addWidget(self.canvas)
-
         self.nbrCategories = 0
         self.offset_nullValue = 0.01
         self.ax = self.canvas.figure.subplots()
         self.ax.set_xlim(0.0, 1.0)
         self.ax.set_ylim(0.0, 1.0)
+        self.ax.axis("off")
         self.changeCategories([])
         self.updateValues(np.random.rand(self.nbrCategories))
 
@@ -91,7 +93,7 @@ class BarGraphWidget(QtWidgets.QWidget):
         patch = None
 
         barpath = path.Path(self.verts, codes)
-        patch = patches.PathPatch(barpath, facecolor="green", alpha=0.5)
+        patch = patches.PathPatch(barpath, facecolor="#9500ff", alpha=0.5)
         self.ax.add_patch(patch)
 
         # Add category names
@@ -106,6 +108,7 @@ class BarGraphWidget(QtWidgets.QWidget):
             posy = (bottom[i] * 2 + top[i]) / 3.0
             self.ax.text(0.05, posy, cat, fontdict=font)
 
+        self.ax.axis("off")
         self.canvas.draw()
 
     def updateValues(self, values: np.ndarray):
@@ -161,9 +164,16 @@ class HandPlotWidget(QtWidgets.QWidget):
 
 
 class HandAnalysisWidget(QtWidgets.QGroupBox):
+    stylesheet = """
+    #Large_Label {
+        font-size: 26px;
+        color: #9500ff;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    """
     def __init__(self, handID: int, showInput: bool = True):
         super().__init__(("Right" if handID == 1 else "left") + " hand analysis")
-
+        self.setStyleSheet(self.stylesheet)
         self.handID = handID
         self.showInput = showInput
         self.classOutputs = []
@@ -174,7 +184,9 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.setLayout(self.layout)
         
         self.predictionLabel = QtWidgets.QLabel(self)
+        self.predictionLabel.setObjectName('Large_Label')
         self.layout.addWidget(self.predictionLabel)
+        self.predictionLabel.setAlignment(QtCore.Qt.AlignCenter)
 
         self.classGraphWidget = BarGraphWidget()
 
@@ -250,3 +262,68 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
     
     def setPredictionText(self, prediction:str):
         self.predictionLabel.setText(prediction)
+
+class HandClassifierWidget(QtWidgets.QWidget):
+    stylesheet = """
+    #Hand_classifier {
+        background-color: white;
+        border-radius: 3px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QGroupBox {
+        font-size: 16px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QLabel {
+        font-size: 16px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QPushButton {
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
+        padding: 3px;
+    }
+    QComboBox {
+        border: 1px solid #cbcbcb;
+        border-radius: 3px;
+        font-size: 16px;
+        background: white;
+    }
+    QPushButton:hover {
+        border-color: rgb(139, 173, 228);
+    }
+    QPushButton:pressed {
+        background: #cbcbcb;
+    }
+    """
+    def __init__(self):
+        super().__init__()
+        ## Widget style
+        self.setObjectName('Hand_classifier')
+        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
+        self.setStyleSheet(self.stylesheet)
+
+        effect = QtWidgets.QGraphicsDropShadowEffect(self)
+        effect.setBlurRadius(10)
+        effect.setOffset(0, 0)
+        effect.setColor(QtCore.Qt.gray)
+        self.setGraphicsEffect(effect)
+
+        ## Structure
+        self.layout = QtWidgets.QGridLayout(self)
+        self.setLayout(self.layout)
+        self.layout.setRowStretch(0,1)
+        self.layout.setRowStretch(1,0)
+
+        self.classifierWidget = PoseClassifierWidget(self)
+        self.layout.addWidget(self.classifierWidget,2,0,1,2)
+
+        self.leftHandAnalysis = HandAnalysisWidget(0)
+        self.classifierWidget.newClassifierModel_Signal.connect(self.leftHandAnalysis.newModelLoaded)
+        self.layout.addWidget(self.leftHandAnalysis, 0,0,2,1)
+
+        self.rightHandAnalysis = HandAnalysisWidget(1)
+        self.classifierWidget.newClassifierModel_Signal.connect(self.rightHandAnalysis.newModelLoaded)
+        self.layout.addWidget(self.rightHandAnalysis, 0,1,2,1)

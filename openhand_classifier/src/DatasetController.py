@@ -292,8 +292,8 @@ class DatasetControllerWidget(QtWidgets.QWidget):
     def setCurrentDataIndex(self, index: int):
         if len(self.datasetList) == 0:
             self.currentDataIndex = 0
-            self.parent.leftHandAnalysis.drawHand(None, 0.0)
-            self.parent.rightHandAnalysis.drawHand(None, 0.0)
+            self.parent.handClassifier.leftHandAnalysis.drawHand(None, 0.0)
+            self.parent.handClassifier.rightHandAnalysis.drawHand(None, 0.0)
         else:
             if index >= len(self.datasetList):
                 index = 0
@@ -302,12 +302,12 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             self.currentDataIndex = index
 
             if self.handID == 0:
-                self.parent.leftHandAnalysis.drawHand(
+                self.parent.handClassifier.leftHandAnalysis.drawHand(
                     np.array(self.datasetList[self.currentDataIndex]),
                     self.accuracyList[self.currentDataIndex],
                 )
             else:
-                self.parent.rightHandAnalysis.drawHand(
+                self.parent.handClassifier.rightHandAnalysis.drawHand(
                     np.array(self.datasetList[self.currentDataIndex]),
                     self.accuracyList[self.currentDataIndex],
                 )
