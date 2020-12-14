@@ -29,3 +29,6 @@ test-pytest:
 	poetry run pytest tests/
 
 test: test-pytest
+
+test-video:
+	poetry run python .\openhand_classifier\src\video_widget.py

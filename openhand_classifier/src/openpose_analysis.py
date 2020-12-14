@@ -4,12 +4,13 @@ import os
 import time
 import numpy as np
 import sys
-import qimage2ndarray
 
-from __init__ import OPENPOSE_PATH
-from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
-from .Util import mat2QImage, SwitchButton, VLine
+#from __init__ import OPENPOSE_PATH
+OPENPOSE_PATH = pathlib.Path("C:/") / "Program files" / "OpenPose"
+#from .qt import QtCore, pyqtSignal, pyqtSlot
 
+from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
+from PyQt5.QtCore import pyqtSignal, pyqtSlot
 
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
@@ -27,202 +28,15 @@ except:
     print("OpenPose ({}) loading failed.".format(str(OPENPOSE_PATH)))
 
 
-class CameraInput(QtCore.QObject):
-    newMatAvailable = pyqtSignal(np.ndarray)
-
-    def __init__(self, emission_fps):
-        super().__init__()
-        self.available_cameras = QtMultimedia.QCameraInfo.availableCameras()
-        if not self.available_cameras:
-            print("No camera")
-            pass  # quit
-
-        self.buffer = QtCore.QBuffer
-        # self.lastImage = QtGui.QImage('.\\Data\\tempInit.png')
-        self.lastImage = QtGui.QPixmap(10, 10).toImage()
-        self.lastID = None
-        self.save_path = ""
-        self.tmpUrl = str(
-            pathlib.Path(__file__).parent.absolute() / "tmp.png"
-        )  # / 'Data'
-
-        self.capture = None
-
-        self.select_camera(0)
-
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.triggerTimer)
-        self.emission_fps = emission_fps
-        self.timer.start(int(1000/self.emission_fps))
-
-    def triggerTimer(self):
-        self.capture.capture()
-
-    def refreshCameraList(self):
-        self.available_cameras = QtMultimedia.QCameraInfo.availableCameras()
-        if not self.available_cameras:
-            print("No camera")
-            return None
-        self.camera.stop()
-        self.select_camera(0)
-        return self.available_cameras
-
-    def getAvailableCam(self):
-        return self.available_cameras
-
-    def select_camera(self, i):
-        if len(self.available_cameras) > 0:
-            self.camera = QtMultimedia.QCamera(self.available_cameras[i])
-            self.camera.setCaptureMode(QtMultimedia.QCamera.CaptureStillImage)
-            self.camera.start()
-
-            self.capture = QtMultimedia.QCameraImageCapture(self.camera)
-            self.capture.setCaptureDestination(
-                QtMultimedia.QCameraImageCapture.CaptureToBuffer
-            )
-
-            self.capture.imageCaptured.connect(self.newImageAvailable)
-
-            self.current_camera_name = self.available_cameras[i].description()
-            self.save_seq = 0
-            print('\ncamera setup: ', self.current_camera_name)
-        else:
-            print("No camera.")
-
-    def newImageAvailable(self, idImg: int, image:QtGui.QImage):
-        incomingImage = image.convertToFormat(QtGui.QImage.Format.Format_RGB32)
-        mat = qimage2ndarray.rgb_view(incomingImage)
-        self.newMatAvailable.emit(mat)
-
-
-
-class VideoViewerWidget(QtWidgets.QWidget):
-    changeCameraID_signal = pyqtSignal()
-    stylesheet = """
-    #Video_viewer {
-        background-color: white;
-        border-radius: 3px;
-        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
-    }
-    QLabel {
-    font-size: 16px;
-    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
-    }
-    QPushButton {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: white;
-    padding: 3px;
-    }
-    #OpenPose_button {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: #ffcccc;
-    padding: 3px;
-    }
-    QComboBox {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: white;
-    }
-    QPushButton:hover {
-        border-color: rgb(139, 173, 228);
-    }
-    QPushButton:pressed {
-        background: #cbcbcb;
-    }
-    #OpenPose_button:checked {
-        background: #ccffcc;
-    }
-    """
-
-    def __init__(self, availableCameras):
-        super().__init__()
-        self.availableCameras = availableCameras
-
-        ## Widget style
-        self.setObjectName('Video_viewer')
-        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
-        self.setStyleSheet(self.stylesheet)
-
-        effect = QtWidgets.QGraphicsDropShadowEffect(self)
-        effect.setBlurRadius(10)
-        effect.setOffset(0, 0)
-        effect.setColor(QtCore.Qt.gray)
-        self.setGraphicsEffect(effect)
-
-        ## Widgets initialisation
-        self.rawCamFeed = QtWidgets.QLabel(self)
-
-        self.infoLabel = QtWidgets.QLabel("No info")
-
-        self.refreshButton = QtWidgets.QPushButton("Refresh camera list")
-        self.refreshButton.resize(self.refreshButton.sizeHint())
-
-        self.camera_selector = QtWidgets.QComboBox()
-        self.camera_selector.addItems([c.description() for c in self.availableCameras])
-
-
-        self.recordButton = QtWidgets.QPushButton("OpenPose analysis")
-        self.recordButton.setObjectName("OpenPose_button")
-        self.recordButton.setCheckable(True)
-
-        ## Widget structure
-        self.layout = QtWidgets.QGridLayout(self)
-        self.setLayout(self.layout)
-        self.layout.setColumnStretch(0,0)
-        self.layout.setColumnStretch(1,0)
-        self.layout.setColumnStretch(2,0)
-        self.layout.setColumnStretch(3,0)
-        self.layout.setColumnStretch(4,1)
-
-        if OPENPOSE_LOADED:
-            self.layout.addWidget(self.rawCamFeed, 0, 0, 1, 5)
-            self.layout.addWidget(self.refreshButton, 1, 0, 1, 1)
-            self.layout.addWidget(self.camera_selector, 1, 1, 1, 1)
-            self.layout.addWidget(VLine(), 1, 2, 1, 1)
-            self.layout.addWidget(self.recordButton, 1, 3, 1, 1)
-            self.layout.addWidget(self.infoLabel, 1, 4, 1, 1)
-        else:
-            label = QtWidgets.QLabel(
-                "Video analysis impossible.\nCheck OpenPose installation."
-            )
-            self.layout.addWidget(label, 0, 0, 1, 1)
-
-        self.autoAdjustable = False
-
-    @pyqtSlot(QtGui.QImage)
-    def setImage(self, image: QtGui.QImage):
-        self.currentPixmap = QtGui.QPixmap.fromImage(image)
-        self.rawCamFeed.setPixmap(
-            self.currentPixmap.scaled(
-                self.rawCamFeed.size(),
-                QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation,
-            )
-        )
-
-    def setVideoSize(self, width: int, height: int):
-        self.rawCamFeed.setFixedSize(width, height)
-
-    def setInfoText(self, info: str):
-        if info:
-            self.infoLabel.setText(info)
-        else:
-            self.infoLabel.setText("")
-
-
-class VideoAnalysisThread(QtCore.QObject):
-    newMat = pyqtSignal(np.ndarray)
+class VideoAnalysis(QtCore.QObject):
+    new_analysed_frame = pyqtSignal(np.ndarray)
 
     def __init__(self):
         super().__init__()
         self.infoText = ""
         self.personID = 0
         self.running = False
+        self.frame_to_analyse = np.array([])
 
         ## Starting OpenPose ##
         #######################
@@ -243,29 +57,28 @@ class VideoAnalysisThread(QtCore.QObject):
         self.videoWidth = 1280
         self.videoHeight = 720
     
-    def newMatAnalysis(self, frame:np.ndarray):
-        if OPENPOSE_LOADED and self.running:
-            if type(frame) != type(None):
+    def stop(self):
+        """Sets run flag to False and waits for thread to finish"""
+        self.running = False
+
+    @pyqtSlot()
+    def run_analysis(self):
+        while OPENPOSE_LOADED and self.running:
+            frame = self.frame_to_analyse
+            if (type(frame) != type(None)) and frame.ndim == 3:
                 frame = self.resizeCvFrame(frame, 0.5)
                 self.datum.cvInputData = frame
                 self.opWrapper.emplaceAndPop([self.datum])
                 frameOutput = self.datum.cvOutputData
-                self.newMat.emit(frameOutput)
-        else:
-            self.newMat.emit(frame)
+                self.new_analysed_frame.emit(frameOutput)
 
     @pyqtSlot(bool)
     def setState(self, s: bool):
         self.running = s
-
-    def setResolutionStream(self, width: int, height: int):
-        self.videoHeight = height
-        self.videoWidth = width
-
-    def setEmissionSpeed(self, fixedFPS: bool, fps: int):
-        self.fixedFps = fixedFPS
-        if self.fixedFps:
-            self.emissionFPS = fps
+    
+    @pyqtSlot(np.ndarray)
+    def update_input_frame(self, frame:np.array):
+        self.frame_to_analyse = frame
 
     def getHandData(self, handID: int):
         """Return the key points of the hand seen in the image (cf. videoSource).
