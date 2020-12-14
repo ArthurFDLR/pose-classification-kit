@@ -132,10 +132,3 @@ def euler_to_quaternion(roll, pitch, yaw):
     qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
     # fmt: on
     return [qx, qy, qz, qw]
-
-
-class VLine(QtWidgets.QFrame):
-    # a simple VLine, like the one you get from designer
-    def __init__(self):
-        super(VLine, self).__init__()
-        self.setFrameShape(self.VLine | self.Sunken)

@@ -4,7 +4,7 @@ from datetime import date
 import numpy as np
 
 from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
-from .Util import SwitchButton, ScrollLabel, VLine, mat2QImage, isHandData
+from .Util import SwitchButton, ScrollLabel, mat2QImage, isHandData
 
 
 class DatasetControllerWidget(QtWidgets.QWidget):

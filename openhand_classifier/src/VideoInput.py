@@ -7,7 +7,7 @@ import sys
 
 from __init__ import OPENPOSE_PATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
-from .Util import mat2QImage, SwitchButton, VLine
+from .Util import mat2QImage, SwitchButton
 
 #import qimage2ndarray
 
@@ -182,7 +182,6 @@ class VideoViewerWidget(QtWidgets.QWidget):
             self.layout.addWidget(self.rawCamFeed, 0, 0, 1, 5)
             self.layout.addWidget(self.refreshButton, 1, 0, 1, 1)
             self.layout.addWidget(self.camera_selector, 1, 1, 1, 1)
-            self.layout.addWidget(VLine(), 1, 2, 1, 1)
             self.layout.addWidget(self.infoLabel, 1, 3, 1, 1)
         else:
             label = QtWidgets.QLabel(
