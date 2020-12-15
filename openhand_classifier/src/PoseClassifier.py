@@ -24,12 +24,12 @@ class PoseClassifierWidget(QtWidgets.QWidget):
         )
         self.layout.addWidget(classifierLabel, 1, 0, 1, 1)
 
-        self.classifierSelector = QtWidgets.QComboBox()
+        self.classifierSelector = QtWidgets.QComboBox(cursor=QtCore.Qt.PointingHandCursor)
         self.classifierSelector.addItems(self.getAvailableClassifiers())
         self.layout.addWidget(self.classifierSelector, 1, 1, 1, 1)
         self.classifierSelector.currentTextChanged.connect(self.loadModel)
 
-        updateClassifierButton = QtWidgets.QPushButton("Update list")
+        updateClassifierButton = QtWidgets.QPushButton("Update list", cursor=QtCore.Qt.PointingHandCursor, toolTip='Refresh list of model available in associated folder')
         updateClassifierButton.clicked.connect(self.updateClassifier)
         self.layout.addWidget(updateClassifierButton, 1, 2, 1, 1)
 

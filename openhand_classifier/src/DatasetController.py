@@ -75,7 +75,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.visuCheckbox.toggled.connect(self.visuCheckboxToggled)
         self.visuCheckbox.setEnabled(False)
 
-        self.minusButton = QtWidgets.QToolButton()
+        self.minusButton = QtWidgets.QToolButton(cursor=QtCore.Qt.PointingHandCursor, toolTip='Previous sample in dataset')
         self.minusButton.setArrowType(QtCore.Qt.LeftArrow)
         self.layout.addWidget(self.minusButton, 1, 1, 1, 1)
         self.minusButton.setEnabled(False)
@@ -99,7 +99,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.maxIndexLabel.setEnabled(False)
         self.layout.addWidget(self.maxIndexLabel, 1, 3, 1, 1)
 
-        self.plusButton = QtWidgets.QToolButton()
+        self.plusButton = QtWidgets.QToolButton(cursor=QtCore.Qt.PointingHandCursor, toolTip='Next sample in dataset')
         self.plusButton.setArrowType(QtCore.Qt.RightArrow)
         self.layout.addWidget(self.plusButton, 1, 4, 1, 1)
         self.plusButton.setEnabled(False)
@@ -112,7 +112,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             lambda: self.setCurrentDataIndex(self.currentDataIndex + 1),
         )
 
-        self.deleteButton = QtWidgets.QPushButton("Delete entry")
+        self.deleteButton = QtWidgets.QPushButton("Delete sample", cursor=QtCore.Qt.PointingHandCursor, toolTip='Remove sample from the dataset')
         self.deleteButton.setEnabled(False)
         self.layout.addWidget(self.deleteButton, 1, 5, 1, 1)
         self.deleteButton.clicked.connect(

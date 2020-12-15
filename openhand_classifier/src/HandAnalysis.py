@@ -170,6 +170,16 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         color: #9500ff;
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
+
+    QSplitter::handle {
+    color: #cbcbcb;
+    border: 1px solid #cbcbcb;
+    border-radius: 2px;
+    }
+
+    QSplitter::handle:horizontal {
+        height: 1px 
+    }
     """
     def __init__(self, handID: int, showInput: bool = True):
         super().__init__(("Right" if handID == 1 else "left") + " hand analysis")

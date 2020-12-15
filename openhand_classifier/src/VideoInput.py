@@ -11,7 +11,6 @@ from .Util import mat2QImage, SwitchButton
 
 #import qimage2ndarray
 
-
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
     releasePATH = OPENPOSE_PATH / "build" / "x64" / "Release"
@@ -162,12 +161,12 @@ class VideoViewerWidget(QtWidgets.QWidget):
         ## Widgets initialisation
         self.rawCamFeed = QtWidgets.QLabel(self)
 
-        self.infoLabel = QtWidgets.QLabel("No info")
+        self.infoLabel = QtWidgets.QLabel("No info" if OPENPOSE_LOADED else "Video analysis impossible, check OpenPose installation.")
 
-        self.refreshButton = QtWidgets.QPushButton("Refresh camera list")
+        self.refreshButton = QtWidgets.QPushButton("Refresh camera list", cursor=QtCore.Qt.PointingHandCursor, toolTip='Update available camera list')
         self.refreshButton.resize(self.refreshButton.sizeHint())
 
-        self.camera_selector = QtWidgets.QComboBox()
+        self.camera_selector = QtWidgets.QComboBox(cursor=QtCore.Qt.PointingHandCursor)
         self.camera_selector.addItems([c.description() for c in self.availableCameras])
 
         ## Widget structure
@@ -189,7 +188,6 @@ class VideoViewerWidget(QtWidgets.QWidget):
             )
             self.layout.addWidget(label, 0, 0, 1, 1)
 
-        self.autoAdjustable = False
 
     @pyqtSlot(QtGui.QImage)
     def setImage(self, image: QtGui.QImage):
