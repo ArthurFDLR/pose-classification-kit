@@ -5,7 +5,7 @@ run:
 run37:
 	python37 -m poetry run python .\openhand_classifier
 
-dataset:
+dataset-csv:
 	python37 -m poetry run python .\openhand_classifier\scripts\DatasetBuilder.py
 
 video_overlay:

@@ -1,16 +1,16 @@
 import os
 import numpy as np
 import pandas as pd
+from pathlib import Path
 
-def loadFile(poseName:str, handID:int, shuffle:bool=True):
-    fileName = '.\\Datasets\\{}\\{}\\data.txt'.format(poseName, 'right_hand' if handID == 1 else 'left_hand')
+def loadFile(file_path:Path, shuffle:bool=True):
     data_out = []
     accuracy_out = []
-    if os.path.exists(fileName):
+    if file_path.is_file():
 
         currentEntry = []
 
-        dataFile = open(fileName)
+        dataFile = open(file_path)
         for i, line in enumerate(dataFile):
             if i == 0:
                 info = line.split(',')
@@ -46,16 +46,18 @@ def loadFile(poseName:str, handID:int, shuffle:bool=True):
     return np.array(data_out), np.array(accuracy_out)
 
 if __name__ == "__main__":
-    labels = ['0', '1_Eng', '2_Eng', '2_Eu', '3_Eng', '3_Eu', '4', '5', 'Chef', 'Help', 'Super', 'VIP', 'Water', 'Metal', 'Dislike', 'Loser', 'Phone', 'Shaka', 'Stop', 'Spoke', 'PowerFist', 'Horns', 'FightFist', 'MiddleFinger']
-
+    labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Chef', 'Help', 'Super', 'VIP', 'Water', 'Metal', 'Dislike', 'Loser', 'Phone', 'Shaka', 'Stop', 'Spoke', 'PowerFist', 'Horns', 'FightFist', 'MiddleFinger']
     data = {'label':[], 'hand':[], 'accuracy':[]}
     for i in range(21):
         data.update({'x{}'.format(i) : [], 'y{}'.format(i) : []})
     
+    dataset_path = Path('.').resolve() / 'Dataset'
+    assert(dataset_path.is_dir())
+
     for label in labels:
         for hand in [0,1]:
-            list_data, list_accuracy = loadFile(label, hand, False)
-
+            file_path = dataset_path / label / ['left_hand', 'right_hand'][hand] / 'data.txt'
+            list_data, list_accuracy = loadFile(file_path, False)
             data['label'] += [label] * list_data.shape[0]
             data['hand']  += ['left' if hand == 0 else 'right'] * list_data.shape[0]
             data['accuracy'] += list(list_accuracy)
@@ -65,4 +67,4 @@ if __name__ == "__main__":
                 data['y{}'.format(i)] += list(list_data[:,1,i])
     
     df = pd.DataFrame(data)
-    df.to_csv('./Datasets/dataset.csv', index=False)
+    df.to_csv(dataset_path / 'OpenHand_dataset.csv', index=False)
