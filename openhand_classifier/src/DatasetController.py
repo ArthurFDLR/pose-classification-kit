@@ -16,24 +16,44 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         border-radius: 3px;
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
-    
     QPushButton {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: white;
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
+    }
+    QToolButton {
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
+    }
+    QToolButton:hover {
+        border-color: rgb(139, 173, 228);
     }
     QComboBox {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: white;
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
     }
     QPushButton:hover {
         border-color: rgb(139, 173, 228);
     }
     QPushButton:pressed {
         color: #cbcbcb;
+    }
+    QLabel {
+        font-size: 16px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QLineEdit {
+        font-size: 16px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QCheckBox {
+        font-size: 16px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
     """
 
@@ -254,7 +274,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             )
             self.recordButton.setEnabled(True)
             self.visuCheckbox.setChecked(True)
-            self.aved = True
+            self.datasetSaved = True
             return True
         return False
 
@@ -452,6 +472,9 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
     @pyqtSlot(str)
     def changePoseName(self, name: str):
+        if not self.createButton.isEnabled():
+            self.createButton.setEnabled(True)
+            self.createButton.setText("Create dataset")
         self.currentPoseName = name
 
     @pyqtSlot(str)

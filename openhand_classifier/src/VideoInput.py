@@ -245,28 +245,25 @@ class VideoAnalysisThread(QtCore.QThread):
     def run(self):
         while OPENPOSE_LOADED:
             if self.running:
-                if (
-                    time.time() - self.lastTime > 1.0 / self.emissionFPS
-                ) or not self.fixedFps:
-                    self.lastTime = time.time()
+                self.lastTime = time.time()
 
-                    frame = self.videoSource.getLastFrame()
-                    if type(frame) != type(None):
-                        # Check if frame exist, frame!=None is ambigious when frame is an array
-                        frame = self.resizeCvFrame(frame, 0.5)
-                        self.datum.cvInputData = frame
-                        self.opWrapper.emplaceAndPop([self.datum])
-                        frameOutput = self.datum.cvOutputData
-                        self.newMat.emit(frameOutput)
+                frame = self.videoSource.getLastFrame()
+                if type(frame) != type(None):
+                    # Check if frame exist, frame!=None is ambigious when frame is an array
+                    frame = self.resizeCvFrame(frame, 0.5)
+                    self.datum.cvInputData = frame
+                    self.opWrapper.emplaceAndPop([self.datum])
+                    frameOutput = self.datum.cvOutputData
+                    self.newMat.emit(frameOutput)
 
-                        if self.qimageEmission:
-                            image = mat2QImage(frameOutput)
-                            image = image.scaled(
-                                self.videoWidth,
-                                self.videoHeight,
-                                QtCore.Qt.KeepAspectRatio,
-                            )
-                            self.newPixmap.emit(image)
+                    if self.qimageEmission:
+                        image = mat2QImage(frameOutput)
+                        image = image.scaled(
+                            self.videoWidth,
+                            self.videoHeight,
+                            QtCore.Qt.KeepAspectRatio,
+                        )
+                        self.newPixmap.emit(image)
 
     @pyqtSlot(bool)
     def setState(self, s: bool):
