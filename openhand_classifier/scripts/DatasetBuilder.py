@@ -46,15 +46,16 @@ def loadFile(file_path:Path, shuffle:bool=True):
     return np.array(data_out), np.array(accuracy_out)
 
 if __name__ == "__main__":
-    labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Chef', 'Help', 'Super', 'VIP', 'Water', 'Metal', 'Dislike', 'Loser', 'Phone', 'Shaka', 'Stop', 'Spoke', 'PowerFist', 'Horns', 'FightFist', 'MiddleFinger']
+    labels = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Chef', 'Help', 'Super', 'VIP', 'Water', 'Metal', 'Dislike', 'Loser', 'Phone', 'Shaka', 'Stop', 'Spoke', 'PowerFist', 'Horns', 'FightFist', 'MiddleFinger', 'Ok']
     data = {'label':[], 'hand':[], 'accuracy':[]}
     for i in range(21):
         data.update({'x{}'.format(i) : [], 'y{}'.format(i) : []})
     
     dataset_path = Path('.').resolve() / 'Dataset'
     assert(dataset_path.is_dir())
-
+    print(len(labels), 'labels detected:')
     for label in labels:
+        print(label)
         for hand in [0,1]:
             file_path = dataset_path / label / ['left_hand', 'right_hand'][hand] / 'data.txt'
             list_data, list_accuracy = loadFile(file_path, False)
