@@ -4,10 +4,10 @@ import os
 import time
 import numpy as np
 import sys
+import qimage2ndarray
 
 from __init__ import OPENPOSE_PATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
-from .Util import mat2QImage, SwitchButton
 
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
@@ -257,7 +257,7 @@ class VideoAnalysisThread(QtCore.QThread):
                     self.newMat.emit(frameOutput)
 
                     if self.qimageEmission:
-                        image = mat2QImage(frameOutput)
+                        image = qimage2ndarray.array2qimage(cv2.cvtColor(frameOutput, cv2.COLOR_BGR2RGB))
                         image = image.scaled(
                             self.videoWidth,
                             self.videoHeight,

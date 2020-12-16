@@ -10,7 +10,6 @@ from matplotlib import figure, lines, patches, path
 
 from .qt import QtWidgets, QtCore, PYSIDE2_LOADED, PYQT5_LOADED
 
-from .Util import isHandData
 from .PoseClassifier import PoseClassifierWidget
 
 
@@ -144,7 +143,7 @@ class HandPlotWidget(QtWidgets.QWidget):
             self.ax.add_line(line)
 
     def plotHand(self, handKeypoints):
-        if isHandData(handKeypoints):
+        if self.isHandData(handKeypoints):
             colors = ["r", "y", "g", "b", "m"]
             data = [
                 handKeypoints[:, 0:5],
@@ -155,12 +154,21 @@ class HandPlotWidget(QtWidgets.QWidget):
             ]
             for i, line in enumerate(self.fingerLines):
                 line.set_data(data[i][0], data[i][1])
+        else:
+            self.clear()
         self.canvas.draw()
 
     def clear(self):
         for line in self.fingerLines:
             line.set_data([], [])
         self.canvas.draw()
+    
+    def isHandData(self, keypoints):
+        b = False
+        if type(keypoints) == np.ndarray:
+            if keypoints.shape == (3, 21):
+                b = True
+        return b
 
 
 class HandAnalysisWidget(QtWidgets.QGroupBox):
@@ -226,10 +234,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         if self.showInput:
             # self.handGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
             self.updatePredictedClass(handKeypoints)
-            if isHandData(handKeypoints):
-                self.handGraphWidget.plotHand(handKeypoints)
-            else:
-                self.handGraphWidget.clear()
+            self.handGraphWidget.plotHand(handKeypoints)
 
     def updatePredictedClass(self, keypoints: np.ndarray):
         """Draw keypoints of a hand pose in the widget.

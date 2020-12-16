@@ -6,6 +6,8 @@ from src.qt import QtWidgets, QtGui
 
 from src import DatasetController, VideoInput, HandAnalysis, PoseClassifier
 
+from __init__ import OPENPOSE_PATH
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent = None):
         ## Init
@@ -80,6 +82,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
+
+        self.openpose_path = 'OpenPose installation path: ' + str(OPENPOSE_PATH)
+        self.openpose_path_label = QtWidgets.QLabel(self.openpose_path, toolTip='Change in ./openhand_classifier/src/__init__.py if incorrect.')
+        self.statusBar.addWidget(self.openpose_path_label)
 
         self.openposeStatus = 'OpenPose running.' if VideoInput.OPENPOSE_LOADED else 'OpenPose not found'
         self.openposeStatusLabel = QtWidgets.QLabel('<span style="color:' + ('green' if VideoInput.OPENPOSE_LOADED else 'red') + '">' + self.openposeStatus + '</span>')

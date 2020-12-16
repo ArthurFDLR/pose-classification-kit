@@ -5,8 +5,22 @@ import numpy as np
 from pathlib import Path
 
 from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
-from .Util import SwitchButton, ScrollLabel, mat2QImage, isHandData
 
+
+class ScrollLabel(QtWidgets.QScrollArea):
+    def __init__(self):
+        super().__init__()
+
+        self.setWidgetResizable(True)
+        content = QtWidgets.QWidget(self)
+        self.setWidget(content)
+        lay = QtWidgets.QVBoxLayout(content)
+        self.label = QtWidgets.QLabel(content)
+        self.label.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        lay.addWidget(self.label)
+
+    def setText(self, text):
+        self.label.setText(text)
 
 class DatasetControllerWidget(QtWidgets.QWidget):
     realTimeHandDraw_Signal = pyqtSignal(bool)
@@ -348,6 +362,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         )
         self.maxIndexLabel.setText("/" + str(sizeData))
         self.recordButton.setEnabled(True)
+        self.setEnabled(True)
 
     def setCurrentDataIndex(self, index: int):
         if len(self.datasetList) == 0:
