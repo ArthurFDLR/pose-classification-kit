@@ -16,22 +16,11 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         border-radius: 3px;
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
+    #Dataset_Controller:disabled {
+        background-color: #e8e8e8;
+    }
+
     QPushButton {
-        border: 1px solid #cbcbcb;
-        border-radius: 2px;
-        font-size: 16px;
-        background: white;
-    }
-    QToolButton {
-        border: 1px solid #cbcbcb;
-        border-radius: 2px;
-        font-size: 16px;
-        background: white;
-    }
-    QToolButton:hover {
-        border-color: rgb(139, 173, 228);
-    }
-    QComboBox {
         border: 1px solid #cbcbcb;
         border-radius: 2px;
         font-size: 16px;
@@ -43,17 +32,65 @@ class DatasetControllerWidget(QtWidgets.QWidget):
     QPushButton:pressed {
         color: #cbcbcb;
     }
+    QPushButton:disabled {
+        background: #e8e8e8;
+    }
+
+    QToolButton {
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
+    }
+    QToolButton:hover {
+        border-color: rgb(139, 173, 228);
+    }
+    QToolButton:disabled {
+        background: #e8e8e8;
+    }
+
+    #Record_Button {
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: #ffb3b3;
+    }
+    #Record_Button:checked {
+        background: #b3ffb3;
+    }
+    #Record_Button:disabled {
+        background: #e8e8e8;
+    }
+    #Record_Button:hover {
+        border-color: rgb(139, 173, 228);
+    }
+
+    QComboBox {
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
+    }
+    QComboBox:disabled {
+        background: #e8e8e8;
+    }
+
     QLabel {
         font-size: 16px;
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
+
     QLineEdit {
         font-size: 16px;
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
+
     QCheckBox {
         font-size: 16px;
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    }
+    QCheckBox:disabled {
+        background: #e8e8e8;
     }
     """
 
@@ -72,6 +109,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
 
         ## Widget style
         self.setObjectName('Dataset_Controller')
+        self.setEnabled(False)
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.setStyleSheet(self.stylesheet)
 
@@ -140,13 +178,13 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             lambda: self.removeEntryDataset(self.currentDataIndex)
         )
 
-        self.layout.addWidget(QtWidgets.QLabel("Recording:"), 1, 7, 1, 1)
-
-        self.recordButton = SwitchButton()
+        self.recordButton = QtWidgets.QPushButton("Record samples", cursor=QtCore.Qt.PointingHandCursor, toolTip='Start and stop sample recording')
+        self.recordButton.setObjectName('Record_Button')
+        self.recordButton.setCheckable(True)
         self.recordButton.setChecked(False)
         self.recordButton.setEnabled(False)
-        self.layout.addWidget(self.recordButton, 1, 8, 1, 1)
-        self.recordButton.clickedChecked.connect(self.startRecording)
+        self.recordButton.clicked.connect(self.startRecording)
+        self.layout.addWidget(self.recordButton, 1, 7, 1, 1)
 
         horSpacer = QtWidgets.QSpacerItem(
             0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
@@ -273,6 +311,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
                 tresholdValue,
             )
             self.recordButton.setEnabled(True)
+            self.setEnabled(True)
             self.visuCheckbox.setChecked(True)
             self.datasetSaved = True
             return True
@@ -414,6 +453,9 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.layout.addWidget(QtWidgets.QLabel("Accuaracy treshold:"), 1, 3, 1, 1)
         self.layout.addWidget(self.tresholdValueLine, 1, 4, 1, 1)
         self.layout.addWidget(self.createButton, 1, 5, 1, 1)
+        self.layout.setRowStretch(0,0)
+        self.layout.setRowStretch(1,0)
+        self.layout.setRowStretch(2,1)
 
     def createDataset(self):
         self.isRecording = True
