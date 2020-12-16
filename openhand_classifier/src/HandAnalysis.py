@@ -43,7 +43,7 @@ class BarGraphWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         layout = QtWidgets.QVBoxLayout(self)
-        self.canvas = FigureCanvas(figure.Figure(figsize=(5, 3)))
+        self.canvas = FigureCanvas(figure.Figure(figsize=(5, 5)))
         layout.addWidget(self.canvas)
         self.nbrCategories = 0
         self.offset_nullValue = 0.01
@@ -98,9 +98,10 @@ class BarGraphWidget(QtWidgets.QWidget):
         # Add category names
         font = {
             "family": "serif",
-            "color": "darkred",
+            "color": "#454545",
             "weight": "normal",
             "fontsize": "large",
+            "fontname":"Helvetica",
         }
 
         for i, cat in enumerate(categories):
@@ -125,6 +126,7 @@ class HandPlotWidget(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout(self)
         self.canvas = FigureCanvas(figure.Figure(figsize=(5, 3)))
         layout.addWidget(self.canvas)
+        self.setMinimumHeight(50)
 
         self.ax = self.canvas.figure.subplots()
         self.ax.set_xlim([-1.0, 1.0])
@@ -211,6 +213,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         if self.showInput:
             self.handGraphWidget = HandPlotWidget()
             self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+            self.graphSplitter.setChildrenCollapsible(False)
             self.graphSplitter.addWidget(self.handGraphWidget)
             self.graphSplitter.addWidget(self.classGraphWidget)
             self.graphSplitter.setStretchFactor(0, 2)
