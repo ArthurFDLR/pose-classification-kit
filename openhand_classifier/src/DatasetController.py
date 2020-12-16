@@ -2,6 +2,7 @@ import os
 import numpy as np
 from datetime import date
 import numpy as np
+from pathlib import Path
 
 from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
 from .Util import SwitchButton, ScrollLabel, mat2QImage, isHandData
@@ -180,7 +181,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
     def clearDataset(self):
         self.datasetList = []
         self.accuracyList = []
-        self.datasetSaved = False
+        self.datasetSaved = True
 
     def userIndexInput(self, indexStr: str):
         if indexStr.isdigit():
@@ -202,7 +203,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
     def loadFile(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open dataset", r".\Datasets", "Text Files (*.txt)", options=options
+            self, "Open dataset", r".\Dataset", "Text Files (*.txt)", options=options
         )
         self.clearDataset()
         currentEntry = []
@@ -253,7 +254,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             )
             self.recordButton.setEnabled(True)
             self.visuCheckbox.setChecked(True)
-            self.datasetSaved = True
+            self.aved = True
             return True
         return False
 
@@ -278,7 +279,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         if tresholdValue != None:
             self.tresholdValue = tresholdValue
         self.fileLabel.setText(
-            self.currentFilePath
+            str(self.currentFilePath)
             + "\n  -> {} entries for {} ({} hand) with a minimum accuracy of {}.".format(
                 str(sizeData),
                 poseName,
@@ -353,47 +354,46 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("Create new dataset")
 
-        self.currentFolder = os.path.dirname(os.path.realpath(__file__))
-        self.currentFolder += r"\Datasets"
+        self.currentFolder = Path('.').absolute()
+        if (self.currentFolder / 'Dataset').is_dir():
+            self.currentFolder /= 'Dataset'
         self.currentFilePath = None
         self.currentPoseName = "Default"
         self.currentTresholdValue = 0.0
-        ## Widgets initialisation
-        self.layout = QtWidgets.QGridLayout(self)
-        self.setLayout(self.layout)
 
+        ## Widgets initialisation
         self.folderLabel = ScrollLabel()
-        self.folderLabel.setText(self.currentFolder)
+        self.folderLabel.setText(str(self.currentFolder))
         self.folderLabel.setMaximumHeight(35)
         self.folderLabel.setMinimumWidth(200)
-        # self.folderLabel.setStyleSheet("background-color:#000000;")
-        self.layout.addWidget(self.folderLabel, 0, 0, 1, 5, QtCore.Qt.AlignTop)
 
         self.folderButton = QtWidgets.QPushButton("Change root folder")
         self.folderButton.clicked.connect(self.changeSavingFolder)
-        self.layout.addWidget(self.folderButton, 0, 5, 1, 1, QtCore.Qt.AlignTop)
-
+        
         self.handSelection = HandSelectionWidget(self)
-        self.layout.addWidget(self.handSelection, 1, 0, 1, 1)
-        # self.handSelection.changeHandSelection.connect(parent.changeHandID)
-
-        self.layout.addWidget(QtWidgets.QLabel("Hand pose name:"), 1, 1, 1, 1)
+        
         self.poseNameLine = QtWidgets.QLineEdit(self.currentPoseName)
-        self.layout.addWidget(self.poseNameLine, 1, 2, 1, 1)
         self.poseNameLine.textChanged.connect(self.changePoseName)
 
-        self.layout.addWidget(QtWidgets.QLabel("Accuaracy treshold:"), 1, 3, 1, 1)
         self.tresholdValueLine = QtWidgets.QLineEdit(str(self.currentTresholdValue))
         onlyDouble = QtGui.QDoubleValidator()
         self.tresholdValueLine.setValidator(onlyDouble)
-        self.layout.addWidget(self.tresholdValueLine, 1, 4, 1, 1)
         self.tresholdValueLine.textChanged.connect(self.changeTresholdValue)
 
         self.createButton = QtWidgets.QPushButton("Create dataset")
-        self.layout.addWidget(self.createButton, 1, 5, 1, 1)
         self.createButton.clicked.connect(self.createDataset)
-        # verticalSpacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        # self.layout.addItem(verticalSpacer, 2, 0, QtCore.Qt.AlignTop)
+
+        ## Structure
+        self.layout = QtWidgets.QGridLayout(self)
+        self.setLayout(self.layout)
+        self.layout.addWidget(self.folderLabel, 0, 0, 1, 5, QtCore.Qt.AlignTop)
+        self.layout.addWidget(self.folderButton, 0, 5, 1, 1, QtCore.Qt.AlignTop)
+        self.layout.addWidget(self.handSelection, 1, 0, 1, 1)
+        self.layout.addWidget(self.poseNameLine, 1, 2, 1, 1)
+        self.layout.addWidget(QtWidgets.QLabel("Hand pose name:"), 1, 1, 1, 1)
+        self.layout.addWidget(QtWidgets.QLabel("Accuaracy treshold:"), 1, 3, 1, 1)
+        self.layout.addWidget(self.tresholdValueLine, 1, 4, 1, 1)
+        self.layout.addWidget(self.createButton, 1, 5, 1, 1)
 
     def createDataset(self):
         self.isRecording = True
@@ -403,12 +403,12 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         tresholdValue = self.getTresholdValue()
         handID = self.handSelection.getCurrentHandID()
 
-        path += "\\" + folder
-        if not os.path.isdir(path):  # Create pose directory if missing
+        path /= folder
+        if not path.is_dir():  # Create pose directory if missing
             os.mkdir(path)
 
-        path += "\\" + ("right_hand" if handID == 1 else "left_hand")
-        if os.path.isdir(path):
+        path /= ("right_hand" if handID == 1 else "left_hand")
+        if path.is_dir():
             self.isRecording = False
             self.createButton.setEnabled(False)
             self.createButton.setText("Dataset allready created")
@@ -418,7 +418,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
             self.createButton.setText("Create dataset")
             os.mkdir(path)  # Create hand directory if missing
 
-            path += r"\data.txt"
+            path /= 'data.txt'
             currentFile = open(path, "w+")
             currentFile.write(self.getFileHeadlines())
             currentFile.close()
@@ -426,7 +426,6 @@ class CreateDatasetDialog(QtWidgets.QDialog):
             self.currentFilePath = path
 
     def getFileHeadlines(self):
-        path = self.getSavingFolder()
         folder = self.getPoseName()
         tresholdValue = self.getTresholdValue()
         handID = self.handSelection.getCurrentHandID()
@@ -444,10 +443,12 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
     @pyqtSlot()
     def changeSavingFolder(self):
-        self.currentFolder = str(
+        path_str = str(
             QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
         )
-        self.folderLabel.setText(self.currentFolder)
+        if len(path_str) > 0:
+            self.folderLabel.setText(path_str)
+            self.currentFolder = Path(path_str)
 
     @pyqtSlot(str)
     def changePoseName(self, name: str):
@@ -460,7 +461,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         except:
             self.currentTresholdValue = 0.0
 
-    def getSavingFolder(self) -> str:
+    def getSavingFolder(self):
         return self.currentFolder
 
     def getPoseName(self) -> str:
@@ -472,7 +473,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
     def getHandID(self) -> int:
         return self.handSelection.getCurrentHandID()
 
-    def getFilePath(self) -> str:
+    def getFilePath(self):
         return self.currentFilePath
 
     def resizeEvent(self, event):

@@ -95,14 +95,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.datasetController.isSaved():
             exitBool = True
         else:
-            reply = QtGui.QMessageBox.question(self, 'Hand pose classifier',
-                "Do you want to save " + self.datasetController.getPoseName() + ' dataset?', buttons = QtGui.QMessageBox.StandardButtons(QtGui.QMessageBox.Yes|QtGui.QMessageBox.No|QtGui.QMessageBox.Cancel))
+            reply = QtWidgets.QMessageBox.question(self, 'Hand pose classifier',
+                "Do you want to save " + self.datasetController.getPoseName() + ' dataset?', buttons = QtWidgets.QMessageBox.StandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No|QtWidgets.QMessageBox.Cancel))
 
-            if reply == QtGui.QMessageBox.Cancel:
+            if reply == QtWidgets.QMessageBox.Cancel:
                 exitBool = False
-            elif reply == QtGui.QMessageBox.No:
+            elif reply == QtWidgets.QMessageBox.No:
                 exitBool = True
-            elif reply == QtGui.QMessageBox.Yes:
+            elif reply == QtWidgets.QMessageBox.Yes:
                 self.datasetController.writeDataToTxt()
                 exitBool = True
                 
@@ -116,8 +116,6 @@ class MainWindow(QtWidgets.QMainWindow):
             event.ignore()
     
     def keyPressEvent(self, event):
-        print(event.key())
-        print(self.datasetController.deleteButton.isEnabled())
         if event.key() == 16777223 and self.datasetController.deleteButton.isEnabled():
             self.datasetController.removeEntryDataset(self.datasetController.currentDataIndex)
     
@@ -134,10 +132,6 @@ class MainWindow(QtWidgets.QMainWindow):
         
         leftHandKeypoints, leftAccuracy = self.AnalysisThread.getHandData(0)
         rightHandKeypoints, rightAccuracy = self.AnalysisThread.getHandData(1)
-        poseKeypoints = self.AnalysisThread.getBodyData()
-        raisingLeft, raisingRight = self.AnalysisThread.isRaisingHand()
-        #print('Gauche: ' + str(raisingLeft))
-        #print('Droite: ' + str(raisingRight))
 
         if self.realTimeHandDraw:
             self.handClassifier.leftHandAnalysis.drawHand(leftHandKeypoints, leftAccuracy)

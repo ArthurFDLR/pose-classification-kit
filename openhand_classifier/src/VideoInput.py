@@ -9,8 +9,6 @@ from __init__ import OPENPOSE_PATH
 from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
 from .Util import mat2QImage, SwitchButton
 
-#import qimage2ndarray
-
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
     releasePATH = OPENPOSE_PATH / "build" / "x64" / "Release"
@@ -98,7 +96,6 @@ class CameraInput():
     def deleteTmpImage(self):
         os.remove(self.tmpUrl)
         self.tmpUrl = None
-
 
 class VideoViewerWidget(QtWidgets.QWidget):
     changeCameraID_signal = pyqtSignal
