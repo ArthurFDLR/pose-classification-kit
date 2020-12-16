@@ -144,7 +144,8 @@ class HandPlotWidget(QtWidgets.QWidget):
         for line in self.fingerLines:
             self.ax.add_line(line)
 
-    def plotHand(self, handKeypoints):
+
+    def plotHand(self, handKeypoints, accuracy:int):
         if self.isHandData(handKeypoints):
             colors = ["r", "y", "g", "b", "m"]
             data = [
@@ -156,8 +157,10 @@ class HandPlotWidget(QtWidgets.QWidget):
             ]
             for i, line in enumerate(self.fingerLines):
                 line.set_data(data[i][0], data[i][1])
+            self.ax.set_title('Accuracy: ' + str(accuracy), fontsize=12, color='#454545')
         else:
             self.clear()
+            self.ax.set_title('')
         self.canvas.draw()
 
     def clear(self):
@@ -237,7 +240,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         if self.showInput:
             # self.handGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
             self.updatePredictedClass(handKeypoints)
-            self.handGraphWidget.plotHand(handKeypoints)
+            self.handGraphWidget.plotHand(handKeypoints, accuracy)
 
     def updatePredictedClass(self, keypoints: np.ndarray):
         """Draw keypoints of a hand pose in the widget.
