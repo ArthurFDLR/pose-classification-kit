@@ -1,5 +1,6 @@
-# <h1 align = "center"> OpenHand classifier
+# <h1 align = "center"> OpenHand
 
+[![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
 [![Linting](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
 
@@ -9,26 +10,27 @@ This classifier is build upon the excellent pose estimator [**OpenPose**](https:
   - [Under the hood](#under-the-hood)
     - [Features extraction](#features-extraction)
     - [Keypoints normalization](#keypoints-normalization)
-    - [Dataset creation - *9809 samples for 24 output categories*](#dataset-creation---9809-samples-for-24-output-categories)
-    - [The pose classifier - a simple ANN](#the-pose-classifier---a-simple-ann)
+    - [Dataset creation - *11090 samples for 27 categories*](#dataset-creation---11090-samples-for-27-categories)
+    - [Pose classifier models](#pose-classifier-models)
   - [User guide](#user-guide)
 
 ## Installation
 
-Make sure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above.
+Make sure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
 
-1. Git clone the repository - `git clone https://github.com/ArthurFDLR/OpenHand-Classifier`
+1. Git clone the repository - `git clone https://github.com/ArthurFDLR/OpenHand-App`
 
-2. Install the packages required - `python -m poetry install` (or use the configuration file [`.\requirements.txt`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/requirements.txt) in the Python 3.7+ environment of your choice)
+2. Create an adequate `venv` virtual environment - `python -m poetry install` (or use the configuration file [`.\requirements.txt`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/requirements.txt) in the Python 3.7+ environment of your choice)
 
-3. You should now be able to run the application - `make run` (or `poetry run python .\openhand_classifier`)
+3. You should now be able to run the application - `make run` (or `poetry run python .\openhand_app`)
 
 Even if **OpenHand classifier** can run without [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose), it must be installed on your system to allow real-time hand gesture classification.
 
 4.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation.md).
 
-5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\openhand_classifier\__init__.py`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/openhand_classifier/__init__.py)) to the path to the OpenPose installation folder on your system.
+5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\openhand_app\__init__.py`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/openhand_app/__init__.py)) to the location of the OpenPose installation folder on your system.
 
+_Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry`). GPU support thus recquieres CUDA 11.0 which might conflict with **OpenPose** recquierement. However, classification models available in the application are relatively light. Modern CPUs will handle these models inference process flawlessly.
 
 ## Under the hood
 
@@ -75,7 +77,7 @@ Now that coordinates are normalized, the input data is flatten to be fed to the 
 
 <img src="/.github/markdown/formated_hand.png" width="400">
 
-### Dataset creation - [*9809 samples for 24 output categories*](https://github.com/ArthurFDLR/OpenHand-Classifier/tree/master/Datasets)
+### Dataset creation - [*11090 samples for 27 categories*](https://github.com/ArthurFDLR/OpenHand-Classifier/tree/master/Datasets)
 
 The dataset is composed of several classes. A class is composed of two text files, one for each hand. The dataset is structured as follow:
 
@@ -121,12 +123,13 @@ a:0.59823513 0.6402868 0.81965464 0.87657 0.9046949 0.83729064 0.8742925 0.47936
 </p>
 </details>
 
-Note that a training set of 150 samples per hand and per pose seems enough to yield good classification results. Dataset size and classification performance are study bellow for different ANN structures.
-A couple of minutes of recording with the provided tool is enough to generate enough data for a pose.
+Note that a training set of 150 samples per hand and per pose seems enough to yield good classification results. A couple of minutes of recording with the provided tool is enough to generate enough data for a pose.
 
-### The pose classifier - a simple ANN
+### Pose classifier models
 
-🚧 Under construction 🚧
+Classification models available in the application are stored in [`.\Models`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Models). Each model folder contain two HDF5 file containing model's architecture and weights values. While both model share the same architecture, they are respectively trained to analyse right or left hands. In addition a text file `class.txt` provides labels associated to the one-hot encoded output.
+
+See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Models) for more details and design your own model. 
 
 ## User guide
 
