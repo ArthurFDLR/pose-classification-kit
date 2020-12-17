@@ -93,10 +93,6 @@ class CameraInput():
         mat = cv2.imread(self.tmpUrl)
         return mat
 
-    def deleteTmpImage(self):
-        os.remove(self.tmpUrl)
-        self.tmpUrl = None
-
 class VideoViewerWidget(QtWidgets.QWidget):
     changeCameraID_signal = pyqtSignal
     stylesheet = """
@@ -216,6 +212,7 @@ class VideoAnalysisThread(QtCore.QThread):
         self.infoText = ""
         self.personID = 0
         self.running = False
+        self.last_frame = np.array([])
         self.videoSource = videoSource
         self.qimageEmission = qimageEmission
 
@@ -235,7 +232,6 @@ class VideoAnalysisThread(QtCore.QThread):
             self.opWrapper.configure(params)
             self.opWrapper.start()
 
-        self.lastTime = time.time()
         self.emissionFPS = 3.0
         self.fixedFps = True
 
@@ -245,10 +241,9 @@ class VideoAnalysisThread(QtCore.QThread):
     def run(self):
         while OPENPOSE_LOADED:
             if self.running:
-                self.lastTime = time.time()
-
                 frame = self.videoSource.getLastFrame()
-                if type(frame) != type(None):
+                if (type(frame) != type(None)) and not np.array_equal(self.last_frame, frame):
+                    self.last_frame = frame
                     # Check if frame exist, frame!=None is ambigious when frame is an array
                     frame = self.resizeCvFrame(frame, 0.5)
                     self.datum.cvInputData = frame

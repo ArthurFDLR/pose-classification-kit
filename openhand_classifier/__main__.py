@@ -1,6 +1,5 @@
 import time
 import sys
-import sys
 
 from src.qt import QtWidgets, QtGui
 
@@ -115,9 +114,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if exitBool:
             event.accept()
             self.AnalysisThread.terminate()
-            #self.cameraInput.terminate()
-            time.sleep(1.0)
-            #print(self.cameraInput.deleteTmpImage())
         else:
             event.ignore()
     
