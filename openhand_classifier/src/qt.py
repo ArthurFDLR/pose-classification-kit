@@ -1,5 +1,3 @@
-import sys
-
 PYSIDE2_LOADED = False
 PYQT5_LOADED = False
 

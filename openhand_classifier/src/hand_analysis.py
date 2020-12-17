@@ -1,21 +1,17 @@
+from .qt import QtWidgets, QtCore, pyqtSignal
 import numpy as np
 import os
 
-#from matplotlib.backends.qt_compat import QtCore, QtWidgets
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar,
 )
 from matplotlib import figure, lines, patches, path
 
-from .qt import QtWidgets, QtCore, PYSIDE2_LOADED, PYQT5_LOADED
-
-from .PoseClassifier import PoseClassifierWidget
-
 
 SHOW_TF_WARNINGS = False
 if not SHOW_TF_WARNINGS:
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # Avoid the annoying tf warnings
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # Avoid annoying tf warnings
 
 try:
     import tensorflow as tf
@@ -37,6 +33,18 @@ try:
     TF_LOADED = True
 except:
     TF_LOADED = False
+
+TF_STATUS_STR = (
+    (
+        "TensorFlow running: "
+        + str(len(GPU_LIST))
+        + " Physical GPUs, "
+        + str(len(logical_gpus))
+        + " Logical GPUs"
+    )
+    if TF_LOADED
+    else "TensorFlow not found."
+)
 
 
 class BarGraphWidget(QtWidgets.QWidget):
@@ -101,7 +109,7 @@ class BarGraphWidget(QtWidgets.QWidget):
             "color": "#454545",
             "weight": "normal",
             "fontsize": "large",
-            "fontname":"Helvetica",
+            "fontname": "Helvetica",
         }
 
         for i, cat in enumerate(categories):
@@ -144,8 +152,7 @@ class HandPlotWidget(QtWidgets.QWidget):
         for line in self.fingerLines:
             self.ax.add_line(line)
 
-
-    def plotHand(self, handKeypoints, accuracy:int):
+    def plotHand(self, handKeypoints, accuracy: int):
         if self.isHandData(handKeypoints):
             colors = ["r", "y", "g", "b", "m"]
             data = [
@@ -157,17 +164,19 @@ class HandPlotWidget(QtWidgets.QWidget):
             ]
             for i, line in enumerate(self.fingerLines):
                 line.set_data(data[i][0], data[i][1])
-            self.ax.set_title('Accuracy: ' + str(accuracy), fontsize=12, color='#454545')
+            self.ax.set_title(
+                "Accuracy: " + str(accuracy), fontsize=12, color="#454545"
+            )
         else:
             self.clear()
-            self.ax.set_title('')
+            self.ax.set_title("")
         self.canvas.draw()
 
     def clear(self):
         for line in self.fingerLines:
             line.set_data([], [])
         self.canvas.draw()
-    
+
     def isHandData(self, keypoints):
         b = False
         if type(keypoints) == np.ndarray:
@@ -194,6 +203,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         height: 1px 
     }
     """
+
     def __init__(self, handID: int, showInput: bool = True):
         super().__init__(("Right" if handID == 1 else "left") + " hand analysis")
         self.setStyleSheet(self.stylesheet)
@@ -205,9 +215,9 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
 
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
-        
+
         self.predictionLabel = QtWidgets.QLabel(self)
-        self.predictionLabel.setObjectName('Large_Label')
+        self.predictionLabel.setObjectName("Large_Label")
         self.layout.addWidget(self.predictionLabel)
         self.predictionLabel.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -280,9 +290,10 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
 
     def getCurrentPrediction(self) -> str:
         return self.currentPrediction
-    
-    def setPredictionText(self, prediction:str):
+
+    def setPredictionText(self, prediction: str):
         self.predictionLabel.setText(prediction)
+
 
 class HandClassifierWidget(QtWidgets.QWidget):
     stylesheet = """
@@ -319,10 +330,11 @@ class HandClassifierWidget(QtWidgets.QWidget):
         background: #cbcbcb;
     }
     """
+
     def __init__(self):
         super().__init__()
         ## Widget style
-        self.setObjectName('Hand_classifier')
+        self.setObjectName("Hand_classifier")
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.setStyleSheet(self.stylesheet)
 
@@ -335,16 +347,100 @@ class HandClassifierWidget(QtWidgets.QWidget):
         ## Structure
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
-        self.layout.setRowStretch(0,1)
-        self.layout.setRowStretch(1,0)
+        self.layout.setRowStretch(0, 1)
+        self.layout.setRowStretch(1, 0)
 
-        self.classifierWidget = PoseClassifierWidget(self)
-        self.layout.addWidget(self.classifierWidget,2,0,1,2)
+        self.classifierWidget = ClassifierSelectionWidget(self)
+        self.layout.addWidget(self.classifierWidget, 2, 0, 1, 2)
 
         self.leftHandAnalysis = HandAnalysisWidget(0)
-        self.classifierWidget.newClassifierModel_Signal.connect(self.leftHandAnalysis.newModelLoaded)
-        self.layout.addWidget(self.leftHandAnalysis, 0,0,2,1)
+        self.classifierWidget.newClassifierModel_Signal.connect(
+            self.leftHandAnalysis.newModelLoaded
+        )
+        self.layout.addWidget(self.leftHandAnalysis, 0, 0, 2, 1)
 
         self.rightHandAnalysis = HandAnalysisWidget(1)
-        self.classifierWidget.newClassifierModel_Signal.connect(self.rightHandAnalysis.newModelLoaded)
-        self.layout.addWidget(self.rightHandAnalysis, 0,1,2,1)
+        self.classifierWidget.newClassifierModel_Signal.connect(
+            self.rightHandAnalysis.newModelLoaded
+        )
+        self.layout.addWidget(self.rightHandAnalysis, 0, 1, 2, 1)
+
+
+class ClassifierSelectionWidget(QtWidgets.QWidget):
+    # newClassifierModel_Signal: url to load classifier model, output labels, handID
+    newClassifierModel_Signal = pyqtSignal(str, list, int)
+
+    def __init__(self, parent=None):
+        super().__init__()
+        self.parent = parent
+        self.modelRight = None
+        self.modelLeft = None
+
+        self.classOutputs = []
+        self.leftWidget = QtWidgets.QWidget()
+        self.layout = QtWidgets.QGridLayout(self)
+        self.setLayout(self.layout)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        classifierLabel = QtWidgets.QLabel("Classifier:")
+        classifierLabel.setSizePolicy(
+            QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum
+        )
+        self.layout.addWidget(classifierLabel, 1, 0, 1, 1)
+
+        self.classifierSelector = QtWidgets.QComboBox(
+            cursor=QtCore.Qt.PointingHandCursor
+        )
+        self.classifierSelector.addItems(self.getAvailableClassifiers())
+        self.layout.addWidget(self.classifierSelector, 1, 1, 1, 1)
+        self.classifierSelector.currentTextChanged.connect(self.loadModel)
+
+        updateClassifierButton = QtWidgets.QPushButton(
+            "Update list",
+            cursor=QtCore.Qt.PointingHandCursor,
+            toolTip="Refresh list of model available in associated folder",
+        )
+        updateClassifierButton.clicked.connect(self.updateClassifier)
+        self.layout.addWidget(updateClassifierButton, 1, 2, 1, 1)
+
+    def loadModel(self, name: str):
+        """Load full (structures + weigths) h5 model.
+
+        Args:
+            name (string): Name of the model. The folder .\models\name must contain: modelName_right.h5, modelName_left.h5, class.txt
+        """
+        if name != "None":
+            urlFolder = r".\Models" + "\\" + name
+            if os.path.isdir(urlFolder):
+                urlRight = urlFolder + "\\" + name + "_right.h5"
+                urlLeft = urlFolder + "\\" + name + "_left.h5"
+                urlClass = urlFolder + "\\" + "class.txt"
+                if os.path.isfile(urlClass):
+                    with open(urlClass, "r") as file:
+                        first_line = file.readline()
+                    self.classOutputs = first_line.split(",")
+                    print("Class model loaded.")
+                if os.path.isfile(urlRight):
+                    self.newClassifierModel_Signal.emit(urlRight, self.classOutputs, 1)
+                    print("Right hand model loaded.")
+                if os.path.isfile(urlLeft):
+                    self.newClassifierModel_Signal.emit(urlLeft, self.classOutputs, 0)
+                    print("Left hand model loaded.")
+        else:
+            print("None")
+            self.modelRight = None
+            self.modelLeft = None
+            self.classOutputs = []
+            self.newClassifierModel_Signal.emit("None", [], -1)
+
+    def getAvailableClassifiers(self):
+        listOut = ["None"]
+        listOut += [
+            name
+            for name in os.listdir(r".\Models")
+            if os.path.isdir(r".\Models\\" + name)
+        ]
+        return listOut
+
+    def updateClassifier(self):
+        self.classifierSelector.clear()
+        self.classifierSelector.addItems(self.getAvailableClassifiers())

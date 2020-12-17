@@ -17,6 +17,7 @@ try:
         os.environ["PATH"] + ";" + str(releasePATH) + ";" + str(binPATH) + ";"
     )
     import pyopenpose as op
+
     OPENPOSE_LOADED = True
     print("OpenPose ({}) loaded.".format(str(OPENPOSE_PATH)))
 except:
@@ -44,7 +45,8 @@ try:
 except:
     TF_LOADED = False
 
-def format_data(handKeypoints, hand_id:int):
+
+def format_data(handKeypoints, hand_id: int):
     """Return the key points of the hand seen in the image (cf. videoSource).
 
     Args:
@@ -87,7 +89,7 @@ def format_data(handKeypoints, hand_id:int):
 
             handCenterX = handKeypoints.T[0].sum() / handKeypoints.shape[0]
             handCenterY = handKeypoints.T[1].sum() / handKeypoints.shape[0]
-            
+
             outputArray = np.array(
                 [
                     (handKeypoints.T[0] - handCenterX) / normMax,
@@ -101,83 +103,92 @@ def format_data(handKeypoints, hand_id:int):
                 openhand_format.append(outputArray[0, i])  # add x
                 openhand_format.append(outputArray[1, i])  # add y
             openhand_format = np.array(openhand_format)
-    
+
     return openhand_format, handAccuaracyScore
 
+
 def getFPS(video):
-    (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
-    if int(major_ver)  < 3 :
+    (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split(".")
+    if int(major_ver) < 3:
         fps = video.get(cv2.cv.CV_CAP_PROP_FPS)
-    else :
+    else:
         fps = video.get(cv2.CAP_PROP_FPS)
-    return fps       
+    return fps
 
-def getFrameNumber(video)->int:
-    (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
-    if int(major_ver)  < 3 :
+
+def getFrameNumber(video) -> int:
+    (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split(".")
+    if int(major_ver) < 3:
         frame = video.get(cv2.cv.CAP_PROP_FRAME_COUNT)
-    else :
+    else:
         frame = video.get(cv2.CAP_PROP_FRAME_COUNT)
-    return int(frame)    
+    return int(frame)
 
-def getHeight(video)->int:
+
+def getHeight(video) -> int:
     return int(video.get(4))
 
-def getWidth(video)->int:
+
+def getWidth(video) -> int:
     return int(video.get(3))
 
+
 def create_plot(classifier_labels, prediction_probabilities, save_url):
-    assert(len(classifier_labels) == len(prediction_probabilities))
-    fig, ax = plt.subplots(figsize=(4,10))
+    assert len(classifier_labels) == len(prediction_probabilities)
+    fig, ax = plt.subplots(figsize=(4, 10))
     fig.subplots_adjust(left=0.1, right=0.9, top=0.96, bottom=0.04)
     plt.box(on=None)
+    plt.tick_params(axis="x", which="both", bottom=False, top=False, labelbottom=False)
     plt.tick_params(
-        axis='x',
-        which='both',
-        bottom=False,
-        top=False,
-        labelbottom=False)
-    plt.tick_params(
-        axis='y',
-        direction="in",
-        pad=-50,
-        which='both',
-        left=False,
-        labelleft=True)
+        axis="y", direction="in", pad=-50, which="both", left=False, labelleft=True
+    )
     ax.set_yticks(np.arange(len(prediction_probabilities)))
     ax.set_yticklabels(classifier_labels)
-    ax.barh(np.arange(len(prediction_probabilities)), prediction_probabilities, color='#9500ff')
-    fig.savefig(save_url, transparent=True, dpi=108, pad_inches=0.)
+    ax.barh(
+        np.arange(len(prediction_probabilities)),
+        prediction_probabilities,
+        color="#9500ff",
+    )
+    fig.savefig(save_url, transparent=True, dpi=108, pad_inches=0.0)
     plt.close(fig)
+
 
 if __name__ == "__main__" and OPENPOSE_LOADED:
     current_path = pathlib.Path.cwd()
 
     # Load Keras model
-    classifier_name = '24Output-2x128-17epochs'
-    classifier_path = current_path / 'Models' / classifier_name
-    right_hand_classifier = tf.keras.models.load_model(classifier_path / (classifier_name + "_right.h5"))
-    left_hand_classifier = tf.keras.models.load_model(classifier_path / (classifier_name + "_left.h5"))
+    classifier_name = "24Output-2x128-17epochs"
+    classifier_path = current_path / "Models" / classifier_name
+    right_hand_classifier = tf.keras.models.load_model(
+        classifier_path / (classifier_name + "_right.h5")
+    )
+    left_hand_classifier = tf.keras.models.load_model(
+        classifier_path / (classifier_name + "_left.h5")
+    )
     hand_classifiers = (left_hand_classifier, right_hand_classifier)
 
-
-    if os.path.isfile(classifier_path / 'class.txt'):
-        with open(classifier_path / 'class.txt', "r") as file:
+    if os.path.isfile(classifier_path / "class.txt"):
+        with open(classifier_path / "class.txt", "r") as file:
             first_line = file.readline()
             classifier_labels = first_line.split(",")
 
     # Open video
-    video_path = current_path / 'video' / 'hand_gesture_raw.mp4'
+    video_path = current_path / "video" / "hand_gesture_raw.mp4"
     video_in = cv2.VideoCapture(str(video_path))
     video_nbr_frame = getFrameNumber(video_in)
 
     # Create output video
-    outputs_name = 'output_test'
-    video_out_path = current_path / 'video' / 'output' / (outputs_name+'.avi')
-    barchart_out_path = current_path / 'video' / 'output' / outputs_name
+    outputs_name = "output_test"
+    video_out_path = current_path / "video" / "output" / (outputs_name + ".avi")
+    barchart_out_path = current_path / "video" / "output" / outputs_name
     barchart_out_path.mkdir(exist_ok=True)
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    video_out = cv2.VideoWriter(str(video_out_path), fourcc, getFPS(video_in), (getWidth(video_in), getHeight(video_in)))
+    fourcc = cv2.VideoWriter_fourcc(*"XVID")
+    video_out = cv2.VideoWriter(
+        str(video_out_path),
+        fourcc,
+        getFPS(video_in),
+        (getWidth(video_in), getHeight(video_in)),
+    )
 
     # Load OpenPose
     params = dict()
@@ -194,8 +205,8 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
     opWrapper.start()
 
     # Analyse video
-    #print("\n\nPress 'q' to stop analysis") Collapse with tqdm
-    for frame_index in tqdm(range(video_nbr_frame), 'Creating video'):
+    # print("\n\nPress 'q' to stop analysis") Collapse with tqdm
+    for frame_index in tqdm(range(video_nbr_frame), "Creating video"):
         if not video_in.isOpened():
             break
         else:
@@ -211,44 +222,70 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
                 frame = datum.cvOutputData
             else:
                 break
-            wrists_positions = [(0, 0),(0, 0)]
+            wrists_positions = [(0, 0), (0, 0)]
             if datum.poseKeypoints.ndim > 1:
                 body_keypoints = np.array(datum.poseKeypoints[0])
-                wrists_positions = [(body_keypoints[7][0], body_keypoints[7][1]),
-                                    (body_keypoints[4][0], body_keypoints[4][1])]
+                wrists_positions = [
+                    (body_keypoints[7][0], body_keypoints[7][1]),
+                    (body_keypoints[4][0], body_keypoints[4][1]),
+                ]
             hand_keypoints = np.array(datum.handKeypoints)
             hand_data, _ = format_data(hand_keypoints, hand_id)
 
             # OpenHand analysis
-            prediction_label = ''
+            prediction_label = ""
             prediction_probabilities = np.zeros(len(classifier_labels))
             if type(hand_data) != type(None):
-                prediction_probabilities = hand_classifiers[hand_id].predict(np.array([hand_data]))[0]
-                prediction_label = classifier_labels[np.argmax(prediction_probabilities)]
-            prediction_label = prediction_label.replace('_', ' ')
+                prediction_probabilities = hand_classifiers[hand_id].predict(
+                    np.array([hand_data])
+                )[0]
+                prediction_label = classifier_labels[
+                    np.argmax(prediction_probabilities)
+                ]
+            prediction_label = prediction_label.replace("_", " ")
 
             # Overlay result on video
             font = cv2.FONT_HERSHEY_SIMPLEX
             scale = 2
             thickness = 2
             color = (255, 0, 149)
-            (label_width, label_height), baseline = cv2.getTextSize(prediction_label, font, scale, thickness)
-            txt_position = tuple(map(lambda i, j: int(i - j), wrists_positions[hand_id], (label_width+80, 70)))
-            cv2.putText(frame, prediction_label, txt_position, font, scale, color, thickness, lineType = cv2.LINE_AA)
+            (label_width, label_height), baseline = cv2.getTextSize(
+                prediction_label, font, scale, thickness
+            )
+            txt_position = tuple(
+                map(
+                    lambda i, j: int(i - j),
+                    wrists_positions[hand_id],
+                    (label_width + 80, 70),
+                )
+            )
+            cv2.putText(
+                frame,
+                prediction_label,
+                txt_position,
+                font,
+                scale,
+                color,
+                thickness,
+                lineType=cv2.LINE_AA,
+            )
 
             # Display image
-            cv2.imshow('frame',frame)
+            cv2.imshow("frame", frame)
 
             # Write image
             video_out.write(frame)
 
             # Create probabilities barchart
-            create_plot(classifier_labels[:-1], prediction_probabilities[:-1], barchart_out_path / '{}.png'.format(frame_index))
-            
-            # Control
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+            create_plot(
+                classifier_labels[:-1],
+                prediction_probabilities[:-1],
+                barchart_out_path / "{}.png".format(frame_index),
+            )
 
+            # Control
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
 
     video_in.release()
     video_out.release()

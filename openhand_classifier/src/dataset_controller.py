@@ -22,6 +22,7 @@ class ScrollLabel(QtWidgets.QScrollArea):
     def setText(self, text):
         self.label.setText(text)
 
+
 class DatasetControllerWidget(QtWidgets.QWidget):
     realTimeHandDraw_Signal = pyqtSignal(bool)
     stylesheet = """
@@ -122,7 +123,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.datasetSaved = True
 
         ## Widget style
-        self.setObjectName('Dataset_Controller')
+        self.setObjectName("Dataset_Controller")
         self.setEnabled(False)
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.setStyleSheet(self.stylesheet)
@@ -148,7 +149,9 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.visuCheckbox.toggled.connect(self.visuCheckboxToggled)
         self.visuCheckbox.setEnabled(False)
 
-        self.minusButton = QtWidgets.QToolButton(cursor=QtCore.Qt.PointingHandCursor, toolTip='Previous sample in dataset')
+        self.minusButton = QtWidgets.QToolButton(
+            cursor=QtCore.Qt.PointingHandCursor, toolTip="Previous sample in dataset"
+        )
         self.minusButton.setArrowType(QtCore.Qt.LeftArrow)
         self.layout.addWidget(self.minusButton, 1, 1, 1, 1)
         self.minusButton.setEnabled(False)
@@ -172,7 +175,9 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.maxIndexLabel.setEnabled(False)
         self.layout.addWidget(self.maxIndexLabel, 1, 3, 1, 1)
 
-        self.plusButton = QtWidgets.QToolButton(cursor=QtCore.Qt.PointingHandCursor, toolTip='Next sample in dataset')
+        self.plusButton = QtWidgets.QToolButton(
+            cursor=QtCore.Qt.PointingHandCursor, toolTip="Next sample in dataset"
+        )
         self.plusButton.setArrowType(QtCore.Qt.RightArrow)
         self.layout.addWidget(self.plusButton, 1, 4, 1, 1)
         self.plusButton.setEnabled(False)
@@ -185,15 +190,23 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             lambda: self.setCurrentDataIndex(self.currentDataIndex + 1),
         )
 
-        self.deleteButton = QtWidgets.QPushButton("Delete sample", cursor=QtCore.Qt.PointingHandCursor, toolTip='Remove sample from the dataset')
+        self.deleteButton = QtWidgets.QPushButton(
+            "Delete sample",
+            cursor=QtCore.Qt.PointingHandCursor,
+            toolTip="Remove sample from the dataset",
+        )
         self.deleteButton.setEnabled(False)
         self.layout.addWidget(self.deleteButton, 1, 5, 1, 1)
         self.deleteButton.clicked.connect(
             lambda: self.removeEntryDataset(self.currentDataIndex)
         )
 
-        self.recordButton = QtWidgets.QPushButton("Record samples", cursor=QtCore.Qt.PointingHandCursor, toolTip='Start and stop sample recording')
-        self.recordButton.setObjectName('Record_Button')
+        self.recordButton = QtWidgets.QPushButton(
+            "Record samples",
+            cursor=QtCore.Qt.PointingHandCursor,
+            toolTip="Start and stop sample recording",
+        )
+        self.recordButton.setObjectName("Record_Button")
         self.recordButton.setCheckable(True)
         self.recordButton.setChecked(False)
         self.recordButton.setEnabled(False)
@@ -428,9 +441,9 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
         self.setWindowTitle("Create new dataset")
 
-        self.currentFolder = Path('.').absolute()
-        if (self.currentFolder / 'Dataset').is_dir():
-            self.currentFolder /= 'Dataset'
+        self.currentFolder = Path(".").absolute()
+        if (self.currentFolder / "Dataset").is_dir():
+            self.currentFolder /= "Dataset"
         self.currentFilePath = None
         self.currentPoseName = "Default"
         self.currentTresholdValue = 0.0
@@ -443,9 +456,9 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
         self.folderButton = QtWidgets.QPushButton("Change root folder")
         self.folderButton.clicked.connect(self.changeSavingFolder)
-        
+
         self.handSelection = HandSelectionWidget(self)
-        
+
         self.poseNameLine = QtWidgets.QLineEdit(self.currentPoseName)
         self.poseNameLine.textChanged.connect(self.changePoseName)
 
@@ -468,9 +481,9 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.layout.addWidget(QtWidgets.QLabel("Accuaracy treshold:"), 1, 3, 1, 1)
         self.layout.addWidget(self.tresholdValueLine, 1, 4, 1, 1)
         self.layout.addWidget(self.createButton, 1, 5, 1, 1)
-        self.layout.setRowStretch(0,0)
-        self.layout.setRowStretch(1,0)
-        self.layout.setRowStretch(2,1)
+        self.layout.setRowStretch(0, 0)
+        self.layout.setRowStretch(1, 0)
+        self.layout.setRowStretch(2, 1)
 
     def createDataset(self):
         self.isRecording = True
@@ -484,7 +497,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         if not path.is_dir():  # Create pose directory if missing
             os.mkdir(path)
 
-        path /= ("right_hand" if handID == 1 else "left_hand")
+        path /= "right_hand" if handID == 1 else "left_hand"
         if path.is_dir():
             self.isRecording = False
             self.createButton.setEnabled(False)
@@ -495,7 +508,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
             self.createButton.setText("Create dataset")
             os.mkdir(path)  # Create hand directory if missing
 
-            path /= 'data.txt'
+            path /= "data.txt"
             currentFile = open(path, "w+")
             currentFile.write(self.getFileHeadlines())
             currentFile.close()

@@ -14,19 +14,19 @@ video_overlay:
 # formatting
 
 fmt-black:
-	poetry run black openhand_classifier/src/ tests/
+	poetry run black openhand_classifier/
 
 # lint
 
 lint-black:
-	poetry run black --check openhand_classifier/src/ tests/
+	poetry run black --check openhand_classifier/src/
 
 lint: lint-black
 
 # test
 
-test-pytest:
-	poetry run pytest tests/
+#test-pytest:
+#	poetry run pytest tests/
 
 test: test-pytest
 
