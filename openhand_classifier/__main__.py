@@ -52,7 +52,11 @@ class MainWindow(QtWidgets.QMainWindow):
         leftLayout = QtWidgets.QVBoxLayout(leftWidget)
         leftLayout.addWidget(self.videoViewer)
         leftLayout.addWidget(self.datasetController)
-        leftLayout.addItem(QtWidgets.QSpacerItem(5, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
+        leftLayout.addItem(
+            QtWidgets.QSpacerItem(
+                5, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding
+            )
+        )
         leftLayout.setStretch(0, 0)
         leftLayout.setStretch(1, 0)
         leftLayout.setStretch(2, 1)

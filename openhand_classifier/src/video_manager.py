@@ -70,13 +70,12 @@ class CameraInput:
         self.lastID = idImg
 
     def qImageToMat(self, incomingImage):
-        # qimage2ndarray not working...
         incomingImage.save(self.tmpUrl, "png")
         mat = cv2.imread(self.tmpUrl)
         return mat
 
-class ImageWidget(QtWidgets.QLabel):
 
+class ImageWidget(QtWidgets.QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
@@ -89,6 +88,7 @@ class ImageWidget(QtWidgets.QLabel):
     def heightForWidth(self, w):
         if self.pixmap():
             return int(w * (self.pixmap().height() / self.pixmap().width()))
+
 
 class VideoViewerWidget(QtWidgets.QWidget):
     changeCameraID_signal = pyqtSignal()
@@ -185,12 +185,10 @@ class VideoViewerWidget(QtWidgets.QWidget):
                 "Video analysis impossible.\nCheck OpenPose installation."
             )
             self.layout.addWidget(label, 0, 0, 1, 1)
-    
+
     @pyqtSlot(np.ndarray)
     def setFrame(self, frame: np.ndarray):
-        image = qimage2ndarray.array2qimage(
-                    cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                )
+        image = qimage2ndarray.array2qimage(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         self.currentPixmap = QtGui.QPixmap.fromImage(image)
         self.cameraFeed.setPixmap(
             self.currentPixmap.scaled(
@@ -200,7 +198,7 @@ class VideoViewerWidget(QtWidgets.QWidget):
             )
         )
 
-    #def setVideoSize(self, width: int, height: int):
+    # def setVideoSize(self, width: int, height: int):
     #    self.cameraFeed.setFixedSize(width, height)
 
     def setInfoText(self, info: str):
