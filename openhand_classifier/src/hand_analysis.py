@@ -194,9 +194,9 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
     }
 
     QSplitter::handle {
-    color: #cbcbcb;
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
+        color: #cbcbcb;
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
     }
 
     QSplitter::handle:horizontal {
@@ -205,7 +205,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
     """
 
     def __init__(self, handID: int, showInput: bool = True):
-        super().__init__(("Right" if handID == 1 else "left") + " hand analysis")
+        super().__init__(("Right" if handID == 1 else "left") + " hand")
         self.setStyleSheet(self.stylesheet)
         self.handID = handID
         self.showInput = showInput

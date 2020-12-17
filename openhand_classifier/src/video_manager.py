@@ -79,7 +79,9 @@ class ImageWidget(QtWidgets.QLabel):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.parent = parent
         self.setScaledContents(True)
+        self.setMinimumWidth(100)
 
     def hasHeightForWidth(self):
         return self.pixmap() is not None
@@ -97,28 +99,28 @@ class VideoViewerWidget(QtWidgets.QWidget):
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
     QLabel {
-    font-size: 16px;
-    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+        font-size: 16px;
+        font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
     QPushButton {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: white;
-    padding: 3px;
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
+        padding: 3px;
     }
     #OpenPose_button {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: #ffcccc;
-    padding: 3px;
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: #ffcccc;
+        padding: 3px;
     }
     QComboBox {
-    border: 1px solid #cbcbcb;
-    border-radius: 2px;
-    font-size: 16px;
-    background: white;
+        border: 1px solid #cbcbcb;
+        border-radius: 2px;
+        font-size: 16px;
+        background: white;
     }
     QPushButton:hover {
         border-color: rgb(139, 173, 228);
@@ -198,8 +200,8 @@ class VideoViewerWidget(QtWidgets.QWidget):
             )
         )
 
-    def setVideoSize(self, width: int, height: int):
-        self.cameraFeed.setFixedSize(width, height)
+    #def setVideoSize(self, width: int, height: int):
+    #    self.cameraFeed.setFixedSize(width, height)
 
     def setInfoText(self, info: str):
         if info:

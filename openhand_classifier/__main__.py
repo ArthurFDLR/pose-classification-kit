@@ -1,4 +1,4 @@
-from src.qt import QtWidgets, QtGui
+from src.qt import QtWidgets, QtGui, QtCore
 from src.dataset_controller import DatasetControllerWidget
 from src.video_manager import CameraInput, VideoViewerWidget
 from src.hand_analysis import HandClassifierWidget, TF_STATUS_STR, TF_LOADED
@@ -36,29 +36,33 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
         self.AnalysisThread = VideoAnalysisThread(self.cameraInput)
-        #self.AnalysisThread.newPixmap.connect(self.videoViewer.setImage)
         self.AnalysisThread.newFrame.connect(self.videoViewer.setFrame)
         self.AnalysisThread.newFrame.connect(self.analyseNewImage)
-
         self.AnalysisThread.start()
         self.AnalysisThread.setState(True)
 
         self.handClassifier = HandClassifierWidget()
 
         ## Structure
-        mainWidget = QtWidgets.QWidget(self)
-        self.setCentralWidget(mainWidget)
+        self.windowSplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
+        self.setCentralWidget(self.windowSplitter)
+        self.windowSplitter.setChildrenCollapsible(False)
 
-        self.layout = QtWidgets.QGridLayout(mainWidget)
-        mainWidget.setLayout(self.layout)
-        self.layout.addWidget(self.handClassifier, 0, 1, 3, 1)
-        self.layout.addWidget(self.videoViewer, 0, 0, 1, 1)
-        self.layout.addWidget(self.datasetController, 1, 0, 1, 1)
-        self.layout.setRowStretch(0, 0)
-        self.layout.setRowStretch(1, 0)
-        self.layout.setRowStretch(2, 1)
-        self.layout.setColumnStretch(0, 0)
-        self.layout.setColumnStretch(1, 1)
+        leftWidget = QtWidgets.QWidget()
+        leftLayout = QtWidgets.QVBoxLayout(leftWidget)
+        leftLayout.addWidget(self.videoViewer)
+        leftLayout.addWidget(self.datasetController)
+        leftLayout.addItem(QtWidgets.QSpacerItem(5, 10, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
+        leftLayout.setStretch(0, 0)
+        leftLayout.setStretch(1, 0)
+        leftLayout.setStretch(2, 1)
+
+        rightWidget = QtWidgets.QWidget()
+        rightLayout = QtWidgets.QVBoxLayout(rightWidget)
+        rightLayout.addWidget(self.handClassifier)
+
+        self.windowSplitter.addWidget(leftWidget)
+        self.windowSplitter.addWidget(rightWidget)
 
         ## Menu
         bar = self.menuBar()
