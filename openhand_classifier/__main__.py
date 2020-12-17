@@ -35,14 +35,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.changeHandDrawingState
         )
 
-        videoHeight = 480  # 480p
         self.AnalysisThread = VideoAnalysisThread(self.cameraInput)
-        self.AnalysisThread.newPixmap.connect(self.videoViewer.setImage)
-        self.AnalysisThread.newPixmap.connect(self.analyseNewImage)
-        self.AnalysisThread.setResolutionStream(
-            int(videoHeight * (16.0 / 9.0)), videoHeight
-        )
-        self.videoViewer.setVideoSize(int(videoHeight * (16.0 / 9.0)), videoHeight)
+        #self.AnalysisThread.newPixmap.connect(self.videoViewer.setImage)
+        self.AnalysisThread.newFrame.connect(self.videoViewer.setFrame)
+        self.AnalysisThread.newFrame.connect(self.analyseNewImage)
 
         self.AnalysisThread.start()
         self.AnalysisThread.setState(True)

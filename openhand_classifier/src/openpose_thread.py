@@ -5,7 +5,6 @@ import cv2
 import numpy as np
 import os
 import sys
-import qimage2ndarray
 
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
@@ -24,17 +23,15 @@ except:
 
 
 class VideoAnalysisThread(QtCore.QThread):
-    newPixmap = pyqtSignal(QtGui.QImage)
-    newMat = pyqtSignal(np.ndarray)
+    newFrame = pyqtSignal(np.ndarray)
 
-    def __init__(self, videoSource, qimageEmission: bool = True):
+    def __init__(self, videoSource):
         super().__init__()
         self.infoText = ""
         self.personID = 0
         self.running = False
         self.last_frame = np.array([])
         self.videoSource = videoSource
-        self.qimageEmission = qimageEmission
 
         ## Starting OpenPose ##
         #######################
@@ -52,12 +49,6 @@ class VideoAnalysisThread(QtCore.QThread):
             self.opWrapper.configure(params)
             self.opWrapper.start()
 
-        self.emissionFPS = 3.0
-        self.fixedFps = True
-
-        self.videoWidth = 1280
-        self.videoHeight = 720
-
     def run(self):
         while OPENPOSE_LOADED:
             if self.running:
@@ -71,31 +62,11 @@ class VideoAnalysisThread(QtCore.QThread):
                     self.datum.cvInputData = frame
                     self.opWrapper.emplaceAndPop([self.datum])
                     frameOutput = self.datum.cvOutputData
-                    self.newMat.emit(frameOutput)
-
-                    if self.qimageEmission:
-                        image = qimage2ndarray.array2qimage(
-                            cv2.cvtColor(frameOutput, cv2.COLOR_BGR2RGB)
-                        )
-                        image = image.scaled(
-                            self.videoWidth,
-                            self.videoHeight,
-                            QtCore.Qt.KeepAspectRatio,
-                        )
-                        self.newPixmap.emit(image)
+                    self.newFrame.emit(frameOutput)
 
     @pyqtSlot(bool)
     def setState(self, s: bool):
         self.running = s
-
-    def setResolutionStream(self, width: int, height: int):
-        self.videoHeight = height
-        self.videoWidth = width
-
-    def setEmissionSpeed(self, fixedFPS: bool, fps: int):
-        self.fixedFps = fixedFPS
-        if self.fixedFps:
-            self.emissionFPS = fps
 
     def getHandData(self, handID: int):
         """Return the key points of the hand seen in the image (cf. videoSource).

@@ -4,6 +4,7 @@ from .openpose_thread import OPENPOSE_LOADED
 import pathlib
 import cv2
 import numpy as np
+import qimage2ndarray
 
 
 class CameraInput:
@@ -74,6 +75,18 @@ class CameraInput:
         mat = cv2.imread(self.tmpUrl)
         return mat
 
+class ImageWidget(QtWidgets.QLabel):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setScaledContents(True)
+
+    def hasHeightForWidth(self):
+        return self.pixmap() is not None
+
+    def heightForWidth(self, w):
+        if self.pixmap():
+            return int(w * (self.pixmap().height() / self.pixmap().width()))
 
 class VideoViewerWidget(QtWidgets.QWidget):
     changeCameraID_signal = pyqtSignal()
@@ -134,7 +147,7 @@ class VideoViewerWidget(QtWidgets.QWidget):
         self.setGraphicsEffect(effect)
 
         ## Widgets initialisation
-        self.rawCamFeed = QtWidgets.QLabel(self)
+        self.cameraFeed = ImageWidget(self)
 
         self.infoLabel = QtWidgets.QLabel(
             "No info"
@@ -161,7 +174,7 @@ class VideoViewerWidget(QtWidgets.QWidget):
         self.layout.setColumnStretch(3, 1)
 
         if OPENPOSE_LOADED:
-            self.layout.addWidget(self.rawCamFeed, 0, 0, 1, 5)
+            self.layout.addWidget(self.cameraFeed, 0, 0, 1, 5)
             self.layout.addWidget(self.refreshButton, 1, 0, 1, 1)
             self.layout.addWidget(self.camera_selector, 1, 1, 1, 1)
             self.layout.addWidget(self.infoLabel, 1, 3, 1, 1)
@@ -170,20 +183,23 @@ class VideoViewerWidget(QtWidgets.QWidget):
                 "Video analysis impossible.\nCheck OpenPose installation."
             )
             self.layout.addWidget(label, 0, 0, 1, 1)
-
-    @pyqtSlot(QtGui.QImage)
-    def setImage(self, image: QtGui.QImage):
+    
+    @pyqtSlot(np.ndarray)
+    def setFrame(self, frame: np.ndarray):
+        image = qimage2ndarray.array2qimage(
+                    cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                )
         self.currentPixmap = QtGui.QPixmap.fromImage(image)
-        self.rawCamFeed.setPixmap(
+        self.cameraFeed.setPixmap(
             self.currentPixmap.scaled(
-                self.rawCamFeed.size(),
+                self.cameraFeed.size(),
                 QtCore.Qt.KeepAspectRatio,
                 QtCore.Qt.SmoothTransformation,
             )
         )
 
     def setVideoSize(self, width: int, height: int):
-        self.rawCamFeed.setFixedSize(width, height)
+        self.cameraFeed.setFixedSize(width, height)
 
     def setInfoText(self, info: str):
         if info:
