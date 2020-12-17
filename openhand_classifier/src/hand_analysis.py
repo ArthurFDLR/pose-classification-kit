@@ -36,11 +36,7 @@ except:
 
 TF_STATUS_STR = (
     (
-        "TensorFlow running: "
-        + str(len(GPU_LIST))
-        + " Physical GPUs, "
-        + str(len(logical_gpus))
-        + " Logical GPUs"
+        "TensorFlow running ({} GPU)". format(len(GPU_LIST))
     )
     if TF_LOADED
     else "TensorFlow not found."
