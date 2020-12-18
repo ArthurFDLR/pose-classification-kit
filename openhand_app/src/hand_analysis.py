@@ -1,6 +1,7 @@
 from .qt import QtWidgets, QtCore, pyqtSignal
 import numpy as np
 import os
+from __init__ import MODELS_PATH
 
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvas,
@@ -105,7 +106,7 @@ class BarGraphWidget(QtWidgets.QWidget):
             "color": "#454545",
             "weight": "normal",
             "fontsize": "large",
-            "fontname": "Helvetica",
+            "fontname": "DejaVu Sans",
         }
 
         for i, cat in enumerate(categories):
@@ -405,22 +406,27 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
             name (string): Name of the model. The folder .\models\name must contain: modelName_right.h5, modelName_left.h5, class.txt
         """
         if name != "None":
-            urlFolder = r".\Models" + "\\" + name
-            if os.path.isdir(urlFolder):
-                urlRight = urlFolder + "\\" + name + "_right.h5"
-                urlLeft = urlFolder + "\\" + name + "_left.h5"
-                urlClass = urlFolder + "\\" + "class.txt"
-                if os.path.isfile(urlClass):
+            urlFolder = MODELS_PATH / name
+            print(urlFolder)
+            if urlFolder.is_dir():
+                urlRight = urlFolder / (name + "_right.h5")
+                urlLeft = urlFolder /  (name + "_left.h5")
+                urlClass = urlFolder / "class.txt"
+                if urlClass.is_file():
                     with open(urlClass, "r") as file:
                         first_line = file.readline()
                     self.classOutputs = first_line.split(",")
                     print("Class model loaded.")
-                if os.path.isfile(urlRight):
-                    self.newClassifierModel_Signal.emit(urlRight, self.classOutputs, 1)
+                if urlRight.is_file():
+                    self.newClassifierModel_Signal.emit(str(urlRight), self.classOutputs, 1)
                     print("Right hand model loaded.")
-                if os.path.isfile(urlLeft):
-                    self.newClassifierModel_Signal.emit(urlLeft, self.classOutputs, 0)
+                else:
+                    self.newClassifierModel_Signal.emit("None", [], 1)
+                if urlLeft.is_file():
+                    self.newClassifierModel_Signal.emit(str(urlLeft), self.classOutputs, 0)
                     print("Left hand model loaded.")
+                else:
+                    self.newClassifierModel_Signal.emit("None", [], 0)
         else:
             print("None")
             self.modelRight = None
@@ -432,8 +438,8 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
         listOut = ["None"]
         listOut += [
             name
-            for name in os.listdir(r".\Models")
-            if os.path.isdir(r".\Models\\" + name)
+            for name in os.listdir(str(MODELS_PATH))
+            if (MODELS_PATH / name).is_dir()
         ]
         return listOut
 

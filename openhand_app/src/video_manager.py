@@ -170,16 +170,13 @@ class VideoViewerWidget(QtWidgets.QWidget):
         ## Widget structure
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
-        self.layout.setColumnStretch(0, 0)
-        self.layout.setColumnStretch(1, 0)
-        self.layout.setColumnStretch(2, 0)
-        self.layout.setColumnStretch(3, 1)
+
 
         if OPENPOSE_LOADED:
-            self.layout.addWidget(self.cameraFeed, 0, 0, 1, 5)
-            self.layout.addWidget(self.refreshButton, 1, 0, 1, 1)
-            self.layout.addWidget(self.camera_selector, 1, 1, 1, 1)
-            self.layout.addWidget(self.infoLabel, 1, 3, 1, 1)
+            self.layout.addWidget(self.cameraFeed, 0, 0, 1, 3)
+            self.layout.addWidget(self.refreshButton, 2, 0, 1, 1)
+            self.layout.addWidget(self.camera_selector, 2, 1, 1, 1)
+            self.layout.addWidget(self.infoLabel, 1, 0, 1, 3)
         else:
             label = QtWidgets.QLabel(
                 "Video analysis impossible.\nCheck OpenPose installation."

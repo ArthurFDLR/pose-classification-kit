@@ -144,7 +144,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.fileLabel.setMinimumWidth(180)
         self.layout.addWidget(self.fileLabel, 0, 0, 1, 9, QtCore.Qt.AlignTop)
 
-        self.visuCheckbox = QtWidgets.QCheckBox("Visualize imported dataset")
+        self.visuCheckbox = QtWidgets.QCheckBox("Visualize dataset")
         self.layout.addWidget(self.visuCheckbox, 1, 0)
         self.visuCheckbox.toggled.connect(self.visuCheckboxToggled)
         self.visuCheckbox.setEnabled(False)
@@ -166,7 +166,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
 
         self.currentIndexLine = QtWidgets.QLineEdit(str(self.currentDataIndex))
         self.currentIndexLine.setValidator(QtGui.QDoubleValidator())
-        self.currentIndexLine.setMaximumWidth(25)
+        self.currentIndexLine.setMaximumWidth(40)
         self.currentIndexLine.setEnabled(False)
         self.layout.addWidget(self.currentIndexLine, 1, 2, 1, 1)
         self.currentIndexLine.textChanged.connect(self.userIndexInput)
