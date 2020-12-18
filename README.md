@@ -13,6 +13,7 @@ This classifier is build upon the excellent pose estimator [**OpenPose**](https:
     - [Dataset creation - *11090 samples for 27 categories*](#dataset-creation---11090-samples-for-27-categories)
     - [Pose classifier models](#pose-classifier-models)
   - [User guide](#user-guide)
+    - [Additional scripts](#additional-scripts)
 
 ## Installation
 
@@ -134,3 +135,8 @@ See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Mode
 ## User guide
 
 🚧 Under construction 🚧
+
+### Additional scripts
+
+Some fonctionnality are currently unavailable through the GUI:
+- You can export all dataset samples from [`.\Dataset`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Dataset) in a single CSV file - `make dataset-csv` (or `python -m poetry run python .\openhand_app\scripts\dataset_export.py`)
