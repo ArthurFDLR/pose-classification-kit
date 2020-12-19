@@ -1,12 +1,19 @@
 import numpy as np
 import cv2
-import pathlib
+from pathlib import Path
 import sys
 import os
 import matplotlib.pyplot as plt
-from tqdm import tqdm
+import matplotlib
+font = {
+        "family": "serif",
+        "weight": "normal",
+        "size": "22",
+        "serif": "DejaVu Sans",
+    }
+matplotlib.rc('font', **font)
 
-OPENPOSE_PATH = pathlib.Path("C:/") / "Program files" / "OpenPose"
+OPENPOSE_PATH = Path("C:/") / "Program files" / "OpenPose"
 
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
@@ -143,7 +150,7 @@ def create_plot(classifier_labels, prediction_probabilities, save_url):
         axis="y", direction="in", pad=-50, which="both", left=False, labelleft=True
     )
     ax.set_yticks(np.arange(len(prediction_probabilities)))
-    ax.set_yticklabels(classifier_labels)
+    ax.set_yticklabels(classifier_labels, ha='left')
     ax.barh(
         np.arange(len(prediction_probabilities)),
         prediction_probabilities,
@@ -154,7 +161,7 @@ def create_plot(classifier_labels, prediction_probabilities, save_url):
 
 
 if __name__ == "__main__" and OPENPOSE_LOADED:
-    current_path = pathlib.Path.cwd()
+    current_path = Path.cwd()
 
     # Load Keras model
     classifier_name = "24Output-2x128-17epochs"
@@ -171,16 +178,18 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
         with open(classifier_path / "class.txt", "r") as file:
             first_line = file.readline()
             classifier_labels = first_line.split(",")
+    for i in range(len(classifier_labels)):
+        classifier_labels[i]=classifier_labels[i].replace('_', ' ')
 
     # Open video
-    video_path = current_path / "video" / "hand_gesture_raw.mp4"
+    video_path = current_path / "video" / "hand_gesture_cc.mp4"
     video_in = cv2.VideoCapture(str(video_path))
     video_nbr_frame = getFrameNumber(video_in)
 
     # Create output video
-    outputs_name = "output_test"
+    outputs_name = "output"
     video_out_path = current_path / "video" / "output" / (outputs_name + ".avi")
-    barchart_out_path = current_path / "video" / "output" / outputs_name
+    barchart_out_path = current_path / "video" / "output" / (outputs_name+'_barchart')
     barchart_out_path.mkdir(exist_ok=True)
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
     video_out = cv2.VideoWriter(
@@ -193,7 +202,7 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
     # Load OpenPose
     params = dict()
     params["model_folder"] = str(modelsPATH)
-    params["face"] = False
+    params["face"] = True
     params["hand"] = True
     params["disable_multi_thread"] = False
     netRes = 22  # Default 22
@@ -205,8 +214,8 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
     opWrapper.start()
 
     # Analyse video
-    # print("\n\nPress 'q' to stop analysis") Collapse with tqdm
-    for frame_index in tqdm(range(video_nbr_frame), "Creating video"):
+    print("\n\nPress 'q' to stop analysis")
+    for frame_index in range(video_nbr_frame):
         if not video_in.isOpened():
             break
         else:

@@ -139,4 +139,5 @@ See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Mode
 ### Additional scripts
 
 Some fonctionnality are currently unavailable through the GUI:
-- You can export all dataset samples from [`.\Dataset`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Dataset) in a single CSV file - `make dataset-csv` (or `python -m poetry run python .\openhand_app\scripts\dataset_export.py`)
+- You can export all dataset samples from [`.\Dataset`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Dataset) in a single CSV file - `make dataset-csv` (or `poetry run python .\openhand_app\scripts\dataset_export.py`)
+- You can generate videos similar to [this one](ADD LINK) ([`.\openhand_app\scripts\video_creation.py`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/openhand_app/scripts/video_creation.py) might need some modification to fit your use case) - `make video-overlay` (or `poetry run python .\openhand_app\scripts\video_creation.py`)
