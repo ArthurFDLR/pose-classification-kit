@@ -3,10 +3,10 @@ run:
 	poetry run python .\openhand_app
 
 dataset-csv:
-	python -m poetry run python .\openhand_app\scripts\dataset_export.py
+	poetry run python .\openhand_app\scripts\dataset_export.py
 
 video-overlay:
-	python -m poetry run python .\openhand_app\scripts\video_creation.py
+	poetry run python .\openhand_app\scripts\video_creation.py
 
 # formatting
 
