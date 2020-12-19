@@ -133,7 +133,7 @@ Note that a training set of 150 samples per hand and per pose seems enough to yi
 
 ### Pose classifier models
 
-Classification models available in the application are stored in [`.\Models`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Models). Each model sub-folder contain two HDF5 files containing model's architecture and weights values. While both model share the same architecture, they are respectively trained to analyse right or left hands. In addition a text file `class.txt` provides labels associated to the one-hot encoded output.
+Classification models available in the application are stored in [`.\Models`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Models). Each model sub-folder contains two HDF5 files containing the model's architecture and weights values. While both models usually share the same architecture, they are trained to analyze the right or the left hand. Besides, a text file `class.txt` provides labels associated with the classifiers' one-hot encoded output.
 
 ```
 .\AppHandClassifier\Models
@@ -157,16 +157,16 @@ See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Mode
 
 ### Real-time pose classification
 
-The video feed of the selected camera is feeded to OpenPose at all time. The analysis result is displayed on the left size of the application. Then, you simply have to select one of the available model in the drop-down at the bottom of the hand-analysis window. Hand keypoints extracted from the video feed by OpenPose are automatically normalized and feeded to the classifier.
+The video feed of the selected camera is fed to OpenPose at all times. The analysis results are displayed on the left side of the application. You have to choose one of the available models in the drop-down at the bottom of the hand-analysis window. Hand keypoints extracted from the video feed by OpenPose are automatically normalized and fed to the classifier.
 
-### Create and manipulate dataset
+### Create and manipulate datasets
 
-First, you either have to load or create a new set of samples for a specific label and hand side. To do so, respectivelly choose *Open (Ctrl+O)* or *Create new (Ctrl+N)* in *Dataset* of the menu bar. You have to specify the hand side, the label and the accuracy treshold of the newly created samples set. The accuracy treshold define the minimum accuracy of hand keypoints detection from OpenPose of any sample in the set. This accuracy is displayed on top of hand keypoints graphs.
+First, you either have to load or create a new set of samples for a specific label and hand side. To do so, respectively choose *Open (Ctrl+O)* or *Create new (Ctrl+N)* in *Dataset* of the menu bar. You have to specify the hand side, the label, and the newly created samples set' accuracy threshold. The accuracy threshold defines the minimum accuracy of hand keypoints detection from OpenPose of any sample in the set. This accuracy is displayed on top of hand keypoints graphs.
 
 Now that a set is loaded in the application, you can record new samples from your video feed or inspect the set and delete inadequate samples. When your done, save the set through *Dataset -> Save (Ctrl+S)*.
 
 ### Additional scripts
 
-Some fonctionnality are currently unavailable through the GUI:
+Some functionalities  are currently unavailable through the GUI:
 - You can export all dataset samples from [`.\Dataset`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Dataset) in a single CSV file - `make dataset-csv` (or `poetry run python .\openhand_app\scripts\dataset_export.py`)
 - You can generate videos similar to [this one](https://youtu.be/FK-1G749cIo) ([`.\openhand_app\scripts\video_creation.py`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/openhand_app/scripts/video_creation.py) might need some modification to fit your use case) - `make video-overlay` (or `poetry run python .\openhand_app\scripts\video_creation.py`)
