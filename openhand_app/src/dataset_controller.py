@@ -440,6 +440,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         super(CreateDatasetDialog, self).__init__(parent=parent)
 
         self.setWindowTitle("Create new dataset")
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.currentFolder = Path(".").absolute()
         if (self.currentFolder / "Dataset").is_dir():
