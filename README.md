@@ -1,10 +1,12 @@
 # <h1 align = "center"> OpenHand
 
+<img src="./.github/markdown/OpenHand_snap.png" width="800" alt="OpenHand snapshot" class="center">
+
 [![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
 [![Linting](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
 
-This classifier is build upon the excellent pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab**. A GUI has been developped to ease dataset creation and real-world testing.
+The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab**. This application eases dataset creation and real-time pose classification.
 
   - [Installation](#installation)
   - [Under the hood](#under-the-hood)
@@ -17,7 +19,7 @@ This classifier is build upon the excellent pose estimator [**OpenPose**](https:
 
 ## Installation
 
-Make sure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
+Ensure  that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
 
 1. Git clone the repository - `git clone https://github.com/ArthurFDLR/OpenHand-App`
 
@@ -31,7 +33,7 @@ Even if **OpenHand classifier** can run without [**OpenPose**](https://github.co
 
 5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\openhand_app\__init__.py`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/openhand_app/__init__.py)) to the location of the OpenPose installation folder on your system.
 
-_Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry`). GPU support thus recquieres CUDA 11.0 which might conflict with **OpenPose** recquierement. However, classification models available in the application are relatively light. Modern CPUs will handle these models inference process flawlessly.
+_Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry`). GPU support thus requires CUDA 11.0, which might conflict with **OpenPose** requirements. However, classification models available in the application are relatively light. Modern CPUs will handle these models' inference process flawlessly.
 
 ## Under the hood
 
@@ -39,19 +41,19 @@ _Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry
 
 The 21 hand keypoints (2D) used as input for this classifier are produced by OpenPose. The hand output format is as follow:
 
-<img src="/.github/markdown/keypoints_hand.png" width="200">
+<img src="./.github/markdown/keypoints_hand.png" width="200">
 
-More information can be found [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md#face-and-hands). Please note that even if only hand keypoints are used, [OpenPose recquiered the whole body to be analysed](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/standalone_face_or_hand_keypoint_detector.md) in order to generate hand informations. Furtheremore keypoints coordinates are given in the frame of reference of the image feeded to OpenPose. Thus, the coordinates have to be normalized.
-I addition to x, y coordinates, the accuracy of detection of each keypoints is provided. From now on, the sum of these values will be simply refered as accuracy.
+More information is available [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md#face-and-hands). Please note that even though OpenHand focus on hand keypoints, [OpenPose requires the whole body to be analyzed](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/standalone_face_or_hand_keypoint_detector.md) to generate hand data. Furthermore, keypoints coordinates are given in the frame of reference of the image fed to OpenPose. Thus, the coordinates have to be normalized.
+I addition to x, y coordinates, the accuracy of detection of each keypoints is provided.
 
 ### Keypoints normalization
 
-OpenPose outputs have to be formated and normalized prior to the artificial neural network (ANN) training. Coordinates are normalized relatively to finger length and the center of gravity of the hand.
+OpenPose outputs have to be formatted and normalized before classification analysis. Coordinates are normalized relative to finger length and the center of gravity of the hand.
 
 * **Scaling:** First, the length of each fingers - defined as a set of lines of the same color, see above - is calculated. The euclidian distances of all segments of a finger are sumed *- e.g.* <img src="https://render.githubusercontent.com/render/math?math=Thumb\_length = \sum_{i=0}^{3} d(\boldsymbol{k_i}, \boldsymbol{k_{i%2B1}})">.
 Then, every coordinates composing the hand are divided by the greater finger length.
 
-* **Centering:** Keypoints are centered relatively to the center of mass of the hand which in this case, is simply defined as <img src="https://render.githubusercontent.com/render/math?math=(\bar{\boldsymbol{k^x}}, \bar{\boldsymbol{k^y}})">.
+* **Centering:** Keypoints are centered relative to the center of mass of the hand which, in this case, is simply defined as <img src="https://render.githubusercontent.com/render/math?math=(\bar{\boldsymbol{k^x}}, \bar{\boldsymbol{k^y}})">.
 
 <details><summary>Click to show code</summary>
 <p>
@@ -74,13 +76,11 @@ outputArray = np.array([(handKeypoints.T[0] - handCenterX)/normMax,
 </p>
 </details>
 
-Now that coordinates are normalized, the input data is flatten to be fed to the ANNs as a list of 42 values between -1.0 and 1.0:   <img src="https://render.githubusercontent.com/render/math?math=(k^x_0, k^y_0, k^x_1, k^y_1  \dots  k^x_{20}, k^y_{20})">
-
-<img src="/.github/markdown/formated_hand.png" width="400">
+<img src="./.github/markdown/formated_hand.png" width="400">
 
 ### Dataset creation - [*11090 samples for 27 categories*](https://github.com/ArthurFDLR/OpenHand-Classifier/tree/master/Datasets)
 
-The dataset is composed of several classes. A class is composed of two text files, one for each hand. The dataset is structured as follow:
+The dataset is composed of several classes consisting of two text files, one for each hand. The dataset is structured as follow:
 
 ```
 .\AppHandClassifier\Datasets
@@ -100,7 +100,12 @@ The dataset is composed of several classes. A class is composed of two text file
 .
 ```
 
-The first line of a *data.txt* files contains the caracteristics of the dataset: class label, hand identifier (0 for left hand, 1 for right hand) and the minimum accuracy of detection. To add comments, begin a line with *##*. A sample is (at leat) composed of 3 lines: a header giving the detection accuracy, x coordinates, y coordinates. 
+The first line of a *data.txt* file contains the set's characteristics:
+- Class label
+- Hand identifier (0 for the left hand, 1 for the right hand)
+- The minimum accuracy of detection
+
+To add comments, begin a line with *##*. A sample is (at least) composed of 3 lines: a header giving the detection accuracy, x coordinates, y coordinates. 
 
 <details><summary>Click to show examples - First lines of 'Super' set for right hand</summary>
 <p>
@@ -128,13 +133,37 @@ Note that a training set of 150 samples per hand and per pose seems enough to yi
 
 ### Pose classifier models
 
-Classification models available in the application are stored in [`.\Models`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Models). Each model folder contain two HDF5 file containing model's architecture and weights values. While both model share the same architecture, they are respectively trained to analyse right or left hands. In addition a text file `class.txt` provides labels associated to the one-hot encoded output.
+Classification models available in the application are stored in [`.\Models`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Models). Each model sub-folder contain two HDF5 files containing model's architecture and weights values. While both model share the same architecture, they are respectively trained to analyse right or left hands. In addition a text file `class.txt` provides labels associated to the one-hot encoded output.
 
-See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Models) for more details and design your own model. 
+```
+.\AppHandClassifier\Models
+│
+└───model_1
+|       class.txt
+│       model_1_left.h5
+|       model_1_right.h5
+│
+└───model_2
+|       class.txt
+│       model_2_left.h5
+|       model_2_right.h5
+.
+.
+```
+
+See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Models) for more details about model creation.
 
 ## User guide
 
-🚧 Under construction 🚧
+### Real-time pose classification
+
+The video feed of the selected camera is feeded to OpenPose at all time. The analysis result is displayed on the left size of the application. Then, you simply have to select one of the available model in the drop-down at the bottom of the hand-analysis window. Hand keypoints extracted from the video feed by OpenPose are automatically normalized and feeded to the classifier.
+
+### Create and manipulate dataset
+
+First, you either have to load or create a new set of samples for a specific label and hand side. To do so, respectivelly choose *Open (Ctrl+O)* or *Create new (Ctrl+N)* in *Dataset* of the menu bar. You have to specify the hand side, the label and the accuracy treshold of the newly created samples set. The accuracy treshold define the minimum accuracy of hand keypoints detection from OpenPose of any sample in the set. This accuracy is displayed on top of hand keypoints graphs.
+
+Now that a set is loaded in the application, you can record new samples from your video feed or inspect the set and delete inadequate samples. When your done, save the set through *Dataset -> Save (Ctrl+S)*.
 
 ### Additional scripts
 
