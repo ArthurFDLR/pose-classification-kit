@@ -70,11 +70,11 @@ if __name__ == "__main__":
         "Phone",
         "Shaka",
         "Stop",
-        "Spoke",
-        "PowerFist",
+        "Vulcan_Salute",
+        "Power_Fist",
         "Horns",
-        "FightFist",
-        "MiddleFinger",
+        "Fight_Fist",
+        "Middle_Finger",
         "Ok",
     ]
     data = {"label": [], "hand": [], "accuracy": []}

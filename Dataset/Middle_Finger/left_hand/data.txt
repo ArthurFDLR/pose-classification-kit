@@ -1,4 +1,4 @@
-MiddleFinger,0,11.0
+Middle_Finger,0,11.0
 ## Data generated the 2020-08-05 labelled MiddleFinger (left hand) with a global accuracy higher than 11.0, based on OpenPose estimation.
 ## Data format: Coordinates x, y and accuracy of estimation a
 

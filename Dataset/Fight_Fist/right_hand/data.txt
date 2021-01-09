@@ -1,4 +1,4 @@
-FightFist,1,12.5
+Fight_Fist,1,12.5
 ## Data generated the 2020-08-05 labelled FightFist (right hand) with a global accuracy higher than 12.5, based on OpenPose estimation.
 ## Data format: Coordinates x, y and accuracy of estimation a
 

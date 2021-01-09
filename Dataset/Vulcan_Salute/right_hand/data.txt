@@ -1,4 +1,4 @@
-Spoke,1,14.5
+Vulcan_Salute,1,14.5
 ## Data generated the 2020-08-05 labelled Spoke (right hand) with a global accuracy higher than 14.5, based on OpenPose estimation.
 ## Data format: Coordinates x, y and accuracy of estimation a
 

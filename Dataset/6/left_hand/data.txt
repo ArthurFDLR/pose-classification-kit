@@ -1,4 +1,4 @@
-3_Eng,0,12.5
+6,0,12.5
 ## Data generated the 2020-07-29 labelled 3_Eng (left hand) with a global accuracy higher than 12.5, based on OpenPose estimation.
 ## Data format: Coordinates x, y and accuracy of estimation a
 

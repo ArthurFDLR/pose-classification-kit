@@ -1,4 +1,4 @@
-3_Eu,0,13.0
+3,0,13.0
 ## Data generated the 2020-08-05 labelled 3_Eu (left hand) with a global accuracy higher than 13.0, based on OpenPose estimation.
 ## Data format: Coordinates x, y and accuracy of estimation a
 
