@@ -5,7 +5,7 @@
 [![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
 
 <p align="center">
-    <img src="./.github/markdown/openhand_snap.png" alt="OpenHand app view" width="80%" style="border-radius: 5px;">
+    <img src="./.github/markdown/openhand_view.png" alt="OpenHand app view" width="80%" style="border-radius: 5px;">
 </p>
 
 The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab** to ease hand keypoints datasets creation and real-time pose classification.
