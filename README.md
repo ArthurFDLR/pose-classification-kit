@@ -1,10 +1,12 @@
 # <h1 align = "center"> OpenHand
 
-<img src="./.github/markdown/OpenHand_snap.png" width="800" alt="OpenHand snapshot" class="center">
+[![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
+[![Linting](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
+[![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
 
-[![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
-[![Linting](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
+<p align="center">
+    <img src="./.github/markdown/openhand_snap.png" alt="OpenHand app view" width="80%" style="border-radius: 5px;">
+</p>
 
 The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab** to ease hand keypoints datasets creation and real-time pose classification.
 
