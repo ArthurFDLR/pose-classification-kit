@@ -17,16 +17,13 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.setMinimumHeight(50)
 
         self.ax = self.canvas.figure.subplots()
-        self.ax.set_xlim([-1.0, 1.0])
-        self.ax.set_ylim([-1.0, 1.0])
+        self.ax.set_xlim([0.0, 400.0])
+        self.ax.set_ylim([0.0, 400.0])
         self.ax.set_aspect("equal")
 
         self.fingerLines = [
             lines.Line2D([], [], color="r"),
-            lines.Line2D([], [], color="y"),
-            lines.Line2D([], [], color="g"),
-            lines.Line2D([], [], color="b"),
-            lines.Line2D([], [], color="m"),
+            lines.Line2D([], [], color="y")
         ]
 
         for line in self.fingerLines:
@@ -34,16 +31,12 @@ class BodyPlotWidget(QtWidgets.QWidget):
 
     def plotBody(self, bodyKeypoints, accuracy: int):
         if self.isBodyData(bodyKeypoints):
-            colors = ["r", "y", "g", "b", "m"]
             data = [
-                bodyKeypoints[:, 0:5],
-                np.insert(bodyKeypoints[:, 5:9].T, 0, bodyKeypoints[:, 0], axis=0).T,
-                np.insert(bodyKeypoints[:, 9:13].T, 0, bodyKeypoints[:, 0], axis=0).T,
-                np.insert(bodyKeypoints[:, 13:17].T, 0, bodyKeypoints[:, 0], axis=0).T,
-                np.insert(bodyKeypoints[:, 17:21].T, 0, bodyKeypoints[:, 0], axis=0).T,
+                [bodyKeypoints[0][0:2], bodyKeypoints[1][0:2]],
+                [bodyKeypoints[0][1:3], bodyKeypoints[1][1:3]]
             ]
             for i, line in enumerate(self.fingerLines):
-                line.set_data(data[i][0], data[i][1])
+                line.set_data(list(data[i][0]), list(data[i][1]))
             self.ax.set_title(
                 "Accuracy: " + str(accuracy), fontsize=12, color="#454545"
             )
@@ -58,11 +51,10 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.canvas.draw()
 
     def isBodyData(self, keypoints):
-        b = False
         if type(keypoints) == np.ndarray:
-            if keypoints.shape == (3, 21):
-                b = True
-        return b
+            if keypoints.shape == (3, 25):
+                return True
+        return False
 
 
 class BodyAnalysisWidget(QtWidgets.QGroupBox):
@@ -73,21 +65,16 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
 
-    QSplitter::bodyle {
+    QSplitter::handle {
         color: #cbcbcb;
         border: 1px solid #cbcbcb;
         border-radius: 2px;
     }
-
-    QSplitter::bodyle:horizontal {
-        height: 1px 
-    }
     """
 
-    def __init__(self, bodyID: int, showInput: bool = True):
-        super().__init__(("Right" if bodyID == 1 else "Left") + " body")
+    def __init__(self, showInput: bool = True):
+        super().__init__(("Full body"))
         self.setStyleSheet(self.stylesheet)
-        self.bodyID = bodyID
         self.showInput = showInput
         self.classOutputs = []
         self.modelClassifier = None
@@ -102,19 +89,16 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         self.predictionLabel.setAlignment(QtCore.Qt.AlignCenter)
 
         self.classGraphWidget = BarGraphWidget()
+        self.bodyGraphWidget = BodyPlotWidget()
 
-        if self.showInput:
-            self.bodyGraphWidget = BodyPlotWidget()
-            self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-            self.graphSplitter.setChildrenCollapsible(False)
-            self.graphSplitter.addWidget(self.bodyGraphWidget)
-            self.graphSplitter.addWidget(self.classGraphWidget)
-            self.graphSplitter.setStretchFactor(0, 2)
-            self.graphSplitter.setStretchFactor(1, 1)
+        self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
+        self.graphSplitter.setChildrenCollapsible(False)
+        self.graphSplitter.addWidget(self.bodyGraphWidget)
+        self.graphSplitter.addWidget(self.classGraphWidget)
+        self.graphSplitter.setStretchFactor(0, 2)
+        self.graphSplitter.setStretchFactor(1, 1)
 
-            self.layout.addWidget(self.graphSplitter)
-        else:
-            self.layout.addWidget(self.classGraphWidget)
+        self.layout.addWidget(self.graphSplitter)
 
     def setClassifierModel(self, model, classOutputs):  # model:tf.keras.models
         self.modelClassifier = model
@@ -124,14 +108,16 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         """Draw keypoints of a body pose in the widget if showInput==True.
 
         Args:
-            keypoints (np.ndarray((3,21),float)): Coordinates x, y and the accuracy score for each 21 key points.
+            keypoints (np.ndarray((3,25),float)): Coordinates x, y and the accuracy score for each 21 key points.
             accuracy (float): Global accuracy of detection of the pose.
         """
         if self.showInput:
             # self.bodyGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
-            self.updatePredictedClass(bodyKeypoints)
+            # self.updatePredictedClass(bodyKeypoints)
             self.bodyGraphWidget.plotBody(bodyKeypoints, accuracy)
-
+            print(bodyKeypoints.shape if type(bodyKeypoints) != type(None) else '')
+    
+    '''
     def updatePredictedClass(self, keypoints: np.ndarray):
         """Draw keypoints of a body pose in the widget.
 
@@ -173,7 +159,7 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
 
     def setPredictionText(self, prediction: str):
         self.predictionLabel.setText(prediction)
-
+    '''
 
 class BodyClassifierWidget(QtWidgets.QWidget):
     stylesheet = """
@@ -225,22 +211,16 @@ class BodyClassifierWidget(QtWidgets.QWidget):
         self.setGraphicsEffect(effect)
 
         ## Structure
-        self.layout = QtWidgets.QGridLayout(self)
+        self.layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.layout)
-        self.layout.setRowStretch(0, 1)
-        self.layout.setRowStretch(1, 0)
+        #self.layout.setRowStretch(0, 1)
+        #self.layout.setRowStretch(1, 0)
 
         self.classifierWidget = ClassifierSelectionWidget(self)
-        self.layout.addWidget(self.classifierWidget, 2, 0, 1, 2)
+        self.bodyAnalysis = BodyAnalysisWidget()
+        #self.classifierWidget.newClassifierModel_Signal.connect(
+        #    self.bodyAnalysis.newModelLoaded
+        #)
 
-        self.leftBodyAnalysis = BodyAnalysisWidget(0)
-        self.classifierWidget.newClassifierModel_Signal.connect(
-            self.leftBodyAnalysis.newModelLoaded
-        )
-        self.layout.addWidget(self.leftBodyAnalysis, 0, 0, 2, 1)
-
-        self.rightBodyAnalysis = BodyAnalysisWidget(1)
-        self.classifierWidget.newClassifierModel_Signal.connect(
-            self.rightBodyAnalysis.newModelLoaded
-        )
-        self.layout.addWidget(self.rightBodyAnalysis, 0, 1, 2, 1)
+        self.layout.addWidget(self.bodyAnalysis)
+        self.layout.addWidget(self.classifierWidget)

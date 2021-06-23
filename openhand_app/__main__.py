@@ -181,9 +181,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def analyseNewImage(self, image):  # Call each time AnalysisThread emit a new pix
         self.videoViewer.setInfoText(self.AnalysisThread.getInfoText())
 
+        bodyKeypoints, bodyAccuracy = self.AnalysisThread.getBodyData()
         leftHandKeypoints, leftAccuracy = self.AnalysisThread.getHandData(0)
         rightHandKeypoints, rightAccuracy = self.AnalysisThread.getHandData(1)
 
+        # Draw hand and body on GUI
         if self.realTimeHandDraw:
             self.handClassifier.leftHandAnalysis.drawHand(
                 leftHandKeypoints, leftAccuracy
@@ -191,15 +193,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self.handClassifier.rightHandAnalysis.drawHand(
                 rightHandKeypoints, rightAccuracy
             )
-
-        if self.datasetController.getHandID() == 0:  # Recording left hand
+            self.bodyClassifier.bodyAnalysis.drawBody(
+                bodyKeypoints, bodyAccuracy
+            )
+        # Recording left hand
+        if self.datasetController.getHandID() == 0:
             if type(leftHandKeypoints) != type(None):
                 if self.isRecording:
                     if leftAccuracy > self.datasetController.getTresholdValue():
                         self.datasetController.addEntryDataset(
                             leftHandKeypoints, leftAccuracy
                         )
-        else:  # Recording right hand
+        # Recording right hand
+        else:
             if type(rightHandKeypoints) != type(None):  # If selected hand detected
                 if self.isRecording:
                     if rightAccuracy > self.datasetController.getTresholdValue():

@@ -78,10 +78,6 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         border: 1px solid #cbcbcb;
         border-radius: 2px;
     }
-
-    QSplitter::handle:horizontal {
-        height: 1px 
-    }
     """
 
     def __init__(self, handID: int, showInput: bool = True):

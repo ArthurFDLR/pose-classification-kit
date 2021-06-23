@@ -121,11 +121,20 @@ class VideoAnalysisThread(QtCore.QThread):
         return outputArray, handAccuaracyScore
 
     def getBodyData(self):
+        '''
+        poseModel = op.PoseModel.BODY_25
+        print(op.getPoseBodyPartMapping(poseModel))
+        print(op.getPoseNumberBodyParts(poseModel))
+        print(op.getPosePartPairs(poseModel))
+        print(op.getPoseMapIndex(poseModel))
+        '''
+
+        outputArray = None
+        accuaracyScore = 0.0
         if len(self.datum.poseKeypoints.shape) > 0:
-            poseKeypoints = self.datum.poseKeypoints[self.personID]
-            return poseKeypoints
-        else:
-            return None
+            outputArray = self.datum.poseKeypoints[self.personID].T
+        
+        return outputArray, accuaracyScore
 
     def getInfoText(self) -> str:
         handKeypoints = np.array(self.datum.handKeypoints)
