@@ -1,11 +1,13 @@
 from .qt import QtWidgets, QtCore
 from .tensorflow import tf, TF_LOADED
+from .openpose import op
 from .dynamic_bar_graph_widget import BarGraphWidget
 from .classifier_selection_widget import ClassifierSelectionWidget
 
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib import figure, lines
+from matplotlib.pyplot import cm
 
 
 class BodyPlotWidget(QtWidgets.QWidget):
@@ -17,26 +19,35 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.setMinimumHeight(50)
 
         self.ax = self.canvas.figure.subplots()
-        self.ax.set_xlim([0.0, 400.0])
-        self.ax.set_ylim([0.0, 400.0])
+        self.ax.set_xlim([0.0, 600.0])
+        self.ax.set_ylim([0.0, 600.0])
         self.ax.set_aspect("equal")
 
-        self.fingerLines = [
-            lines.Line2D([], [], color="r"),
-            lines.Line2D([], [], color="y")
+        self.poseModel = op.PoseModel.BODY_25
+        # self.posePartPairs = op.getPosePartPairs(self.poseModel)
+        self.posePartPairs = [1, 8, 1, 2, 1, 5, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 10, 11, 8, 12, 12, 13, 13, 14, 1, 0, 0, 15, 15, 17, 0, 16, 16, 18, 14, 19, 19, 20, 14, 21, 11, 22, 22, 23, 11, 24]
+
+        numPartPairs = len(self.posePartPairs)//2
+        color_map = cm.get_cmap('hsv', numPartPairs)
+        self.pairLines = [
+            lines.Line2D([], [], color=color_map(i)) for i in range(numPartPairs)
         ]
 
-        for line in self.fingerLines:
+        for line in self.pairLines:
             self.ax.add_line(line)
 
     def plotBody(self, bodyKeypoints, accuracy: int):
         if self.isBodyData(bodyKeypoints):
-            data = [
-                [bodyKeypoints[0][0:2], bodyKeypoints[1][0:2]],
-                [bodyKeypoints[0][1:3], bodyKeypoints[1][1:3]]
-            ]
-            for i, line in enumerate(self.fingerLines):
-                line.set_data(list(data[i][0]), list(data[i][1]))
+            for i, line in enumerate(self.pairLines):
+                keypoints_1 = self.posePartPairs[i*2]
+                keypoints_2 = self.posePartPairs[i*2+1]
+                if bodyKeypoints[2][keypoints_1] == 0.0 or bodyKeypoints[2][keypoints_2] == 0:
+                    line.set_data([], [])
+                else:
+                    line.set_data([bodyKeypoints[0][keypoints_1], bodyKeypoints[0][keypoints_2]],
+                                  [bodyKeypoints[1][keypoints_1], bodyKeypoints[1][keypoints_2]])
+                #line.set_data(list(data[i][0]), list(data[i][1]))
+            
             self.ax.set_title(
                 "Accuracy: " + str(accuracy), fontsize=12, color="#454545"
             )
@@ -46,7 +57,7 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.canvas.draw()
 
     def clear(self):
-        for line in self.fingerLines:
+        for line in self.pairLines:
             line.set_data([], [])
         self.canvas.draw()
 
@@ -72,10 +83,10 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
     }
     """
 
-    def __init__(self, showInput: bool = True):
+    def __init__(self):
         super().__init__(("Full body"))
         self.setStyleSheet(self.stylesheet)
-        self.showInput = showInput
+        self.showInput = True
         self.classOutputs = []
         self.modelClassifier = None
         self.currentPrediction = ""
@@ -115,7 +126,6 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
             # self.bodyGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
             # self.updatePredictedClass(bodyKeypoints)
             self.bodyGraphWidget.plotBody(bodyKeypoints, accuracy)
-            print(bodyKeypoints.shape if type(bodyKeypoints) != type(None) else '')
     
     '''
     def updatePredictedClass(self, keypoints: np.ndarray):

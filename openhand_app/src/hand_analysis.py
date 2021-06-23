@@ -80,11 +80,11 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
     }
     """
 
-    def __init__(self, handID: int, showInput: bool = True):
+    def __init__(self, handID: int):
         super().__init__(("Right" if handID == 1 else "Left") + " hand")
         self.setStyleSheet(self.stylesheet)
         self.handID = handID
-        self.showInput = showInput
+        self.showInput = True
         self.classOutputs = []
         self.modelClassifier = None
         self.currentPrediction = ""
@@ -99,18 +99,15 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
 
         self.classGraphWidget = BarGraphWidget()
 
-        if self.showInput:
-            self.handGraphWidget = HandPlotWidget()
-            self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
-            self.graphSplitter.setChildrenCollapsible(False)
-            self.graphSplitter.addWidget(self.handGraphWidget)
-            self.graphSplitter.addWidget(self.classGraphWidget)
-            self.graphSplitter.setStretchFactor(0, 2)
-            self.graphSplitter.setStretchFactor(1, 1)
+        self.handGraphWidget = HandPlotWidget()
+        self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
+        self.graphSplitter.setChildrenCollapsible(False)
+        self.graphSplitter.addWidget(self.handGraphWidget)
+        self.graphSplitter.addWidget(self.classGraphWidget)
+        self.graphSplitter.setStretchFactor(0, 2)
+        self.graphSplitter.setStretchFactor(1, 1)
 
-            self.layout.addWidget(self.graphSplitter)
-        else:
-            self.layout.addWidget(self.classGraphWidget)
+        self.layout.addWidget(self.graphSplitter)
 
     def setClassifierModel(self, model, classOutputs):  # model:tf.keras.models
         self.modelClassifier = model

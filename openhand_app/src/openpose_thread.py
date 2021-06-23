@@ -1,26 +1,8 @@
-from .qt import QtCore, QtGui, pyqtSignal, pyqtSlot
-from __init__ import OPENPOSE_PATH
+from .qt import QtCore, pyqtSignal, pyqtSlot
+from .openpose import OPENPOSE_LOADED, OPENPOSE_MODELS_PATH, op
 
 import cv2
 import numpy as np
-import os
-import sys
-
-try:
-    sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
-    releasePATH = OPENPOSE_PATH / "build" / "x64" / "Release"
-    binPATH = OPENPOSE_PATH / "build" / "bin"
-    modelsPATH = OPENPOSE_PATH / "models"
-    os.environ["PATH"] = (
-        os.environ["PATH"] + ";" + str(releasePATH) + ";" + str(binPATH) + ";"
-    )
-    import pyopenpose as op
-
-    OPENPOSE_LOADED = True
-except:
-    OPENPOSE_LOADED = False
-    print("OpenPose ({}) loading failed.".format(str(OPENPOSE_PATH)))
-
 
 class VideoAnalysisThread(QtCore.QThread):
     newFrame = pyqtSignal(np.ndarray)
@@ -37,7 +19,7 @@ class VideoAnalysisThread(QtCore.QThread):
         #######################
         if OPENPOSE_LOADED:
             params = dict()
-            params["model_folder"] = str(modelsPATH)
+            params["model_folder"] = str(OPENPOSE_MODELS_PATH)
             params["face"] = False
             params["hand"] = True
             params["disable_multi_thread"] = False
