@@ -1,7 +1,8 @@
 from src.qt import QtWidgets, QtGui, QtCore
+from src.tensorflow import TF_STATUS_STR, TF_LOADED
 from src.dataset_controller import DatasetControllerWidget
 from src.video_manager import CameraInput, VideoViewerWidget
-from src.hand_analysis import HandClassifierWidget, TF_STATUS_STR, TF_LOADED
+from src.hand_analysis import HandClassifierWidget
 from src.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
 
 from __init__ import OPENPOSE_PATH
@@ -62,8 +63,12 @@ class MainWindow(QtWidgets.QMainWindow):
         leftLayout.setStretch(2, 1)
 
         rightWidget = QtWidgets.QWidget()
+        rightTabWidget = QtWidgets.QTabWidget()
         rightLayout = QtWidgets.QVBoxLayout(rightWidget)
-        rightLayout.addWidget(self.handClassifier)
+        rightLayout.addWidget(rightTabWidget)
+
+        rightTabWidget.addTab(self.handClassifier, 'Hands')
+        rightTabWidget.addTab(QtWidgets.QLabel("Body analysis tab", self), 'Body')
 
         self.windowSplitter.addWidget(leftWidget)
         self.windowSplitter.addWidget(rightWidget)
