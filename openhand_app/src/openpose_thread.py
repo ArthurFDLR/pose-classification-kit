@@ -103,19 +103,30 @@ class VideoAnalysisThread(QtCore.QThread):
         return outputArray, handAccuaracyScore
 
     def getBodyData(self):
-        '''
-        poseModel = op.PoseModel.BODY_25
-        print(op.getPoseBodyPartMapping(poseModel))
-        print(op.getPoseNumberBodyParts(poseModel))
-        print(op.getPosePartPairs(poseModel))
-        print(op.getPoseMapIndex(poseModel))
-        '''
 
         outputArray = None
         accuaracyScore = 0.0
         if len(self.datum.poseKeypoints.shape) > 0:
-            outputArray = self.datum.poseKeypoints[self.personID].T
-        
+            outputArray = self.datum.poseKeypoints[self.personID]
+            accuaracyScore = outputArray[:,2].sum()
+
+            min_x, max_x = float('inf') ,0.0
+            min_y, max_y = float('inf') ,0.0
+
+            for keypoint in outputArray:
+                if keypoint[2] > 0.0: #If keypoint exists in image
+                    min_x = min(min_x, keypoint[0])
+                    max_x = max(max_x, keypoint[0])
+                    min_y = min(min_y, keypoint[1])
+                    max_y = max(max_y, keypoint[1])
+            
+            np.subtract((min_x+max_x)/2, outputArray[:,0], out = outputArray[:,0])
+            np.subtract((min_y+max_y)/2, outputArray[:,1], out = outputArray[:,1])
+            
+            # TODO Find a proper scaling method!
+            np.divide(outputArray[:,0:2], 200., out = outputArray[:,0:2])
+            outputArray = outputArray.T
+
         return outputArray, accuaracyScore
 
     def getInfoText(self) -> str:

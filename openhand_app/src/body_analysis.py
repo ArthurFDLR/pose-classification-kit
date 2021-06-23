@@ -19,8 +19,8 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.setMinimumHeight(50)
 
         self.ax = self.canvas.figure.subplots()
-        self.ax.set_xlim([0.0, 600.0])
-        self.ax.set_ylim([0.0, 600.0])
+        self.ax.set_xlim([-1.0, 1.0])
+        self.ax.set_ylim([-1.0, 1.0])
         self.ax.set_aspect("equal")
 
         self.poseModel = op.PoseModel.BODY_25
