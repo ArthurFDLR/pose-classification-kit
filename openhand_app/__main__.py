@@ -3,12 +3,13 @@ from src.tensorflow import TF_STATUS_STR, TF_LOADED
 from src.dataset_controller import DatasetControllerWidget
 from src.video_manager import CameraInput, VideoViewerWidget
 from src.hand_analysis import HandClassifierWidget
+from src.body_analysis import BodyClassifierWidget
 from src.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
+# If the imports above are not resolved by your Python support system (pylance by default on VSC),
+# add ./openhand_app as extra path (see "python.analysis.extraPaths" in .\.vscode\settings.json by default)
 
-from __init__ import OPENPOSE_PATH
-
-import time
 import sys
+from __init__ import OPENPOSE_PATH
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -43,6 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.AnalysisThread.setState(True)
 
         self.handClassifier = HandClassifierWidget()
+        self.bodyClassifier = BodyClassifierWidget()
 
         ## Structure
         self.windowSplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
@@ -68,7 +70,7 @@ class MainWindow(QtWidgets.QMainWindow):
         rightLayout.addWidget(rightTabWidget)
 
         rightTabWidget.addTab(self.handClassifier, 'Hands')
-        rightTabWidget.addTab(QtWidgets.QLabel("Body analysis tab", self), 'Body')
+        rightTabWidget.addTab(self.bodyClassifier, 'Body')
 
         self.windowSplitter.addWidget(leftWidget)
         self.windowSplitter.addWidget(rightWidget)

@@ -8,7 +8,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib import figure, lines
 
 
-class HandPlotWidget(QtWidgets.QWidget):
+class BodyPlotWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         layout = QtWidgets.QVBoxLayout(self)
@@ -32,15 +32,15 @@ class HandPlotWidget(QtWidgets.QWidget):
         for line in self.fingerLines:
             self.ax.add_line(line)
 
-    def plotHand(self, handKeypoints, accuracy: int):
-        if self.isHandData(handKeypoints):
+    def plotBody(self, bodyKeypoints, accuracy: int):
+        if self.isBodyData(bodyKeypoints):
             colors = ["r", "y", "g", "b", "m"]
             data = [
-                handKeypoints[:, 0:5],
-                np.insert(handKeypoints[:, 5:9].T, 0, handKeypoints[:, 0], axis=0).T,
-                np.insert(handKeypoints[:, 9:13].T, 0, handKeypoints[:, 0], axis=0).T,
-                np.insert(handKeypoints[:, 13:17].T, 0, handKeypoints[:, 0], axis=0).T,
-                np.insert(handKeypoints[:, 17:21].T, 0, handKeypoints[:, 0], axis=0).T,
+                bodyKeypoints[:, 0:5],
+                np.insert(bodyKeypoints[:, 5:9].T, 0, bodyKeypoints[:, 0], axis=0).T,
+                np.insert(bodyKeypoints[:, 9:13].T, 0, bodyKeypoints[:, 0], axis=0).T,
+                np.insert(bodyKeypoints[:, 13:17].T, 0, bodyKeypoints[:, 0], axis=0).T,
+                np.insert(bodyKeypoints[:, 17:21].T, 0, bodyKeypoints[:, 0], axis=0).T,
             ]
             for i, line in enumerate(self.fingerLines):
                 line.set_data(data[i][0], data[i][1])
@@ -57,7 +57,7 @@ class HandPlotWidget(QtWidgets.QWidget):
             line.set_data([], [])
         self.canvas.draw()
 
-    def isHandData(self, keypoints):
+    def isBodyData(self, keypoints):
         b = False
         if type(keypoints) == np.ndarray:
             if keypoints.shape == (3, 21):
@@ -65,7 +65,7 @@ class HandPlotWidget(QtWidgets.QWidget):
         return b
 
 
-class HandAnalysisWidget(QtWidgets.QGroupBox):
+class BodyAnalysisWidget(QtWidgets.QGroupBox):
     stylesheet = """
     #Large_Label {
         font-size: 26px;
@@ -73,21 +73,21 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     }
 
-    QSplitter::handle {
+    QSplitter::bodyle {
         color: #cbcbcb;
         border: 1px solid #cbcbcb;
         border-radius: 2px;
     }
 
-    QSplitter::handle:horizontal {
+    QSplitter::bodyle:horizontal {
         height: 1px 
     }
     """
 
-    def __init__(self, handID: int, showInput: bool = True):
-        super().__init__(("Right" if handID == 1 else "Left") + " hand")
+    def __init__(self, bodyID: int, showInput: bool = True):
+        super().__init__(("Right" if bodyID == 1 else "Left") + " body")
         self.setStyleSheet(self.stylesheet)
-        self.handID = handID
+        self.bodyID = bodyID
         self.showInput = showInput
         self.classOutputs = []
         self.modelClassifier = None
@@ -104,10 +104,10 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.classGraphWidget = BarGraphWidget()
 
         if self.showInput:
-            self.handGraphWidget = HandPlotWidget()
+            self.bodyGraphWidget = BodyPlotWidget()
             self.graphSplitter = QtWidgets.QSplitter(QtCore.Qt.Vertical)
             self.graphSplitter.setChildrenCollapsible(False)
-            self.graphSplitter.addWidget(self.handGraphWidget)
+            self.graphSplitter.addWidget(self.bodyGraphWidget)
             self.graphSplitter.addWidget(self.classGraphWidget)
             self.graphSplitter.setStretchFactor(0, 2)
             self.graphSplitter.setStretchFactor(1, 1)
@@ -120,20 +120,20 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.modelClassifier = model
         self.classOutputs = classOutputs
 
-    def drawHand(self, handKeypoints: np.ndarray, accuracy: float):
-        """Draw keypoints of a hand pose in the widget if showInput==True.
+    def drawBody(self, bodyKeypoints: np.ndarray, accuracy: float):
+        """Draw keypoints of a body pose in the widget if showInput==True.
 
         Args:
             keypoints (np.ndarray((3,21),float)): Coordinates x, y and the accuracy score for each 21 key points.
             accuracy (float): Global accuracy of detection of the pose.
         """
         if self.showInput:
-            # self.handGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
-            self.updatePredictedClass(handKeypoints)
-            self.handGraphWidget.plotHand(handKeypoints, accuracy)
+            # self.bodyGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
+            self.updatePredictedClass(bodyKeypoints)
+            self.bodyGraphWidget.plotBody(bodyKeypoints, accuracy)
 
     def updatePredictedClass(self, keypoints: np.ndarray):
-        """Draw keypoints of a hand pose in the widget.
+        """Draw keypoints of a body pose in the widget.
 
         Args:
             keypoints (np.ndarray((3,21),float)): Coordinates x, y and the accuracy score for each 21 key points.
@@ -156,14 +156,14 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.classGraphWidget.updateValues(np.array(prediction))
         self.setPredictionText(title)
 
-    def newModelLoaded(self, urlModel: str, classOutputs: list, handID: int):
+    def newModelLoaded(self, urlModel: str, classOutputs: list, bodyID: int):
         if TF_LOADED:
             if urlModel == "None":
                 self.modelClassifier = None
                 self.classOutputs = []
                 self.classGraphWidget.changeCategories(self.classOutputs)
             else:
-                if handID == self.handID:
+                if bodyID == self.bodyID:
                     self.modelClassifier = tf.keras.models.load_model(urlModel)
                     self.classOutputs = classOutputs
                     self.classGraphWidget.changeCategories(self.classOutputs)
@@ -175,9 +175,9 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.predictionLabel.setText(prediction)
 
 
-class HandClassifierWidget(QtWidgets.QWidget):
+class BodyClassifierWidget(QtWidgets.QWidget):
     stylesheet = """
-    #Hand_classifier {
+    #Body_classifier {
         background-color: white;
         border-radius: 3px;
         font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
@@ -214,7 +214,7 @@ class HandClassifierWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         ## Widget style
-        self.setObjectName("Hand_classifier")
+        self.setObjectName("Body_classifier")
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.setStyleSheet(self.stylesheet)
 
@@ -233,14 +233,14 @@ class HandClassifierWidget(QtWidgets.QWidget):
         self.classifierWidget = ClassifierSelectionWidget(self)
         self.layout.addWidget(self.classifierWidget, 2, 0, 1, 2)
 
-        self.leftHandAnalysis = HandAnalysisWidget(0)
+        self.leftBodyAnalysis = BodyAnalysisWidget(0)
         self.classifierWidget.newClassifierModel_Signal.connect(
-            self.leftHandAnalysis.newModelLoaded
+            self.leftBodyAnalysis.newModelLoaded
         )
-        self.layout.addWidget(self.leftHandAnalysis, 0, 0, 2, 1)
+        self.layout.addWidget(self.leftBodyAnalysis, 0, 0, 2, 1)
 
-        self.rightHandAnalysis = HandAnalysisWidget(1)
+        self.rightBodyAnalysis = BodyAnalysisWidget(1)
         self.classifierWidget.newClassifierModel_Signal.connect(
-            self.rightHandAnalysis.newModelLoaded
+            self.rightBodyAnalysis.newModelLoaded
         )
-        self.layout.addWidget(self.rightHandAnalysis, 0, 1, 2, 1)
+        self.layout.addWidget(self.rightBodyAnalysis, 0, 1, 2, 1)
