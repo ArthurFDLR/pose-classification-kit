@@ -120,11 +120,12 @@ class VideoAnalysisThread(QtCore.QThread):
                     min_y = min(min_y, keypoint[1])
                     max_y = max(max_y, keypoint[1])
             
-            np.subtract((min_x+max_x)/2, outputArray[:,0], out = outputArray[:,0])
+            np.subtract(outputArray[:,0], (min_x+max_x)/2, out = outputArray[:,0])
             np.subtract((min_y+max_y)/2, outputArray[:,1], out = outputArray[:,1])
             
             # TODO Find a proper scaling method!
-            np.divide(outputArray[:,0:2], 200., out = outputArray[:,0:2])
+            np.divide(outputArray[:,0:2], np.linalg.norm([[max_x, max_y],[min_x, min_y]]), out = outputArray[:,0:2])
+            
             outputArray = outputArray.T
 
         return outputArray, accuaracyScore

@@ -65,12 +65,12 @@ class MainWindow(QtWidgets.QMainWindow):
         leftLayout.setStretch(2, 1)
 
         rightWidget = QtWidgets.QWidget()
-        rightTabWidget = QtWidgets.QTabWidget()
+        self.rightTabWidget = QtWidgets.QTabWidget()
         rightLayout = QtWidgets.QVBoxLayout(rightWidget)
-        rightLayout.addWidget(rightTabWidget)
+        rightLayout.addWidget(self.rightTabWidget)
 
-        rightTabWidget.addTab(self.handClassifier, 'Hands')
-        rightTabWidget.addTab(self.bodyClassifier, 'Body')
+        self.rightTabWidget.addTab(self.handClassifier, 'Hands')
+        self.rightTabWidget.addTab(self.bodyClassifier, 'Body')
 
         self.windowSplitter.addWidget(leftWidget)
         self.windowSplitter.addWidget(rightWidget)
@@ -82,7 +82,7 @@ class MainWindow(QtWidgets.QMainWindow):
         openAct = QtWidgets.QAction("&Open", self)
         openAct.setShortcut("Ctrl+O")
         openAct.setStatusTip("Open dataset")
-        openAct.triggered.connect(self.datasetController.loadFile)
+        openAct.triggered.connect(self.datasetController.loadFileJSON)
         fileAction.addAction(openAct)
 
         initAct = QtWidgets.QAction("&Create new ...", self)
@@ -94,7 +94,7 @@ class MainWindow(QtWidgets.QMainWindow):
         saveAct = QtWidgets.QAction("&Save", self)
         saveAct.setShortcut("Ctrl+S")
         saveAct.setStatusTip("Save dataset")
-        saveAct.triggered.connect(self.datasetController.writeDataToTxt)
+        saveAct.triggered.connect(self.datasetController.writeDataToJSON)
         fileAction.addAction(saveAct)
 
         ## Status Bar
@@ -153,7 +153,7 @@ class MainWindow(QtWidgets.QMainWindow):
             elif reply == QtWidgets.QMessageBox.No:
                 exitBool = True
             elif reply == QtWidgets.QMessageBox.Yes:
-                self.datasetController.writeDataToTxt()
+                self.datasetController.writeDataToJSON()
                 exitBool = True
 
         if exitBool:
@@ -185,19 +185,21 @@ class MainWindow(QtWidgets.QMainWindow):
         leftHandKeypoints, leftAccuracy = self.AnalysisThread.getHandData(0)
         rightHandKeypoints, rightAccuracy = self.AnalysisThread.getHandData(1)
 
-        # Draw hand and body on GUI
+        # Draw hand or body on GUI
         if self.realTimeHandDraw:
-            self.handClassifier.leftHandAnalysis.drawHand(
-                leftHandKeypoints, leftAccuracy
-            )
-            self.handClassifier.rightHandAnalysis.drawHand(
-                rightHandKeypoints, rightAccuracy
-            )
-            self.bodyClassifier.bodyAnalysis.drawBody(
-                bodyKeypoints, bodyAccuracy
-            )
+            if self.rightTabWidget.currentWidget() == self.handClassifier:
+                self.handClassifier.leftHandAnalysis.drawHand(
+                    leftHandKeypoints, leftAccuracy
+                )
+                self.handClassifier.rightHandAnalysis.drawHand(
+                    rightHandKeypoints, rightAccuracy
+                )
+            elif self.rightTabWidget.currentWidget() == self.bodyClassifier:
+                self.bodyClassifier.bodyAnalysis.drawBody(
+                    bodyKeypoints, bodyAccuracy
+                )
         # Recording left hand
-        if self.datasetController.getHandID() == 0:
+        if self.datasetController.getFocusID() == 0:
             if type(leftHandKeypoints) != type(None):
                 if self.isRecording:
                     if leftAccuracy > self.datasetController.getTresholdValue():
