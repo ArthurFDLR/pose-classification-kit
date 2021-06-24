@@ -1,13 +1,15 @@
 from src.qt import QtWidgets, QtGui, QtCore
+from src.tensorflow import TF_STATUS_STR, TF_LOADED
 from src.dataset_controller import DatasetControllerWidget
 from src.video_manager import CameraInput, VideoViewerWidget
-from src.hand_analysis import HandClassifierWidget, TF_STATUS_STR, TF_LOADED
+from src.hand_analysis import HandClassifierWidget
+from src.body_analysis import BodyClassifierWidget
 from src.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
+# If the imports above are not resolved by your Python support system (pylance by default on VSC),
+# add ./openhand_app as extra path (see "python.analysis.extraPaths" in .\.vscode\settings.json by default)
 
-from __init__ import OPENPOSE_PATH
-
-import time
 import sys
+from __init__ import OPENPOSE_PATH
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -42,6 +44,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.AnalysisThread.setState(True)
 
         self.handClassifier = HandClassifierWidget()
+        self.bodyClassifier = BodyClassifierWidget()
 
         ## Structure
         self.windowSplitter = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
@@ -62,8 +65,12 @@ class MainWindow(QtWidgets.QMainWindow):
         leftLayout.setStretch(2, 1)
 
         rightWidget = QtWidgets.QWidget()
+        self.rightTabWidget = QtWidgets.QTabWidget()
         rightLayout = QtWidgets.QVBoxLayout(rightWidget)
-        rightLayout.addWidget(self.handClassifier)
+        rightLayout.addWidget(self.rightTabWidget)
+
+        self.rightTabWidget.addTab(self.handClassifier, 'Hands')
+        self.rightTabWidget.addTab(self.bodyClassifier, 'Body')
 
         self.windowSplitter.addWidget(leftWidget)
         self.windowSplitter.addWidget(rightWidget)
@@ -75,7 +82,7 @@ class MainWindow(QtWidgets.QMainWindow):
         openAct = QtWidgets.QAction("&Open", self)
         openAct.setShortcut("Ctrl+O")
         openAct.setStatusTip("Open dataset")
-        openAct.triggered.connect(self.datasetController.loadFile)
+        openAct.triggered.connect(self.datasetController.loadFileJSON)
         fileAction.addAction(openAct)
 
         initAct = QtWidgets.QAction("&Create new ...", self)
@@ -87,7 +94,7 @@ class MainWindow(QtWidgets.QMainWindow):
         saveAct = QtWidgets.QAction("&Save", self)
         saveAct.setShortcut("Ctrl+S")
         saveAct.setStatusTip("Save dataset")
-        saveAct.triggered.connect(self.datasetController.writeDataToTxt)
+        saveAct.triggered.connect(self.datasetController.writeDataToJSON)
         fileAction.addAction(saveAct)
 
         ## Status Bar
@@ -146,7 +153,7 @@ class MainWindow(QtWidgets.QMainWindow):
             elif reply == QtWidgets.QMessageBox.No:
                 exitBool = True
             elif reply == QtWidgets.QMessageBox.Yes:
-                self.datasetController.writeDataToTxt()
+                self.datasetController.writeDataToJSON()
                 exitBool = True
 
         if exitBool:
@@ -174,30 +181,46 @@ class MainWindow(QtWidgets.QMainWindow):
     def analyseNewImage(self, image):  # Call each time AnalysisThread emit a new pix
         self.videoViewer.setInfoText(self.AnalysisThread.getInfoText())
 
+        bodyKeypoints, bodyAccuracy = self.AnalysisThread.getBodyData()
         leftHandKeypoints, leftAccuracy = self.AnalysisThread.getHandData(0)
         rightHandKeypoints, rightAccuracy = self.AnalysisThread.getHandData(1)
 
+        # Draw hand or body on GUI
         if self.realTimeHandDraw:
-            self.handClassifier.leftHandAnalysis.drawHand(
-                leftHandKeypoints, leftAccuracy
-            )
-            self.handClassifier.rightHandAnalysis.drawHand(
-                rightHandKeypoints, rightAccuracy
-            )
-
-        if self.datasetController.getHandID() == 0:  # Recording left hand
+            if self.rightTabWidget.currentWidget() == self.handClassifier:
+                self.handClassifier.leftHandAnalysis.drawHand(
+                    leftHandKeypoints, leftAccuracy
+                )
+                self.handClassifier.rightHandAnalysis.drawHand(
+                    rightHandKeypoints, rightAccuracy
+                )
+            elif self.rightTabWidget.currentWidget() == self.bodyClassifier:
+                self.bodyClassifier.bodyAnalysis.drawBody(
+                    bodyKeypoints, bodyAccuracy
+                )
+        # Recording left hand
+        if self.datasetController.getFocusID() == 0:
             if type(leftHandKeypoints) != type(None):
                 if self.isRecording:
                     if leftAccuracy > self.datasetController.getTresholdValue():
                         self.datasetController.addEntryDataset(
                             leftHandKeypoints, leftAccuracy
                         )
-        else:  # Recording right hand
+        # Recording right hand
+        elif self.datasetController.getFocusID() == 1:
             if type(rightHandKeypoints) != type(None):  # If selected hand detected
                 if self.isRecording:
                     if rightAccuracy > self.datasetController.getTresholdValue():
                         self.datasetController.addEntryDataset(
                             rightHandKeypoints, rightAccuracy
+                        )
+        # Recording body
+        elif self.datasetController.getFocusID() == 2:
+            if type(bodyKeypoints) != type(None):
+                if self.isRecording:
+                    if bodyAccuracy > self.datasetController.getTresholdValue():
+                        self.datasetController.addEntryDataset(
+                            bodyKeypoints, bodyAccuracy
                         )
 
     def changeHandDrawingState(self, state: bool):

@@ -3,9 +3,10 @@ import numpy as np
 from datetime import date
 import numpy as np
 from pathlib import Path
+import json
 
 from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
-
+from .openpose import op
 
 class ScrollLabel(QtWidgets.QScrollArea):
     def __init__(self):
@@ -113,9 +114,10 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         super().__init__(parent=parent)
         self.parent = parent
         self.currentFilePath = ""
-        self.currentFileHeadLines = ""
+        self.currentFileInfos = ""
         self.poseName = ""
-        self.handID = 1
+        self.focusID = 1
+        self.sizeData = 0
         self.tresholdValue = 0.0
         self.datasetList = []
         self.accuracyList = []
@@ -229,10 +231,10 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             self.clearDataset()
             self.updateFileInfo(
                 dlg.getFilePath(),
-                dlg.getFileHeadlines(),
+                dlg.getFileInfos(),
                 0,
                 dlg.getPoseName(),
-                dlg.getHandID(),
+                dlg.getFocusID(),
                 dlg.getTresholdValue(),
             )
             self.setCurrentDataIndex(0)
@@ -246,7 +248,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         """
         self.datasetList.append(keypoints)
         self.accuracyList.append(accuracy)
-        self.maxIndexLabel.setText("/" + str(len(self.accuracyList)))
+        self.maxIndexLabel.setText("/" + str(len(self.datasetList)))
         self.datasetSaved = False
 
     def removeEntryDataset(self, index: int):
@@ -284,59 +286,34 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.maxIndexLabel.setEnabled(state)
         self.deleteButton.setEnabled(state)
         self.setCurrentDataIndex(0)
-
-    def loadFile(self):
+    
+    def loadFileJSON(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open dataset", r".\Dataset", "Text Files (*.txt)", options=options
+            self, "Open dataset", r".\Dataset", "Text Files (*.json)", options=options
         )
-        self.clearDataset()
-        currentEntry = []
 
         if fileName:
             self.clearDataset()
-            dataFile = open(fileName)
-            fileHeadline = ""
-            for i, line in enumerate(dataFile):
-                if i == 0:
-                    info = line.split(",")
-                    fileHeadline += line
-                    if len(info) == 3:
-                        poseName = info[0]
-                        handID = int(info[1])
-                        tresholdValue = float(info[2])
-                    else:
-                        self.fileLabel.setText("Not a supported dataset")
-                        break
-                else:
-                    if line[0] == "#" and line[1] == "#":  # Commentary/headlines
-                        fileHeadline += line
-                    elif line[0] == "#" and line[1] != "#":  # New entry
-                        currentEntry = [[], [], []]
-                        accuracy = float(line[1:])
-                    elif line[0] == "x":
-                        listStr = line[2:].split(" ")
-                        for value in listStr:
-                            currentEntry[0].append(float(value))
-                    elif line[0] == "y":
-                        listStr = line[2:].split(" ")
-                        for value in listStr:
-                            currentEntry[1].append(float(value))
-                    elif line[0] == "a":  # Last line of entry
-                        listStr = line[2:].split(" ")
-                        for value in listStr:
-                            currentEntry[2].append(float(value))
-                        self.addEntryDataset(currentEntry, accuracy)
 
-            dataFile.close()
+            with open(fileName) as f:
+                data = json.load(f)
+
+            for entry in data['data']:
+                self.addEntryDataset(
+                    np.array([entry['x'], entry['y'], entry['a']]), 
+                    float(entry['detection_accuracy'])
+                )
+            
             self.updateFileInfo(
-                fileName,
-                fileHeadline,
-                len(self.datasetList),
-                poseName,
-                handID,
-                tresholdValue,
+                filePath = fileName,
+                fileInfo = {'info':data['info'], 'data':[]},
+                sizeData = data['info']['nbr_entries'],
+                poseName = data['info']['label'],
+                focusID = data['info']['focus_id'],
+                tresholdValue = data['info']['threshold_value'],
             )
+
             self.recordButton.setEnabled(True)
             self.setEnabled(True)
             self.visuCheckbox.setChecked(True)
@@ -347,33 +324,36 @@ class DatasetControllerWidget(QtWidgets.QWidget):
     def updateFileInfo(
         self,
         filePath: str = None,
-        fileHead: str = None,
-        sizeData: int = 0,
+        fileInfo: str = None,
+        sizeData: int = None,
         poseName: str = None,
-        handID: int = None,
+        focusID: int = None,
         tresholdValue: int = None,
     ):
         self.visuCheckbox.setEnabled(True)
         if filePath:
             self.currentFilePath = filePath
-        if fileHead:
-            self.currentFileHeadLines = fileHead
+        if fileInfo:
+            self.currentFileInfos = fileInfo
+        if sizeData:
+            self.sizeData = sizeData
+            self.maxIndexLabel.setText("/" + str(self.sizeData))
         if poseName:
             self.poseName = poseName
-        if handID != None:
-            self.handID = handID
+        if focusID != None:
+            self.focusID = focusID
         if tresholdValue != None:
             self.tresholdValue = tresholdValue
         self.fileLabel.setText(
             str(self.currentFilePath)
             + "\n  -> {} entries for {} ({} hand) with a minimum accuracy of {}.".format(
-                str(sizeData),
-                poseName,
-                ("right" if handID == 1 else "left"),
-                str(tresholdValue),
+                str(self.sizeData),
+                self.poseName,
+                ["left_hand", "right_hand", "body"][self.focusID],
+                str(self.tresholdValue),
             )
         )
-        self.maxIndexLabel.setText("/" + str(sizeData))
+        #self.maxIndexLabel.setText("/" + str(self.sizeData))
         self.recordButton.setEnabled(True)
         self.setEnabled(True)
 
@@ -389,34 +369,40 @@ class DatasetControllerWidget(QtWidgets.QWidget):
                 index = len(self.datasetList) - 1
             self.currentDataIndex = index
 
-            if self.handID == 0:
+            if self.focusID == 0:
                 self.parent.handClassifier.leftHandAnalysis.drawHand(
                     np.array(self.datasetList[self.currentDataIndex]),
                     self.accuracyList[self.currentDataIndex],
                 )
-            else:
+            elif self.focusID == 1:
                 self.parent.handClassifier.rightHandAnalysis.drawHand(
+                    np.array(self.datasetList[self.currentDataIndex]),
+                    self.accuracyList[self.currentDataIndex],
+                )
+            elif self.focusID == 2:
+                self.parent.bodyClassifier.bodyAnalysis.drawBody(
                     np.array(self.datasetList[self.currentDataIndex]),
                     self.accuracyList[self.currentDataIndex],
                 )
         self.currentIndexLine.setText(str(self.currentDataIndex + 1))
 
-    def writeDataToTxt(self):
-        """ Save the current dataset to the text file (URL: self.currentFilePath)."""
+    def writeDataToJSON(self):
+        """ Save the current dataset to the JSON file (URL: self.currentFilePath)."""
         if os.path.isfile(self.currentFilePath):
-            dataFile = open(self.currentFilePath, "w")  # Open in write 'w' to clear.
-            dataFile.write(self.currentFileHeadLines)
-            sizeData = len(self.datasetList)
-            for entryIndex in range(sizeData):
-                dataFile.write("#" + str(self.accuracyList[entryIndex]))
-                for i, row in enumerate(self.datasetList[entryIndex]):
-                    for j, val in enumerate(row):
-                        dataFile.write(
-                            "\n{}:".format(["x", "y", "a"][i]) if j == 0 else " "
-                        )
-                        dataFile.write(str(val))
-                dataFile.write("\n\n")
-            self.updateFileInfo(sizeData=sizeData)
+            fileData = self.currentFileInfos
+            fileData['info']['nbr_entries'] = len(self.datasetList)
+            self.updateFileInfo(sizeData=len(self.datasetList))
+            for accuracy, data in zip(self.accuracyList, self.datasetList):
+                fileData['data'].append({
+                    'detection_accuracy': float(accuracy),
+                    'x': data[0].tolist(),
+                    'y': data[1].tolist(),
+                    'a': data[2].tolist()
+                })
+
+            with open(self.currentFilePath, 'w') as outfile:
+                json.dump(fileData, outfile, indent = 4)
+
             self.datasetSaved = True
 
     def startRecording(self, state: bool):
@@ -425,8 +411,8 @@ class DatasetControllerWidget(QtWidgets.QWidget):
     def getTresholdValue(self) -> float:
         return self.tresholdValue
 
-    def getHandID(self) -> int:
-        return self.handID
+    def getFocusID(self) -> int:
+        return self.focusID
 
     def getPoseName(self) -> str:
         return self.poseName
@@ -458,7 +444,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.folderButton = QtWidgets.QPushButton("Change root folder")
         self.folderButton.clicked.connect(self.changeSavingFolder)
 
-        self.handSelection = HandSelectionWidget(self)
+        self.handSelection = FocusSelectionWidget(self)
 
         self.poseNameLine = QtWidgets.QLineEdit(self.currentPoseName)
         self.poseNameLine.textChanged.connect(self.changePoseName)
@@ -478,8 +464,8 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.layout.addWidget(self.folderButton, 0, 5, 1, 1, QtCore.Qt.AlignTop)
         self.layout.addWidget(self.handSelection, 1, 0, 1, 1)
         self.layout.addWidget(self.poseNameLine, 1, 2, 1, 1)
-        self.layout.addWidget(QtWidgets.QLabel("Hand pose name:"), 1, 1, 1, 1)
-        self.layout.addWidget(QtWidgets.QLabel("Accuaracy treshold:"), 1, 3, 1, 1)
+        self.layout.addWidget(QtWidgets.QLabel("Label:"), 1, 1, 1, 1)
+        self.layout.addWidget(QtWidgets.QLabel("Accuracy threshold:"), 1, 3, 1, 1)
         self.layout.addWidget(self.tresholdValueLine, 1, 4, 1, 1)
         self.layout.addWidget(self.createButton, 1, 5, 1, 1)
         self.layout.setRowStretch(0, 0)
@@ -488,18 +474,11 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
     def createDataset(self):
         self.isRecording = True
-
         path = self.getSavingFolder()
-        folder = self.getPoseName()
-        tresholdValue = self.getTresholdValue()
-        handID = self.handSelection.getCurrentHandID()
-
-        path /= folder
-        if not path.is_dir():  # Create pose directory if missing
-            os.mkdir(path)
-
-        path /= "right_hand" if handID == 1 else "left_hand"
-        if path.is_dir():
+        focusID = self.handSelection.getCurrentFocusID()
+        fileName = self.getPoseName() + '_' + ["left_hand", "right_hand", "body"][focusID] + '.json'
+        path /= fileName
+        if path.is_file():
             self.isRecording = False
             self.createButton.setEnabled(False)
             self.createButton.setText("Dataset allready created")
@@ -507,19 +486,16 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         else:
             self.createButton.setEnabled(True)
             self.createButton.setText("Create dataset")
-            os.mkdir(path)  # Create hand directory if missing
-
-            path /= "data.txt"
-            currentFile = open(path, "w+")
-            currentFile.write(self.getFileHeadlines())
-            currentFile.close()
+            with open(path, 'w+') as outfile:
+                json.dump(self.getFileInfos(), outfile, indent = 4, ensure_ascii = False)
             self.accept()
             self.currentFilePath = path
+
 
     def getFileHeadlines(self):
         folder = self.getPoseName()
         tresholdValue = self.getTresholdValue()
-        handID = self.handSelection.getCurrentHandID()
+        handID = self.handSelection.getCurrentFocusID()
 
         output = ""
         output += folder + "," + str(handID) + "," + str(tresholdValue) + "\n"
@@ -531,6 +507,21 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         output += "## Data format: Coordinates x, y and accuracy of estimation a\n\n"
 
         return output
+
+    def getFileInfos(self):
+        info = {
+            'info':{
+                'label': self.getPoseName(),
+                'focus': ["left_hand", "right_hand", "body"][self.handSelection.getCurrentFocusID()],
+                'nbr_entries': 0,
+                'threshold_value': self.getTresholdValue(),
+                'focus_id': self.handSelection.getCurrentFocusID(),
+                'BODY25_Mapping': op.getPoseBodyPartMapping(op.PoseModel.BODY_25),
+                'BODY25_Pairs': op.getPosePartPairs(op.PoseModel.BODY_25)
+            },
+            'data':[]
+        }
+        return info
 
     @pyqtSlot()
     def changeSavingFolder(self):
@@ -564,8 +555,8 @@ class CreateDatasetDialog(QtWidgets.QDialog):
     def getTresholdValue(self) -> float:
         return self.currentTresholdValue
 
-    def getHandID(self) -> int:
-        return self.handSelection.getCurrentHandID()
+    def getFocusID(self) -> int:
+        return self.handSelection.getCurrentFocusID()
 
     def getFilePath(self):
         return self.currentFilePath
@@ -574,20 +565,22 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.folderButton.setFixedHeight(self.folderLabel.height())
 
 
-class HandSelectionWidget(QtWidgets.QWidget):
+class FocusSelectionWidget(QtWidgets.QWidget):
     changeHandSelection = pyqtSignal(int)
 
     def __init__(self, parent=None):
-        super(HandSelectionWidget, self).__init__(parent)
+        super(FocusSelectionWidget, self).__init__(parent)
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
         self.parent = parent
 
-        self.layout.addWidget(QtWidgets.QLabel("Hand focus:"), 0, 0)
-        self.rightCheckbox = QtWidgets.QCheckBox("Right")
-        self.leftCheckbox = QtWidgets.QCheckBox("Left")
+        self.layout.addWidget(QtWidgets.QLabel("Focus:"), 0, 0)
+        self.rightCheckbox = QtWidgets.QCheckBox("Right hand")
+        self.leftCheckbox = QtWidgets.QCheckBox("Left hand")
+        self.bodyCheckbox = QtWidgets.QCheckBox("Body")
         self.layout.addWidget(self.leftCheckbox, 0, 1)
         self.layout.addWidget(self.rightCheckbox, 0, 2)
+        self.layout.addWidget(self.bodyCheckbox, 0, 3)
 
         horSpacer = QtWidgets.QSpacerItem(
             0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum
@@ -606,5 +599,7 @@ class HandSelectionWidget(QtWidgets.QWidget):
 
         self.rightCheckbox.setChecked(True)
 
-    def getCurrentHandID(self):
+    def getCurrentFocusID(self):
+        if self.bodyCheckbox.isChecked():
+            return 2
         return 1 if self.rightCheckbox.isChecked() else 0

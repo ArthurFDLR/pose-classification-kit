@@ -1,26 +1,8 @@
-from .qt import QtCore, QtGui, pyqtSignal, pyqtSlot
-from __init__ import OPENPOSE_PATH
+from .qt import QtCore, pyqtSignal, pyqtSlot
+from .openpose import OPENPOSE_LOADED, OPENPOSE_MODELS_PATH, op
 
 import cv2
 import numpy as np
-import os
-import sys
-
-try:
-    sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))
-    releasePATH = OPENPOSE_PATH / "build" / "x64" / "Release"
-    binPATH = OPENPOSE_PATH / "build" / "bin"
-    modelsPATH = OPENPOSE_PATH / "models"
-    os.environ["PATH"] = (
-        os.environ["PATH"] + ";" + str(releasePATH) + ";" + str(binPATH) + ";"
-    )
-    import pyopenpose as op
-
-    OPENPOSE_LOADED = True
-except:
-    OPENPOSE_LOADED = False
-    print("OpenPose ({}) loading failed.".format(str(OPENPOSE_PATH)))
-
 
 class VideoAnalysisThread(QtCore.QThread):
     newFrame = pyqtSignal(np.ndarray)
@@ -37,7 +19,7 @@ class VideoAnalysisThread(QtCore.QThread):
         #######################
         if OPENPOSE_LOADED:
             params = dict()
-            params["model_folder"] = str(modelsPATH)
+            params["model_folder"] = str(OPENPOSE_MODELS_PATH)
             params["face"] = False
             params["hand"] = True
             params["disable_multi_thread"] = False
@@ -121,11 +103,32 @@ class VideoAnalysisThread(QtCore.QThread):
         return outputArray, handAccuaracyScore
 
     def getBodyData(self):
+
+        outputArray = None
+        accuaracyScore = 0.0
         if len(self.datum.poseKeypoints.shape) > 0:
-            poseKeypoints = self.datum.poseKeypoints[self.personID]
-            return poseKeypoints
-        else:
-            return None
+            outputArray = self.datum.poseKeypoints[self.personID]
+            accuaracyScore = outputArray[:,2].sum()
+
+            min_x, max_x = float('inf') ,0.0
+            min_y, max_y = float('inf') ,0.0
+
+            for keypoint in outputArray:
+                if keypoint[2] > 0.0: #If keypoint exists in image
+                    min_x = min(min_x, keypoint[0])
+                    max_x = max(max_x, keypoint[0])
+                    min_y = min(min_y, keypoint[1])
+                    max_y = max(max_y, keypoint[1])
+            
+            np.subtract(outputArray[:,0], (min_x+max_x)/2, out = outputArray[:,0])
+            np.subtract((min_y+max_y)/2, outputArray[:,1], out = outputArray[:,1])
+            
+            # TODO Find a proper scaling method!
+            np.divide(outputArray[:,0:2], np.linalg.norm([[max_x, max_y],[min_x, min_y]]), out = outputArray[:,0:2])
+            
+            outputArray = outputArray.T
+
+        return outputArray, accuaracyScore
 
     def getInfoText(self) -> str:
         handKeypoints = np.array(self.datum.handKeypoints)
