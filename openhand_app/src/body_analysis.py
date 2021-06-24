@@ -223,8 +223,8 @@ class BodyClassifierWidget(QtWidgets.QWidget):
         ## Structure
         self.layout = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.layout)
-        #self.layout.setRowStretch(0, 1)
-        #self.layout.setRowStretch(1, 0)
+        self.layout.setStretch(0, 1)
+        self.layout.setStretch(1, 0)
 
         self.classifierWidget = ClassifierSelectionWidget(self)
         self.bodyAnalysis = BodyAnalysisWidget()
