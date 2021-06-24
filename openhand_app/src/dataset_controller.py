@@ -6,7 +6,7 @@ from pathlib import Path
 import json
 
 from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
-
+from .openpose import op
 
 class ScrollLabel(QtWidgets.QScrollArea):
     def __init__(self):
@@ -248,7 +248,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         """
         self.datasetList.append(keypoints)
         self.accuracyList.append(accuracy)
-        self.updateFileInfo(sizeData = self.sizeData+1)
+        self.maxIndexLabel.setText("/" + str(len(self.datasetList)))
         self.datasetSaved = False
 
     def removeEntryDataset(self, index: int):
@@ -335,10 +335,8 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             self.currentFilePath = filePath
         if fileInfo:
             self.currentFileInfos = fileInfo
-            self.currentFileInfos['info']['nbr_entries'] = self.sizeData
         if sizeData:
             self.sizeData = sizeData
-            self.currentFileInfos['info']['nbr_entries'] = self.sizeData
             self.maxIndexLabel.setText("/" + str(self.sizeData))
         if poseName:
             self.poseName = poseName
@@ -376,8 +374,13 @@ class DatasetControllerWidget(QtWidgets.QWidget):
                     np.array(self.datasetList[self.currentDataIndex]),
                     self.accuracyList[self.currentDataIndex],
                 )
-            else:
+            elif self.focusID == 1:
                 self.parent.handClassifier.rightHandAnalysis.drawHand(
+                    np.array(self.datasetList[self.currentDataIndex]),
+                    self.accuracyList[self.currentDataIndex],
+                )
+            elif self.focusID == 2:
+                self.parent.bodyClassifier.bodyAnalysis.drawBody(
                     np.array(self.datasetList[self.currentDataIndex]),
                     self.accuracyList[self.currentDataIndex],
                 )
@@ -387,6 +390,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         """ Save the current dataset to the JSON file (URL: self.currentFilePath)."""
         if os.path.isfile(self.currentFilePath):
             fileData = self.currentFileInfos
+            fileData['info']['nbr_entries'] = len(self.datasetList)
             self.updateFileInfo(sizeData=len(self.datasetList))
             for accuracy, data in zip(self.accuracyList, self.datasetList):
                 fileData['data'].append({
@@ -508,10 +512,12 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         info = {
             'info':{
                 'label': self.getPoseName(),
+                'focus': ["left_hand", "right_hand", "body"][self.handSelection.getCurrentFocusID()],
+                'nbr_entries': 0,
                 'threshold_value': self.getTresholdValue(),
                 'focus_id': self.handSelection.getCurrentFocusID(),
-                'focus': ["left_hand", "right_hand", "body"][self.handSelection.getCurrentFocusID()],
-                'nbr_entries': 0
+                'BODY25_Mapping': op.getPoseBodyPartMapping(op.PoseModel.BODY_25),
+                'BODY25_Pairs': op.getPosePartPairs(op.PoseModel.BODY_25)
             },
             'data':[]
         }

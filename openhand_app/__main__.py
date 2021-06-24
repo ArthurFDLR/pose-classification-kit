@@ -207,12 +207,20 @@ class MainWindow(QtWidgets.QMainWindow):
                             leftHandKeypoints, leftAccuracy
                         )
         # Recording right hand
-        else:
+        elif self.datasetController.getFocusID() == 1:
             if type(rightHandKeypoints) != type(None):  # If selected hand detected
                 if self.isRecording:
                     if rightAccuracy > self.datasetController.getTresholdValue():
                         self.datasetController.addEntryDataset(
                             rightHandKeypoints, rightAccuracy
+                        )
+        # Recording body
+        elif self.datasetController.getFocusID() == 2:
+            if type(bodyKeypoints) != type(None):
+                if self.isRecording:
+                    if bodyAccuracy > self.datasetController.getTresholdValue():
+                        self.datasetController.addEntryDataset(
+                            bodyKeypoints, bodyAccuracy
                         )
 
     def changeHandDrawingState(self, state: bool):
