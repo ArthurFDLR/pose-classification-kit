@@ -4,6 +4,11 @@ from .openpose import OPENPOSE_LOADED, OPENPOSE_MODELS_PATH, op
 import cv2
 import numpy as np
 
+def getLengthLimb(data, keypoint1:int, keypoint2:int):
+    if (data[keypoint1,2] > 0. and data[keypoint2,2] > 0):
+        return np.linalg.norm([data[keypoint1,0:2] - data[keypoint2,0:2]])
+    return 0
+
 class VideoAnalysisThread(QtCore.QThread):
     newFrame = pyqtSignal(np.ndarray)
 
@@ -107,12 +112,14 @@ class VideoAnalysisThread(QtCore.QThread):
         outputArray = None
         accuaracyScore = 0.0
         if len(self.datum.poseKeypoints.shape) > 0:
+
+            # Read body data
             outputArray = self.datum.poseKeypoints[self.personID]
             accuaracyScore = outputArray[:,2].sum()
 
+            # Find bouding box
             min_x, max_x = float('inf') ,0.0
             min_y, max_y = float('inf') ,0.0
-
             for keypoint in outputArray:
                 if keypoint[2] > 0.0: #If keypoint exists in image
                     min_x = min(min_x, keypoint[0])
@@ -120,12 +127,31 @@ class VideoAnalysisThread(QtCore.QThread):
                     min_y = min(min_y, keypoint[1])
                     max_y = max(max_y, keypoint[1])
             
+            # Centering
             np.subtract(outputArray[:,0], (min_x+max_x)/2, where=outputArray[:,2]>0., out = outputArray[:,0])
             np.subtract((min_y+max_y)/2, outputArray[:,1], where=outputArray[:,2]>0., out = outputArray[:,1])
             
-            # TODO Find a proper scaling method!
-            np.divide(outputArray[:,0:2], np.linalg.norm([[max_x, max_y],[min_x, min_y]]), out = outputArray[:,0:2])
+            # Scaling
+            normalizedPartsLength = np.array([
+                getLengthLimb(outputArray, 1,8) * (16./5.),     # Torso
+                getLengthLimb(outputArray, 0,1) * (16./2.5),    # Neck
+                getLengthLimb(outputArray, 9,10) * (16./3.5),   # Right thigh
+                getLengthLimb(outputArray, 12,13) * (16./3.5),  # Left thigh
+                getLengthLimb(outputArray, 2,5) * (16./3.5),    # Shoulders
+            ])
             
+            # Mean of non-zero values
+            scaleFactor = np.mean(normalizedPartsLength[normalizedPartsLength>0.])
+            if scaleFactor == 0:
+                print('Scaling error')
+                return None, 0.0
+
+            np.divide(outputArray[:,0:2], scaleFactor, out = outputArray[:,0:2])
+
+            if np.any((outputArray > 1.)|(outputArray < -1.)):
+                print('Scaling error')
+                return None, 0.0
+
             outputArray = outputArray.T
 
         return outputArray, accuaracyScore
