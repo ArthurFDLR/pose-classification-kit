@@ -69,8 +69,8 @@ class MainWindow(QtWidgets.QMainWindow):
         rightLayout = QtWidgets.QVBoxLayout(rightWidget)
         rightLayout.addWidget(self.rightTabWidget)
 
-        self.rightTabWidget.addTab(self.handClassifier, 'Hands')
         self.rightTabWidget.addTab(self.bodyClassifier, 'Body')
+        self.rightTabWidget.addTab(self.handClassifier, 'Hands')
 
         self.windowSplitter.addWidget(leftWidget)
         self.windowSplitter.addWidget(rightWidget)

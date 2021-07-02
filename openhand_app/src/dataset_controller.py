@@ -142,7 +142,8 @@ class DatasetControllerWidget(QtWidgets.QWidget):
 
         self.fileLabel = ScrollLabel()
         self.fileLabel.setText("No file selected")
-        self.fileLabel.setMaximumHeight(60)
+        self.fileLabel.setMinimumHeight(90)
+        self.fileLabel.setMaximumHeight(90)
         self.fileLabel.setMinimumWidth(180)
         self.layout.addWidget(self.fileLabel, 0, 0, 1, 9, QtCore.Qt.AlignTop)
 
