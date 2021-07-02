@@ -141,7 +141,7 @@ class VideoAnalysisThread(QtCore.QThread):
                 getLengthLimb(outputArray, 13,14) * (16./3.5),  # Left lower leg
                 getLengthLimb(outputArray, 2,5) * (16./3.4),    # Shoulders
             ])
-            print(normalizedPartsLength)
+
             # Mean of non-zero values
             scaleFactor = np.mean(normalizedPartsLength[normalizedPartsLength>0.])
             if scaleFactor == 0:
