@@ -133,13 +133,15 @@ class VideoAnalysisThread(QtCore.QThread):
             
             # Scaling
             normalizedPartsLength = np.array([
-                getLengthLimb(outputArray, 1,8) * (16./5.),     # Torso
+                getLengthLimb(outputArray, 1,8) * (16./5.2),    # Torso
                 getLengthLimb(outputArray, 0,1) * (16./2.5),    # Neck
-                getLengthLimb(outputArray, 9,10) * (16./3.5),   # Right thigh
-                getLengthLimb(outputArray, 12,13) * (16./3.5),  # Left thigh
-                getLengthLimb(outputArray, 2,5) * (16./3.5),    # Shoulders
+                getLengthLimb(outputArray, 9,10) * (16./3.6),   # Right thigh
+                getLengthLimb(outputArray, 10,11) * (16./3.5),  # Right lower leg
+                getLengthLimb(outputArray, 12,13) * (16./3.6),  # Left thigh
+                getLengthLimb(outputArray, 13,14) * (16./3.5),  # Left lower leg
+                getLengthLimb(outputArray, 2,5) * (16./3.4),    # Shoulders
             ])
-            
+            print(normalizedPartsLength)
             # Mean of non-zero values
             scaleFactor = np.mean(normalizedPartsLength[normalizedPartsLength>0.])
             if scaleFactor == 0:
