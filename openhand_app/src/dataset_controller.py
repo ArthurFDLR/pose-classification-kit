@@ -391,7 +391,9 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         if os.path.isfile(self.currentFilePath):
             fileData = self.currentFileInfos
             fileData['info']['nbr_entries'] = len(self.datasetList)
+            fileData['data'] = []
             self.updateFileInfo(sizeData=len(self.datasetList))
+            print(len(self.datasetList))
             for accuracy, data in zip(self.accuracyList, self.datasetList):
                 fileData['data'].append({
                     'detection_accuracy': float(accuracy),
@@ -516,11 +518,12 @@ class CreateDatasetDialog(QtWidgets.QDialog):
                 'nbr_entries': 0,
                 'threshold_value': self.getTresholdValue(),
                 'focus_id': self.handSelection.getCurrentFocusID(),
-                'BODY25_Mapping': op.getPoseBodyPartMapping(op.PoseModel.BODY_25),
-                'BODY25_Pairs': op.getPosePartPairs(op.PoseModel.BODY_25)
             },
             'data':[]
         }
+        if self.handSelection.getCurrentFocusID() == 2:
+            info["info"]['BODY25_Mapping'] = op.getPoseBodyPartMapping(op.PoseModel.BODY_25)
+            info["info"]['BODY25_Pairs'] = op.getPosePartPairs(op.PoseModel.BODY_25)
         return info
 
     @pyqtSlot()
@@ -566,8 +569,6 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
 
 class FocusSelectionWidget(QtWidgets.QWidget):
-    changeHandSelection = pyqtSignal(int)
-
     def __init__(self, parent=None):
         super(FocusSelectionWidget, self).__init__(parent)
         self.layout = QtWidgets.QGridLayout(self)
@@ -587,19 +588,23 @@ class FocusSelectionWidget(QtWidgets.QWidget):
         )
         self.layout.addItem(horSpacer, 0, 3)
 
-        self.rightCheckbox.toggled.connect(
-            lambda check: self.leftCheckbox.setChecked(not check)
-        )
-        self.leftCheckbox.toggled.connect(
-            lambda check: self.rightCheckbox.setChecked(not check)
-        )
-        self.rightCheckbox.toggled.connect(
-            lambda check: self.changeHandSelection.emit(1 if check else 0)
-        )
+        group = QtWidgets.QButtonGroup(self)
+        group.addButton(self.rightCheckbox)
+        group.addButton(self.leftCheckbox)
+        group.addButton(self.bodyCheckbox)
+        group.buttonClicked.connect(self.toggleFocus)
 
-        self.rightCheckbox.setChecked(True)
+        self.bodyCheckbox.setChecked(True)
+        self.focusID = 2
+
+    def toggleFocus(self, btn):
+        label = btn.text()
+        if label == "Left hand":
+            self.focusID = 0
+        elif label == "Right hand":
+            self.focusID = 1
+        elif label == "Body":
+            self.focusID = 2
 
     def getCurrentFocusID(self):
-        if self.bodyCheckbox.isChecked():
-            return 2
-        return 1 if self.rightCheckbox.isChecked() else 0
+        return self.focusID
