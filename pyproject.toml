@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "OpenHand-App"
-version = "1.0.0"
-description = "Hand gesture classifier tool - Creation of datasets & real-time visualization"
+name = "pose-classification-kit"
+version = "1.1.0"
+description = "From pose estimation to pose classification - Creation of datasets & real-time visualization"
 authors = ["ArthurFDLR <arthfind@gmail.com>"]
 
 [tool.poetry.dependencies]

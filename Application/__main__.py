@@ -6,7 +6,7 @@ from src.hand_analysis import HandClassifierWidget
 from src.body_analysis import BodyClassifierWidget
 from src.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
 # If the imports above are not resolved by your Python support system (pylance by default on VSC),
-# add ./openhand_app as extra path (see "python.analysis.extraPaths" in .\.vscode\settings.json by default)
+# add ./Application as extra path (see "python.analysis.extraPaths" in .\.vscode\settings.json by default)
 
 import sys
 from __init__ import OPENPOSE_PATH
@@ -16,7 +16,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         ## Init
         super(MainWindow, self).__init__(parent)
-        self.setWindowTitle("OpenHand classifier")
+        self.setWindowTitle("Pose Classification Kit")
 
         ## Parameters
         self.isRecording = False
