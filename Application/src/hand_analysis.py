@@ -140,7 +140,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
                 inputData.append(keypoints[0, i])  # add x
                 inputData.append(keypoints[1, i])  # add y
             inputData = np.array(inputData)
-
+            
             if self.modelClassifier is not None:
                 prediction = self.modelClassifier.predict(np.array([inputData]))[0]
                 self.currentPrediction = self.classOutputs[np.argmax(prediction)]
@@ -223,7 +223,7 @@ class HandClassifierWidget(QtWidgets.QWidget):
         self.layout.setRowStretch(0, 1)
         self.layout.setRowStretch(1, 0)
 
-        self.classifierWidget = ClassifierSelectionWidget(self)
+        self.classifierWidget = ClassifierSelectionWidget(parent=self, bodyClassification=False)
         self.layout.addWidget(self.classifierWidget, 2, 0, 1, 2)
 
         self.leftHandAnalysis = HandAnalysisWidget(0)

@@ -124,10 +124,9 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         """
         if self.showInput:
             # self.bodyGraphWidget.setTitle('Detection accuracy: ' + str(accuracy))
-            # self.updatePredictedClass(bodyKeypoints)
+            self.updatePredictedClass(bodyKeypoints)
             self.bodyGraphWidget.plotBody(bodyKeypoints, accuracy)
-    
-    '''
+
     def updatePredictedClass(self, keypoints: np.ndarray):
         """Draw keypoints of a body pose in the widget.
 
@@ -159,7 +158,7 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
                 self.classOutputs = []
                 self.classGraphWidget.changeCategories(self.classOutputs)
             else:
-                if bodyID == self.bodyID:
+                if bodyID == 2: # Check if classifier for body poses (not hands)
                     self.modelClassifier = tf.keras.models.load_model(urlModel)
                     self.classOutputs = classOutputs
                     self.classGraphWidget.changeCategories(self.classOutputs)
@@ -169,7 +168,7 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
 
     def setPredictionText(self, prediction: str):
         self.predictionLabel.setText(prediction)
-    '''
+
 
 class BodyClassifierWidget(QtWidgets.QWidget):
     stylesheet = """
@@ -226,11 +225,11 @@ class BodyClassifierWidget(QtWidgets.QWidget):
         self.layout.setStretch(0, 1)
         self.layout.setStretch(1, 0)
 
-        self.classifierWidget = ClassifierSelectionWidget(self)
+        self.classifierWidget = ClassifierSelectionWidget(parent=self, bodyClassification=True)
         self.bodyAnalysis = BodyAnalysisWidget()
-        #self.classifierWidget.newClassifierModel_Signal.connect(
-        #    self.bodyAnalysis.newModelLoaded
-        #)
+        self.classifierWidget.newClassifierModel_Signal.connect(
+            self.bodyAnalysis.newModelLoaded
+        )
 
         self.layout.addWidget(self.bodyAnalysis)
         self.layout.addWidget(self.classifierWidget)

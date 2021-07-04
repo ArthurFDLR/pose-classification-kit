@@ -7,11 +7,13 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
     # newClassifierModel_Signal: url to load classifier model, output labels, handID
     newClassifierModel_Signal = pyqtSignal(str, list, int)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, bodyClassification:bool=False):
         super().__init__()
         self.parent = parent
         self.modelRight = None
         self.modelLeft = None
+        self.modelsPath = MODELS_PATH / ("Body" if bodyClassification else "Hands")
+        self.bodyClassification = bodyClassification
 
         self.classOutputs = []
         self.leftWidget = QtWidgets.QWidget()
@@ -46,27 +48,37 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
             name (string): Name of the model. The folder .\models\name must contain: modelName_right.h5, modelName_left.h5, class.txt
         """
         if name != "None":
-            urlFolder = MODELS_PATH / name
-            print(urlFolder)
-            if urlFolder.is_dir():
-                urlRight = urlFolder / (name + "_right.h5")
-                urlLeft = urlFolder /  (name + "_left.h5")
-                urlClass = urlFolder / "class.txt"
+            pathFolder = self.modelsPath / name
+            print(pathFolder)
+            if pathFolder.is_dir():
+                urlClass = pathFolder / "class.txt"
                 if urlClass.is_file():
                     with open(urlClass, "r") as file:
                         first_line = file.readline()
                     self.classOutputs = first_line.split(",")
                     print("Class model loaded.")
-                if urlRight.is_file():
-                    self.newClassifierModel_Signal.emit(str(urlRight), self.classOutputs, 1)
-                    print("Right hand model loaded.")
+
+                if self.bodyClassification:
+                    pathBody = pathFolder / (name + "_body.h5")
+                    if pathBody.is_file():
+                        self.newClassifierModel_Signal.emit(str(pathBody), self.classOutputs, 2)
+                        print("Body model loaded.")
+                    else:
+                        self.newClassifierModel_Signal.emit("None", [], 2)
                 else:
-                    self.newClassifierModel_Signal.emit("None", [], 1)
-                if urlLeft.is_file():
-                    self.newClassifierModel_Signal.emit(str(urlLeft), self.classOutputs, 0)
-                    print("Left hand model loaded.")
-                else:
-                    self.newClassifierModel_Signal.emit("None", [], 0)
+                    pathRight = pathFolder / (name + "_right.h5")
+                    if pathRight.is_file():
+                        self.newClassifierModel_Signal.emit(str(pathRight), self.classOutputs, 1)
+                        print("Right hand model loaded.")
+                    else:
+                        self.newClassifierModel_Signal.emit("None", [], 1)
+                    
+                    pathLeft = pathFolder /  (name + "_left.h5")
+                    if pathLeft.is_file():
+                        self.newClassifierModel_Signal.emit(str(pathLeft), self.classOutputs, 0)
+                        print("Left hand model loaded.")
+                    else:
+                        self.newClassifierModel_Signal.emit("None", [], 0)
         else:
             print("None")
             self.modelRight = None
@@ -78,8 +90,8 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
         listOut = ["None"]
         listOut += [
             name
-            for name in os.listdir(str(MODELS_PATH))
-            if (MODELS_PATH / name).is_dir()
+            for name in os.listdir(str(self.modelsPath))
+            if (self.modelsPath / name).is_dir()
         ]
         return listOut
 
