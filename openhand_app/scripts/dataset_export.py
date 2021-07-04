@@ -1,51 +1,25 @@
-import os
+import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
 
-def loadFile(file_path: Path, shuffle: bool = True):
+def loadFile(filePath: Path, shuffle: bool = True):
     data_out = []
     accuracy_out = []
-    if file_path.is_file():
+    with open(filePath) as f:
+        data = json.load(f)
+        for entry in data['data']:
+            data_out.append([entry['x'], entry['y'], entry['a']])
+            accuracy_out.append(entry['detection_accuracy'])
 
-        currentEntry = []
-
-        dataFile = open(file_path)
-        for i, line in enumerate(dataFile):
-            if i == 0:
-                info = line.split(",")
-                if len(info) == 3:
-                    poseName = info[0]
-                    handID = int(info[1])
-                    tresholdValue = float(info[2])
-                else:
-                    print("Not a supported dataset")
-                    break
-            else:
-                if line[0] == "#" and line[1] != "#":  # New entry
-                    currentEntry = [[], []]
-                    accuracy_out.append(float(line[1:]))
-                elif line[0] == "x":
-                    listStr = line[2:].split(" ")
-                    for value in listStr:
-                        currentEntry[0].append(float(value))
-                elif line[0] == "y":
-                    listStr = line[2:].split(" ")
-                    for value in listStr:
-                        currentEntry[1].append(float(value))
-                elif line[0] == "a":  # Last line of entry
-                    data_out.append(currentEntry)
-
-        dataFile.close()
-
-        if shuffle:
-            index = np.arange(data_out.shape[0])
-            np.random.shuffle(index)
-            data_out = data_out[index]
+    if shuffle:
+        index = np.arange(data_out.shape[0])
+        np.random.shuffle(index)
+        data_out = data_out[index]
+        accuracy_out =  accuracy_out[index]
 
     return np.array(data_out), np.array(accuracy_out)
-
 
 if __name__ == "__main__":
     labels = [
@@ -80,24 +54,30 @@ if __name__ == "__main__":
     data = {"label": [], "hand": [], "accuracy": []}
     for i in range(21):
         data.update({"x{}".format(i): [], "y{}".format(i): []})
-
-    dataset_path = Path(".").resolve() / "Dataset"
+    
+    dataset_path = Path(".").resolve() / "Dataset" / "Hands"
     assert dataset_path.is_dir()
-    print(len(labels), "labels detected:")
+    exportNum = 0
     for label in labels:
-        print(label)
         for hand in [0, 1]:
-            file_path = (
-                dataset_path / label / ["left_hand", "right_hand"][hand] / "data.txt"
-            )
-            list_data, list_accuracy = loadFile(file_path, False)
-            data["label"] += [label] * list_data.shape[0]
-            data["hand"] += ["left" if hand == 0 else "right"] * list_data.shape[0]
-            data["accuracy"] += list(list_accuracy)
+            exportNum += 1
+            fileName = label + ["_left", "_right"][hand] + '_hand.json'
+            filePath = dataset_path / fileName
+            print(fileName)
+            if filePath.is_file():
+                list_data, list_accuracy = loadFile(filePath, False)
+                data["label"] += [label] * list_data.shape[0]
+                data["hand"] += ["left" if hand == 0 else "right"] * list_data.shape[0]
+                data["accuracy"] += list(list_accuracy)
 
-            for i in range(21):
-                data["x{}".format(i)] += list(list_data[:, 0, i])
-                data["y{}".format(i)] += list(list_data[:, 1, i])
+                for i in range(21):
+                    data["x{}".format(i)] += list(list_data[:, 0, i])
+                    data["y{}".format(i)] += list(list_data[:, 1, i])
 
     df = pd.DataFrame(data)
-    df.to_csv(dataset_path / "OpenHand_dataset.csv", index=False)
+    df.to_csv(dataset_path.parent / "OpenHand_Dataset.csv", index=False)
+
+    if len(labels)*2 == exportNum:
+        print("All labels exported")
+    else:
+        print(len(labels)*2 - exportNum, "missing files")
