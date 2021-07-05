@@ -2,6 +2,7 @@ import json
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from ..config import DATASETS_PATH
 
 
 def loadFile(filePath: Path, shuffle: bool = True):
@@ -115,13 +116,11 @@ def run():
         "Warrior2_right",
     ]
 
-    dataset_path = Path(".").resolve() / "Dataset"
+    datasetHands = pd.DataFrame(generateBodyDataset(bodyLabels, DATASETS_PATH / "Body"))
+    datasetHands.to_csv(DATASETS_PATH / "BodyPose_Dataset.csv", index=False)
 
-    datasetHands = pd.DataFrame(generateBodyDataset(bodyLabels, dataset_path / "Body"))
-    datasetHands.to_csv(dataset_path / "BodyPose_Dataset.csv", index=False)
-
-    datasetBody = pd.DataFrame(generateHandDataset(handLabels, dataset_path / "Hands"))
-    datasetBody.to_csv(dataset_path / "HandPose_Dataset.csv", index=False)
+    datasetBody = pd.DataFrame(generateHandDataset(handLabels, DATASETS_PATH / "Hands"))
+    datasetBody.to_csv(DATASETS_PATH / "HandPose_Dataset.csv", index=False)
 
 
 if __name__ == "__main__":

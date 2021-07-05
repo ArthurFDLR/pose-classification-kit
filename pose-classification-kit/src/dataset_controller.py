@@ -7,6 +7,7 @@ import json
 
 from .imports.qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
 from .imports.openpose import op
+from ..config import DATASETS_PATH
 
 
 class ScrollLabel(QtWidgets.QScrollArea):
@@ -292,7 +293,11 @@ class DatasetControllerWidget(QtWidgets.QWidget):
     def loadFileJSON(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open dataset", r".\Dataset", "Text Files (*.json)", options=options
+            self,
+            "Open dataset",
+            str(DATASETS_PATH),
+            "Text Files (*.json)",
+            options=options,
         )
 
         if fileName:
@@ -434,9 +439,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.setWindowTitle("Create new dataset")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        self.currentFolder = Path(".").absolute()
-        if (self.currentFolder / "Dataset").is_dir():
-            self.currentFolder /= "Dataset"
+        self.currentFolder = DATASETS_PATH
         self.currentFilePath = None
         self.currentPoseName = "Default"
         self.currentTresholdValue = 0.0
