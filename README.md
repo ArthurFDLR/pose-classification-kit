@@ -27,7 +27,7 @@ Ensure  that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 
 
 2. Create an adequate `venv` virtual environment - `python -m poetry install` (or use the configuration file [`.\requirements.txt`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/requirements.txt) in the Python 3.7+ environment of your choice)
 
-3. You should now be able to run the application - `make run` (or `poetry run python .\pose-classification-kit`)
+3. You should now be able to run the application - `poetry run pose-classification-app`
 
 Even if **OpenHand classifier** can run without [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose), it must be installed on your system to allow real-time hand gesture classification.
 
