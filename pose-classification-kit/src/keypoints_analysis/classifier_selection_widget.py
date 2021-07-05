@@ -1,7 +1,7 @@
-from .qt import QtWidgets, QtCore, pyqtSignal
+from ..imports.qt import QtWidgets, QtCore, pyqtSignal
 
 import os
-from ..config import MODELS_PATH
+from ...config import MODELS_PATH
 
 
 class ClassifierSelectionWidget(QtWidgets.QWidget):

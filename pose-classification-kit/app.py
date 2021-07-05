@@ -1,10 +1,11 @@
-from .src.qt import QtWidgets, QtGui, QtCore
-from .src.tensorflow import TF_STATUS_STR, TF_LOADED
+from .src.imports.qt import QtWidgets, QtGui, QtCore
+from .src.imports.tensorflow import TF_STATUS_STR, TF_LOADED
+
+from .src.video_analysis.video_manager import CameraInput, VideoViewerWidget
+from .src.video_analysis.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
+from .src.keypoints_analysis.hand_analysis import HandClassifierWidget
+from .src.keypoints_analysis.body_analysis import BodyClassifierWidget
 from .src.dataset_controller import DatasetControllerWidget
-from .src.video_manager import CameraInput, VideoViewerWidget
-from .src.hand_analysis import HandClassifierWidget
-from .src.body_analysis import BodyClassifierWidget
-from .src.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
 
 # If the imports above are not resolved by your Python support system (pylance by default on VSC),
 # add ./pose-classification-kit as extra path (see "python.analysis.extraPaths" in .\.vscode\settings.json by default)

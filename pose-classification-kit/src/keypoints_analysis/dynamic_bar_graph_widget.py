@@ -1,5 +1,5 @@
 import numpy as np
-from .qt import QtWidgets
+from ..imports.qt import QtWidgets
 
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib import figure, patches, path

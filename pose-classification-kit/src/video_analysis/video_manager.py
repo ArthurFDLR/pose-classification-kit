@@ -1,4 +1,4 @@
-from .qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
+from ..imports.qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
 from .openpose_thread import OPENPOSE_LOADED
 
 import pathlib

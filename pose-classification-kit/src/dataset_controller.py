@@ -5,8 +5,8 @@ import numpy as np
 from pathlib import Path
 import json
 
-from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
-from .openpose import op
+from .imports.qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
+from .imports.openpose import op
 
 
 class ScrollLabel(QtWidgets.QScrollArea):

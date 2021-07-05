@@ -1,5 +1,5 @@
-from .qt import QtCore, pyqtSignal, pyqtSlot
-from .openpose import OPENPOSE_LOADED, OPENPOSE_MODELS_PATH, op
+from ..imports.qt import QtCore, pyqtSignal, pyqtSlot
+from ..imports.openpose import OPENPOSE_LOADED, OPENPOSE_MODELS_PATH, op
 
 import cv2
 import numpy as np
