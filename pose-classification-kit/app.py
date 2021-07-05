@@ -1,15 +1,16 @@
-from src.qt import QtWidgets, QtGui, QtCore
-from src.tensorflow import TF_STATUS_STR, TF_LOADED
-from src.dataset_controller import DatasetControllerWidget
-from src.video_manager import CameraInput, VideoViewerWidget
-from src.hand_analysis import HandClassifierWidget
-from src.body_analysis import BodyClassifierWidget
-from src.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
+from .src.qt import QtWidgets, QtGui, QtCore
+from .src.tensorflow import TF_STATUS_STR, TF_LOADED
+from .src.dataset_controller import DatasetControllerWidget
+from .src.video_manager import CameraInput, VideoViewerWidget
+from .src.hand_analysis import HandClassifierWidget
+from .src.body_analysis import BodyClassifierWidget
+from .src.openpose_thread import VideoAnalysisThread, OPENPOSE_LOADED
+
 # If the imports above are not resolved by your Python support system (pylance by default on VSC),
-# add ./Application as extra path (see "python.analysis.extraPaths" in .\.vscode\settings.json by default)
+# add ./pose-classification-kit as extra path (see "python.analysis.extraPaths" in .\.vscode\settings.json by default)
 
 import sys
-from __init__ import OPENPOSE_PATH
+from .config import OPENPOSE_PATH
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -69,8 +70,8 @@ class MainWindow(QtWidgets.QMainWindow):
         rightLayout = QtWidgets.QVBoxLayout(rightWidget)
         rightLayout.addWidget(self.rightTabWidget)
 
-        self.rightTabWidget.addTab(self.bodyClassifier, 'Body')
-        self.rightTabWidget.addTab(self.handClassifier, 'Hands')
+        self.rightTabWidget.addTab(self.bodyClassifier, "Body")
+        self.rightTabWidget.addTab(self.handClassifier, "Hands")
 
         self.windowSplitter.addWidget(leftWidget)
         self.windowSplitter.addWidget(rightWidget)
@@ -195,9 +196,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     rightHandKeypoints, rightAccuracy
                 )
             elif self.rightTabWidget.currentWidget() == self.bodyClassifier:
-                self.bodyClassifier.bodyAnalysis.drawBody(
-                    bodyKeypoints, bodyAccuracy
-                )
+                self.bodyClassifier.bodyAnalysis.drawBody(bodyKeypoints, bodyAccuracy)
         # Recording left hand
         if self.datasetController.getFocusID() == 0:
             if type(leftHandKeypoints) != type(None):
@@ -227,7 +226,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.realTimeHandDraw = state
 
 
-app = QtWidgets.QApplication(sys.argv)
-mainWindow = MainWindow()
-mainWindow.show()
-sys.exit(app.exec_())
+def run():
+    app = QtWidgets.QApplication(sys.argv)
+    mainWindow = MainWindow()
+    mainWindow.show()
+    sys.exit(app.exec_())

@@ -26,9 +26,7 @@ except:
     TF_LOADED = False
 
 TF_STATUS_STR = (
-    (
-        "TensorFlow running ({} GPU)". format(len(GPU_LIST))
-    )
+    ("TensorFlow running ({} GPU)".format(len(GPU_LIST)))
     if TF_LOADED
     else "TensorFlow not found."
 )

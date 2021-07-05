@@ -5,13 +5,14 @@ import sys
 import os
 import matplotlib.pyplot as plt
 import matplotlib
+
 font = {
-        "family": "serif",
-        "weight": "normal",
-        "size": "22",
-        "serif": "DejaVu Sans",
-    }
-matplotlib.rc('font', **font)
+    "family": "serif",
+    "weight": "normal",
+    "size": "22",
+    "serif": "DejaVu Sans",
+}
+matplotlib.rc("font", **font)
 
 OPENPOSE_PATH = Path("C:/") / "Program files" / "OpenPose"
 
@@ -150,7 +151,7 @@ def create_plot(classifier_labels, prediction_probabilities, save_url):
         axis="y", direction="in", pad=-50, which="both", left=False, labelleft=True
     )
     ax.set_yticks(np.arange(len(prediction_probabilities)))
-    ax.set_yticklabels(classifier_labels, ha='left')
+    ax.set_yticklabels(classifier_labels, ha="left")
     ax.barh(
         np.arange(len(prediction_probabilities)),
         prediction_probabilities,
@@ -179,7 +180,7 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
             first_line = file.readline()
             classifier_labels = first_line.split(",")
     for i in range(len(classifier_labels)):
-        classifier_labels[i]=classifier_labels[i].replace('_', ' ')
+        classifier_labels[i] = classifier_labels[i].replace("_", " ")
 
     # Open video
     video_path = current_path / "video" / "hand_gesture_cc.mp4"
@@ -189,7 +190,7 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
     # Create output video
     outputs_name = "output"
     video_out_path = current_path / "video" / "output" / (outputs_name + ".avi")
-    barchart_out_path = current_path / "video" / "output" / (outputs_name+'_barchart')
+    barchart_out_path = current_path / "video" / "output" / (outputs_name + "_barchart")
     barchart_out_path.mkdir(exist_ok=True)
     fourcc = cv2.VideoWriter_fourcc(*"XVID")
     video_out = cv2.VideoWriter(

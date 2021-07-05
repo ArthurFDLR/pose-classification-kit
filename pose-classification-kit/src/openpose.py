@@ -1,7 +1,7 @@
 import sys
 import os
 
-from __init__ import OPENPOSE_PATH
+from ..config import OPENPOSE_PATH
 
 try:
     sys.path.append(str(OPENPOSE_PATH / "build" / "python" / "openpose" / "Release"))

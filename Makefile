@@ -1,19 +1,9 @@
-# run
-run:
-	poetry run python .\Application
-
-dataset-csv:
-	poetry run python .\Application\scripts\dataset_export.py
-
-video-overlay:
-	poetry run python .\Application\scripts\video_creation.py
-
 # formatting
 
 fmt-black:
-	poetry run black Application/
+	poetry run black pose-classification-kit/
 
 lint-black:
-	poetry run black --check Application/src/
+	poetry run black --check pose-classification-kit/src/
 
 lint: lint-black

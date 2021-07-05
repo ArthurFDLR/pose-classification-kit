@@ -1,13 +1,14 @@
 from .qt import QtWidgets, QtCore, pyqtSignal
 
 import os
-from __init__ import MODELS_PATH
+from ..config import MODELS_PATH
+
 
 class ClassifierSelectionWidget(QtWidgets.QWidget):
     # newClassifierModel_Signal: url to load classifier model, output labels, handID
     newClassifierModel_Signal = pyqtSignal(str, list, int)
 
-    def __init__(self, parent=None, bodyClassification:bool=False):
+    def __init__(self, parent=None, bodyClassification: bool = False):
         super().__init__()
         self.parent = parent
         self.modelRight = None
@@ -61,21 +62,27 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                 if self.bodyClassification:
                     pathBody = pathFolder / (name + "_body.h5")
                     if pathBody.is_file():
-                        self.newClassifierModel_Signal.emit(str(pathBody), self.classOutputs, 2)
+                        self.newClassifierModel_Signal.emit(
+                            str(pathBody), self.classOutputs, 2
+                        )
                         print("Body model loaded.")
                     else:
                         self.newClassifierModel_Signal.emit("None", [], 2)
                 else:
                     pathRight = pathFolder / (name + "_right.h5")
                     if pathRight.is_file():
-                        self.newClassifierModel_Signal.emit(str(pathRight), self.classOutputs, 1)
+                        self.newClassifierModel_Signal.emit(
+                            str(pathRight), self.classOutputs, 1
+                        )
                         print("Right hand model loaded.")
                     else:
                         self.newClassifierModel_Signal.emit("None", [], 1)
-                    
-                    pathLeft = pathFolder /  (name + "_left.h5")
+
+                    pathLeft = pathFolder / (name + "_left.h5")
                     if pathLeft.is_file():
-                        self.newClassifierModel_Signal.emit(str(pathLeft), self.classOutputs, 0)
+                        self.newClassifierModel_Signal.emit(
+                            str(pathLeft), self.classOutputs, 0
+                        )
                         print("Left hand model loaded.")
                     else:
                         self.newClassifierModel_Signal.emit("None", [], 0)

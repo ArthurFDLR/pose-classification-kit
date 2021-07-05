@@ -22,13 +22,62 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.ax.set_xlim([-1.0, 1.0])
         self.ax.set_ylim([-1.0, 1.0])
         self.ax.set_aspect("equal")
-        
+
         self.poseModel = op.PoseModel.BODY_25
         # self.posePartPairs = op.getPosePartPairs(self.poseModel)
-        self.posePartPairs = [1, 8, 1, 2, 1, 5, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 10, 11, 8, 12, 12, 13, 13, 14, 1, 0, 0, 15, 15, 17, 0, 16, 16, 18, 14, 19, 19, 20, 14, 21, 11, 22, 22, 23, 11, 24]
+        self.posePartPairs = [
+            1,
+            8,
+            1,
+            2,
+            1,
+            5,
+            2,
+            3,
+            3,
+            4,
+            5,
+            6,
+            6,
+            7,
+            8,
+            9,
+            9,
+            10,
+            10,
+            11,
+            8,
+            12,
+            12,
+            13,
+            13,
+            14,
+            1,
+            0,
+            0,
+            15,
+            15,
+            17,
+            0,
+            16,
+            16,
+            18,
+            14,
+            19,
+            19,
+            20,
+            14,
+            21,
+            11,
+            22,
+            22,
+            23,
+            11,
+            24,
+        ]
 
-        numPartPairs = len(self.posePartPairs)//2
-        color_map = cm.get_cmap('hsv', numPartPairs)
+        numPartPairs = len(self.posePartPairs) // 2
+        color_map = cm.get_cmap("hsv", numPartPairs)
         self.pairLines = [
             lines.Line2D([], [], color=color_map(i)) for i in range(numPartPairs)
         ]
@@ -39,15 +88,20 @@ class BodyPlotWidget(QtWidgets.QWidget):
     def plotBody(self, bodyKeypoints, accuracy: int):
         if self.isBodyData(bodyKeypoints):
             for i, line in enumerate(self.pairLines):
-                keypoints_1 = self.posePartPairs[i*2]
-                keypoints_2 = self.posePartPairs[i*2+1]
-                if bodyKeypoints[2][keypoints_1] == 0.0 or bodyKeypoints[2][keypoints_2] == 0:
+                keypoints_1 = self.posePartPairs[i * 2]
+                keypoints_2 = self.posePartPairs[i * 2 + 1]
+                if (
+                    bodyKeypoints[2][keypoints_1] == 0.0
+                    or bodyKeypoints[2][keypoints_2] == 0
+                ):
                     line.set_data([], [])
                 else:
-                    line.set_data([bodyKeypoints[0][keypoints_1], bodyKeypoints[0][keypoints_2]],
-                                  [bodyKeypoints[1][keypoints_1], bodyKeypoints[1][keypoints_2]])
-                #line.set_data(list(data[i][0]), list(data[i][1]))
-            
+                    line.set_data(
+                        [bodyKeypoints[0][keypoints_1], bodyKeypoints[0][keypoints_2]],
+                        [bodyKeypoints[1][keypoints_1], bodyKeypoints[1][keypoints_2]],
+                    )
+                # line.set_data(list(data[i][0]), list(data[i][1]))
+
             self.ax.set_title(
                 "Accuracy: " + str(accuracy), fontsize=12, color="#454545"
             )
@@ -158,7 +212,7 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
                 self.classOutputs = []
                 self.classGraphWidget.changeCategories(self.classOutputs)
             else:
-                if bodyID == 2: # Check if classifier for body poses (not hands)
+                if bodyID == 2:  # Check if classifier for body poses (not hands)
                     self.modelClassifier = tf.keras.models.load_model(urlModel)
                     self.classOutputs = classOutputs
                     self.classGraphWidget.changeCategories(self.classOutputs)
@@ -225,7 +279,9 @@ class BodyClassifierWidget(QtWidgets.QWidget):
         self.layout.setStretch(0, 1)
         self.layout.setStretch(1, 0)
 
-        self.classifierWidget = ClassifierSelectionWidget(parent=self, bodyClassification=True)
+        self.classifierWidget = ClassifierSelectionWidget(
+            parent=self, bodyClassification=True
+        )
         self.bodyAnalysis = BodyAnalysisWidget()
         self.classifierWidget.newClassifierModel_Signal.connect(
             self.bodyAnalysis.newModelLoaded

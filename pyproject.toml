@@ -3,6 +3,10 @@ name = "pose-classification-kit"
 version = "1.1.0"
 description = "From pose estimation to pose classification - Creation of datasets & real-time visualization"
 authors = ["ArthurFDLR <arthfind@gmail.com>"]
+packages = [
+    { include = "pose-classification-kit" },
+    { include = "pose-classification-kit/**/*.py" },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.9"   # Python 3.9 not currently supported by OpenPose
@@ -21,6 +25,10 @@ Pillow = "^8.2.0"
 pytest = "^5.2"
 black = "^20.8b1"
 jupyterlab = "^3.0.16"
+
+[tool.poetry.scripts]
+export-datasets = "pose-classification-kit.scripts.dataset_export:run"
+pose-classification-app = "pose-classification-kit.app:run"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]

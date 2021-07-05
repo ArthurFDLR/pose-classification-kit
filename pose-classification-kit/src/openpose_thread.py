@@ -4,10 +4,12 @@ from .openpose import OPENPOSE_LOADED, OPENPOSE_MODELS_PATH, op
 import cv2
 import numpy as np
 
-def getLengthLimb(data, keypoint1:int, keypoint2:int):
-    if (data[keypoint1,2] > 0. and data[keypoint2,2] > 0):
-        return np.linalg.norm([data[keypoint1,0:2] - data[keypoint2,0:2]])
+
+def getLengthLimb(data, keypoint1: int, keypoint2: int):
+    if data[keypoint1, 2] > 0.0 and data[keypoint2, 2] > 0:
+        return np.linalg.norm([data[keypoint1, 0:2] - data[keypoint2, 0:2]])
     return 0
+
 
 class VideoAnalysisThread(QtCore.QThread):
     newFrame = pyqtSignal(np.ndarray)
@@ -115,43 +117,56 @@ class VideoAnalysisThread(QtCore.QThread):
 
             # Read body data
             outputArray = self.datum.poseKeypoints[self.personID]
-            accuaracyScore = outputArray[:,2].sum()
+            accuaracyScore = outputArray[:, 2].sum()
 
             # Find bouding box
-            min_x, max_x = float('inf') ,0.0
-            min_y, max_y = float('inf') ,0.0
+            min_x, max_x = float("inf"), 0.0
+            min_y, max_y = float("inf"), 0.0
             for keypoint in outputArray:
-                if keypoint[2] > 0.0: #If keypoint exists in image
+                if keypoint[2] > 0.0:  # If keypoint exists in image
                     min_x = min(min_x, keypoint[0])
                     max_x = max(max_x, keypoint[0])
                     min_y = min(min_y, keypoint[1])
                     max_y = max(max_y, keypoint[1])
-            
+
             # Centering
-            np.subtract(outputArray[:,0], (min_x+max_x)/2, where=outputArray[:,2]>0., out = outputArray[:,0])
-            np.subtract((min_y+max_y)/2, outputArray[:,1], where=outputArray[:,2]>0., out = outputArray[:,1])
-            
+            np.subtract(
+                outputArray[:, 0],
+                (min_x + max_x) / 2,
+                where=outputArray[:, 2] > 0.0,
+                out=outputArray[:, 0],
+            )
+            np.subtract(
+                (min_y + max_y) / 2,
+                outputArray[:, 1],
+                where=outputArray[:, 2] > 0.0,
+                out=outputArray[:, 1],
+            )
+
             # Scaling
-            normalizedPartsLength = np.array([
-                getLengthLimb(outputArray, 1,8) * (16./5.2),    # Torso
-                getLengthLimb(outputArray, 0,1) * (16./2.5),    # Neck
-                getLengthLimb(outputArray, 9,10) * (16./3.6),   # Right thigh
-                getLengthLimb(outputArray, 10,11) * (16./3.5),  # Right lower leg
-                getLengthLimb(outputArray, 12,13) * (16./3.6),  # Left thigh
-                getLengthLimb(outputArray, 13,14) * (16./3.5),  # Left lower leg
-                getLengthLimb(outputArray, 2,5) * (16./3.4),    # Shoulders
-            ])
+            normalizedPartsLength = np.array(
+                [
+                    getLengthLimb(outputArray, 1, 8) * (16.0 / 5.2),  # Torso
+                    getLengthLimb(outputArray, 0, 1) * (16.0 / 2.5),  # Neck
+                    getLengthLimb(outputArray, 9, 10) * (16.0 / 3.6),  # Right thigh
+                    getLengthLimb(outputArray, 10, 11)
+                    * (16.0 / 3.5),  # Right lower leg
+                    getLengthLimb(outputArray, 12, 13) * (16.0 / 3.6),  # Left thigh
+                    getLengthLimb(outputArray, 13, 14) * (16.0 / 3.5),  # Left lower leg
+                    getLengthLimb(outputArray, 2, 5) * (16.0 / 3.4),  # Shoulders
+                ]
+            )
 
             # Mean of non-zero values
-            scaleFactor = np.mean(normalizedPartsLength[normalizedPartsLength>0.])
+            scaleFactor = np.mean(normalizedPartsLength[normalizedPartsLength > 0.0])
             if scaleFactor == 0:
-                print('Scaling error')
+                print("Scaling error")
                 return None, 0.0
 
-            np.divide(outputArray[:,0:2], scaleFactor, out = outputArray[:,0:2])
+            np.divide(outputArray[:, 0:2], scaleFactor, out=outputArray[:, 0:2])
 
-            if np.any((outputArray > 1.)|(outputArray < -1.)):
-                print('Scaling error')
+            if np.any((outputArray > 1.0) | (outputArray < -1.0)):
+                print("Scaling error")
                 return None, 0.0
 
             outputArray = outputArray.T

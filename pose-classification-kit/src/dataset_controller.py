@@ -8,6 +8,7 @@ import json
 from .qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
 from .openpose import op
 
+
 class ScrollLabel(QtWidgets.QScrollArea):
     def __init__(self):
         super().__init__()
@@ -287,7 +288,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         self.maxIndexLabel.setEnabled(state)
         self.deleteButton.setEnabled(state)
         self.setCurrentDataIndex(0)
-    
+
     def loadFileJSON(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -300,19 +301,19 @@ class DatasetControllerWidget(QtWidgets.QWidget):
             with open(fileName) as f:
                 data = json.load(f)
 
-            for entry in data['data']:
+            for entry in data["data"]:
                 self.addEntryDataset(
-                    np.array([entry['x'], entry['y'], entry['a']]), 
-                    float(entry['detection_accuracy'])
+                    np.array([entry["x"], entry["y"], entry["a"]]),
+                    float(entry["detection_accuracy"]),
                 )
-            
+
             self.updateFileInfo(
-                filePath = fileName,
-                fileInfo = {'info':data['info'], 'data':[]},
-                sizeData = data['info']['nbr_entries'],
-                poseName = data['info']['label'],
-                focusID = data['info']['focus_id'],
-                tresholdValue = data['info']['threshold_value'],
+                filePath=fileName,
+                fileInfo={"info": data["info"], "data": []},
+                sizeData=data["info"]["nbr_entries"],
+                poseName=data["info"]["label"],
+                focusID=data["info"]["focus_id"],
+                tresholdValue=data["info"]["threshold_value"],
             )
 
             self.recordButton.setEnabled(True)
@@ -354,7 +355,7 @@ class DatasetControllerWidget(QtWidgets.QWidget):
                 str(self.tresholdValue),
             )
         )
-        #self.maxIndexLabel.setText("/" + str(self.sizeData))
+        # self.maxIndexLabel.setText("/" + str(self.sizeData))
         self.recordButton.setEnabled(True)
         self.setEnabled(True)
 
@@ -391,20 +392,22 @@ class DatasetControllerWidget(QtWidgets.QWidget):
         """ Save the current dataset to the JSON file (URL: self.currentFilePath)."""
         if os.path.isfile(self.currentFilePath):
             fileData = self.currentFileInfos
-            fileData['info']['nbr_entries'] = len(self.datasetList)
-            fileData['data'] = []
+            fileData["info"]["nbr_entries"] = len(self.datasetList)
+            fileData["data"] = []
             self.updateFileInfo(sizeData=len(self.datasetList))
             print(len(self.datasetList))
             for accuracy, data in zip(self.accuracyList, self.datasetList):
-                fileData['data'].append({
-                    'detection_accuracy': float(accuracy),
-                    'x': data[0].tolist(),
-                    'y': data[1].tolist(),
-                    'a': data[2].tolist()
-                })
+                fileData["data"].append(
+                    {
+                        "detection_accuracy": float(accuracy),
+                        "x": data[0].tolist(),
+                        "y": data[1].tolist(),
+                        "a": data[2].tolist(),
+                    }
+                )
 
-            with open(self.currentFilePath, 'w') as outfile:
-                json.dump(fileData, outfile, indent = 4)
+            with open(self.currentFilePath, "w") as outfile:
+                json.dump(fileData, outfile, indent=4)
 
             self.datasetSaved = True
 
@@ -479,7 +482,12 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         self.isRecording = True
         path = self.getSavingFolder()
         focusID = self.handSelection.getCurrentFocusID()
-        fileName = self.getPoseName() + '_' + ["left_hand", "right_hand", "body"][focusID] + '.json'
+        fileName = (
+            self.getPoseName()
+            + "_"
+            + ["left_hand", "right_hand", "body"][focusID]
+            + ".json"
+        )
         path /= fileName
         if path.is_file():
             self.isRecording = False
@@ -489,11 +497,10 @@ class CreateDatasetDialog(QtWidgets.QDialog):
         else:
             self.createButton.setEnabled(True)
             self.createButton.setText("Create dataset")
-            with open(path, 'w+') as outfile:
-                json.dump(self.getFileInfos(), outfile, indent = 4, ensure_ascii = False)
+            with open(path, "w+") as outfile:
+                json.dump(self.getFileInfos(), outfile, indent=4, ensure_ascii=False)
             self.accept()
             self.currentFilePath = path
-
 
     def getFileHeadlines(self):
         folder = self.getPoseName()
@@ -513,18 +520,22 @@ class CreateDatasetDialog(QtWidgets.QDialog):
 
     def getFileInfos(self):
         info = {
-            'info':{
-                'label': self.getPoseName(),
-                'focus': ["left_hand", "right_hand", "body"][self.handSelection.getCurrentFocusID()],
-                'nbr_entries': 0,
-                'threshold_value': self.getTresholdValue(),
-                'focus_id': self.handSelection.getCurrentFocusID(),
+            "info": {
+                "label": self.getPoseName(),
+                "focus": ["left_hand", "right_hand", "body"][
+                    self.handSelection.getCurrentFocusID()
+                ],
+                "nbr_entries": 0,
+                "threshold_value": self.getTresholdValue(),
+                "focus_id": self.handSelection.getCurrentFocusID(),
             },
-            'data':[]
+            "data": [],
         }
         if self.handSelection.getCurrentFocusID() == 2:
-            info["info"]['BODY25_Mapping'] = op.getPoseBodyPartMapping(op.PoseModel.BODY_25)
-            info["info"]['BODY25_Pairs'] = op.getPosePartPairs(op.PoseModel.BODY_25)
+            info["info"]["BODY25_Mapping"] = op.getPoseBodyPartMapping(
+                op.PoseModel.BODY_25
+            )
+            info["info"]["BODY25_Pairs"] = op.getPosePartPairs(op.PoseModel.BODY_25)
         return info
 
     @pyqtSlot()

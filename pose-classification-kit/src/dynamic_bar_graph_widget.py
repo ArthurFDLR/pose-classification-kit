@@ -4,14 +4,14 @@ from .qt import QtWidgets
 from matplotlib.backends.backend_qt5agg import FigureCanvas
 from matplotlib import figure, patches, path
 
+
 class BarGraphWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         layout = QtWidgets.QVBoxLayout(self)
         self.fig = figure.Figure(figsize=(5, 5))
-        self.fig.subplots_adjust(bottom=.0, top=0.975, left=.0, right=1.)
+        self.fig.subplots_adjust(bottom=0.0, top=0.975, left=0.0, right=1.0)
         self.canvas = FigureCanvas(self.fig)
-        
 
         layout.addWidget(self.canvas)
         self.nbrCategories = 0
@@ -75,7 +75,7 @@ class BarGraphWidget(QtWidgets.QWidget):
 
         for i, cat in enumerate(categories):
             posy = (bottom[i] * 2 + top[i]) / 3.0
-            self.ax.text(0.05, posy, cat.replace('_', ' '), fontdict=font)
+            self.ax.text(0.05, posy, cat.replace("_", " "), fontdict=font)
 
         self.ax.axis("off")
         self.canvas.draw()

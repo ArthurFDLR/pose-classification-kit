@@ -27,13 +27,13 @@ Ensure  that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 
 
 2. Create an adequate `venv` virtual environment - `python -m poetry install` (or use the configuration file [`.\requirements.txt`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/requirements.txt) in the Python 3.7+ environment of your choice)
 
-3. You should now be able to run the application - `make run` (or `poetry run python .\Application`)
+3. You should now be able to run the application - `make run` (or `poetry run python .\pose-classification-kit`)
 
 Even if **OpenHand classifier** can run without [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose), it must be installed on your system to allow real-time hand gesture classification.
 
 4.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation.md).
 
-5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\Application\__init__.py`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/Application/__init__.py)) to the location of the OpenPose installation folder on your system.
+5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\pose-classification-kit\__init__.py`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/pose-classification-kit/__init__.py)) to the location of the OpenPose installation folder on your system.
 
 _Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry`). GPU support thus requires CUDA 11.0, which might conflict with **OpenPose** requirements. However, classification models available in the application are relatively light. Modern CPUs will handle these models' inference process flawlessly.
 
@@ -170,5 +170,5 @@ Now that a set is loaded in the application, you can record new samples from you
 ### Additional scripts
 
 Some functionalities  are currently unavailable through the GUI:
-- You can export all dataset samples from [`.\Dataset`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Dataset) in a single CSV file - `make dataset-csv` (or `poetry run python .\Application\scripts\dataset_export.py`)
-- You can generate videos similar to [this one](https://youtu.be/FK-1G749cIo) ([`.\Application\scripts\video_creation.py`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Application/scripts/video_creation.py) might need some modification to fit your use case) - `make video-overlay` (or `poetry run python .\Application\scripts\video_creation.py`)
+- You can export all dataset samples from [`.\Dataset`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Dataset) in a single CSV file - `make dataset-csv` (or `poetry run python .\pose-classification-kit\scripts\dataset_export.py`)
+- You can generate videos similar to [this one](https://youtu.be/FK-1G749cIo) ([`.\pose-classification-kit\scripts\video_creation.py`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/pose-classification-kit/scripts/video_creation.py) might need some modification to fit your use case) - `make video-overlay` (or `poetry run python .\pose-classification-kit\scripts\video_creation.py`)

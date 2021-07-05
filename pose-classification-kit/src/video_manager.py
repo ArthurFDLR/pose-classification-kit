@@ -171,7 +171,6 @@ class VideoViewerWidget(QtWidgets.QWidget):
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
 
-
         if OPENPOSE_LOADED:
             self.layout.addWidget(self.cameraFeed, 0, 0, 1, 3)
             self.layout.addWidget(self.refreshButton, 2, 0, 1, 1)
