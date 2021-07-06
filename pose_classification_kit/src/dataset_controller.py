@@ -6,7 +6,9 @@ from pathlib import Path
 import json
 
 from .imports.qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
-from .imports.openpose import op
+from .imports.openpose import OPENPOSE_LOADED
+if OPENPOSE_LOADED:
+    from .imports.openpose import op
 from ..config import DATASETS_PATH
 
 
@@ -534,7 +536,7 @@ class CreateDatasetDialog(QtWidgets.QDialog):
             },
             "data": [],
         }
-        if self.handSelection.getCurrentFocusID() == 2:
+        if self.handSelection.getCurrentFocusID() == 2 and OPENPOSE_LOADED:
             info["info"]["BODY25_Mapping"] = op.getPoseBodyPartMapping(
                 op.PoseModel.BODY_25
             )

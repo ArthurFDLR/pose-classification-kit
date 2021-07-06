@@ -1,6 +1,8 @@
 from ..imports.qt import QtWidgets, QtCore
 from ..imports.tensorflow import tf, TF_LOADED
-from ..imports.openpose import op
+from ..imports.openpose import OPENPOSE_LOADED
+if OPENPOSE_LOADED:
+    from ..imports.openpose import op
 from .dynamic_bar_graph_widget import BarGraphWidget
 from .classifier_selection_widget import ClassifierSelectionWidget
 
@@ -23,7 +25,7 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.ax.set_ylim([-1.0, 1.0])
         self.ax.set_aspect("equal")
 
-        self.poseModel = op.PoseModel.BODY_25
+        # self.poseModel = op.PoseModel.BODY_25
         # self.posePartPairs = op.getPosePartPairs(self.poseModel)
         self.posePartPairs = [
             1,

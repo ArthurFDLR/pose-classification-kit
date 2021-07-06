@@ -3,9 +3,13 @@ name = "pose-classification-kit"
 version = "1.1.0"
 description = "From pose estimation to pose classification - Creation of datasets & real-time visualization"
 authors = ["ArthurFDLR <arthfind@gmail.com>"]
-packages = [
-    { include = "pose-classification-kit" },
-    { include = "pose-classification-kit/**/*.py" },
+keywords = ["pose classification", "OpenPose", "pose estimation"]
+readme = "README.md"
+license = "MIT"
+homepage = "https://github.com/ArthurFDLR/pose-classification-kit"
+repository = "https://github.com/ArthurFDLR/pose-classification-kit"
+include = [
+    "LICENSE",
 ]
 
 [tool.poetry.dependencies]
@@ -27,8 +31,8 @@ black = "^20.8b1"
 jupyterlab = "^3.0.16"
 
 [tool.poetry.scripts]
-export-datasets = "pose-classification-kit.scripts.dataset_export:run"
-pose-classification-app = "pose-classification-kit.app:run"
+export-datasets = "pose_classification_kit.scripts.dataset_export:run"
+pose-classification-app = "pose_classification_kit.app:run"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
