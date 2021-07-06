@@ -18,7 +18,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         ## Init
         super(MainWindow, self).__init__(parent)
-        self.setWindowTitle("Pose Classification Kit")
+        self.setWindowTitle("Pose Classification App")
 
         ## Parameters
         self.isRecording = False

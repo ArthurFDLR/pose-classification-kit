@@ -1,6 +1,6 @@
 from ..imports.qt import QtWidgets, QtCore, QtGui, QtMultimedia, pyqtSignal, pyqtSlot
 from .openpose_thread import OPENPOSE_LOADED
-
+from ...config import OPENPOSE_PATH
 import pathlib
 import cv2
 import numpy as np
@@ -153,8 +153,6 @@ class VideoViewerWidget(QtWidgets.QWidget):
 
         self.infoLabel = QtWidgets.QLabel(
             "No info"
-            if OPENPOSE_LOADED
-            else "Video analysis impossible, check OpenPose installation."
         )
 
         self.refreshButton = QtWidgets.QPushButton(
@@ -178,7 +176,7 @@ class VideoViewerWidget(QtWidgets.QWidget):
             self.layout.addWidget(self.infoLabel, 1, 0, 1, 3)
         else:
             label = QtWidgets.QLabel(
-                "Video analysis impossible.\nCheck OpenPose installation."
+                "Video analysis impossible:\nCannot import OpenPose from " + str(OPENPOSE_PATH) + ",\nchange path in pose_classification_kit\config.py if needed."
             )
             self.layout.addWidget(label, 0, 0, 1, 1)
 
