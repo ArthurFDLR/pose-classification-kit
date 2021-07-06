@@ -13,7 +13,7 @@ include = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.9"   # Python 3.9 not currently supported by OpenPose
+python = ">=3.7, <4.0"   # <3.9 - Python 3.9 not currently supported by OpenPose
 opencv-python = "^4.4.0"
 pyqt5 = "^5.15.1"       # Can be replaced by: pyside2 = "^5.15.1"
 matplotlib = "^3.3.2"
