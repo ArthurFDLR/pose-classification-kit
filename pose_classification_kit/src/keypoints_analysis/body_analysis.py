@@ -5,6 +5,7 @@ if OPENPOSE_LOADED:
     from ..imports.openpose import op
 from .dynamic_bar_graph_widget import BarGraphWidget
 from .classifier_selection_widget import ClassifierSelectionWidget
+from ...datasets.body_models import BODY25
 
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
@@ -25,60 +26,7 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.ax.set_ylim([-1.0, 1.0])
         self.ax.set_aspect("equal")
 
-        # self.poseModel = op.PoseModel.BODY_25
-        # self.posePartPairs = op.getPosePartPairs(self.poseModel)
-        self.posePartPairs = [
-            1,
-            8,
-            1,
-            2,
-            1,
-            5,
-            2,
-            3,
-            3,
-            4,
-            5,
-            6,
-            6,
-            7,
-            8,
-            9,
-            9,
-            10,
-            10,
-            11,
-            8,
-            12,
-            12,
-            13,
-            13,
-            14,
-            1,
-            0,
-            0,
-            15,
-            15,
-            17,
-            0,
-            16,
-            16,
-            18,
-            14,
-            19,
-            19,
-            20,
-            14,
-            21,
-            11,
-            22,
-            22,
-            23,
-            11,
-            24,
-        ]
-
-        numPartPairs = len(self.posePartPairs) // 2
+        numPartPairs = len(BODY25.pairs)
         color_map = cm.get_cmap("hsv", numPartPairs)
         self.pairLines = [
             lines.Line2D([], [], color=color_map(i)) for i in range(numPartPairs)
@@ -90,8 +38,7 @@ class BodyPlotWidget(QtWidgets.QWidget):
     def plotBody(self, bodyKeypoints, accuracy: int):
         if self.isBodyData(bodyKeypoints):
             for i, line in enumerate(self.pairLines):
-                keypoints_1 = self.posePartPairs[i * 2]
-                keypoints_2 = self.posePartPairs[i * 2 + 1]
+                keypoints_1, keypoints_2 = BODY25.pairs[i]
                 if (
                     bodyKeypoints[2][keypoints_1] == 0.0
                     or bodyKeypoints[2][keypoints_2] == 0
