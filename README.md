@@ -1,6 +1,7 @@
 # <h1 align = "center"> OpenHand
 
 [![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
+[![PyPI](https://img.shields.io/pypi/v/pose-classification-kit?style=for-the-badge)](https://pypi.org/project/pose-classification-kit/)
 [![Linting](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
 [![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
 
