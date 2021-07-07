@@ -6,7 +6,7 @@
 [![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
 
 <p align="center">
-    <img src="./.github/markdown/openhand_view.png" alt="OpenHand app view" width="80%" style="border-radius: 5px;">
+    <img src="https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/.github/markdown/openhand_view.png" alt="OpenHand app view" width="80%" style="border-radius: 5px;">
 </p>
 
 The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab** to ease hand keypoints datasets creation and real-time pose classification.
@@ -22,19 +22,19 @@ The OpenHand application uses the excellent full-body pose estimator [**OpenPose
 
 ## Installation
 
-Ensure  that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
+Ensure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
 
-1. Git clone the repository - `git clone https://github.com/ArthurFDLR/OpenHand-App`
+1. Git clone the repository - `git clone https://github.com/ArthurFDLR/pose-classification-kit.git`
 
-2. Create an adequate `venv` virtual environment - `python -m poetry install` (or use the configuration file [`.\requirements.txt`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/requirements.txt) in the Python 3.7+ environment of your choice)
+2. Create an adequate `venv` virtual environment - `python -m poetry install`
 
 3. You should now be able to run the application - `poetry run pose-classification-app`
 
 Even if **OpenHand classifier** can run without [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose), it must be installed on your system to allow real-time hand gesture classification.
 
-4.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation.md).
+4.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/tree/master/doc/installation).
 
-5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\pose-classification-kit\__init__.py`](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/pose-classification-kit/__init__.py)) to the location of the OpenPose installation folder on your system.
+5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\pose-classification-kit\config.py`](https://github.com/ArthurFDLR/pose-classification-kit/blob/master/pose_classification_kit/config.py)) to the location of the OpenPose installation folder on your system.
 
 _Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry`). GPU support thus requires CUDA 11.0, which might conflict with **OpenPose** requirements. However, classification models available in the application are relatively light. Modern CPUs will handle these models' inference process flawlessly.
 
@@ -44,10 +44,10 @@ _Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry
 
 The 21 hand keypoints (2D) used as input for this classifier are produced by OpenPose. The hand output format is as follow:
 
-<img src="./.github/markdown/keypoints_hand.png" width="200">
+<img src="https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/.github/markdown/keypoints_hand.png" width="200">
 
-More information is available [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/output.md#face-and-hands). Please note that even though OpenHand focus on hand keypoints, [OpenPose requires the whole body to be analyzed](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/standalone_face_or_hand_keypoint_detector.md) to generate hand data. Furthermore, keypoints coordinates are given in the frame of reference of the image fed to OpenPose. Thus, the coordinates have to be normalized.
-I addition to x, y coordinates, the accuracy of detection of each keypoints is provided.
+More information are available [here](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/02_output.md). Please note that even though OpenHand focuses on hand keypoints, OpenPose requires the whole body to be analyzed to generate hand data. Furthermore, keypoints coordinates are given in the frame of reference of the image fed to OpenPose. Thus, the coordinates have to be normalized.
+I addition to x, y coordinates, the accuracy of detection of each key points is provided.
 
 ### Keypoints normalization
 
@@ -79,9 +79,11 @@ outputArray = np.array([(handKeypoints.T[0] - handCenterX)/normMax,
 </p>
 </details>
 
-<img src="./.github/markdown/formated_hand.png" width="400">
+<img src="https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/.github/markdown/formated_hand.png" width="400">
 
 ### Dataset creation - [*11090 samples for 27 categories*](https://github.com/ArthurFDLR/OpenHand-Classifier/tree/master/Datasets)
+
+🚧 Out-dated section, will be updated soon 🚧
 
 The dataset is composed of several classes consisting of two text files, one for each hand. The dataset is structured as follow:
 
@@ -115,8 +117,8 @@ To add comments, begin a line with *##*. A sample is (at least) composed of 3 li
 
 ```
 Super,1,13.0
-## Data generated the 2020-07-28 labelled Super (right hand) with a global accuracy higher than 13.0, based on OpenPose estimation.
-## Data format: Coordinates x, y and accuracy of estimation a
+## Data generated the 2020-07-28 labeled Super (right hand) with a global accuracy higher than 13.0, based on OpenPose estimation.
+## Data format: Coordinates x, y, and accuracy of estimation a
 
 #14.064389
 x:-0.47471642 -0.38345036 -0.27814367 -0.17283674 -0.16581643 -0.07455035 0.24136995 0.26243138 0.18520646 -0.060509484 0.24136995 0.17116559 0.05883807 -0.095611796 0.22732908 0.14308357 0.030756325 -0.10965267 0.1220224 0.10798126 0.02373602
@@ -157,6 +159,8 @@ Classification models available in the application are stored in [`.\Models`](ht
 See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Models) for more details about model creation.
 
 ## User guide
+
+🚧 Out-dated section, will be updated soon 🚧
 
 ### Real-time pose classification
 
