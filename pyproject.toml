@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pose-classification-kit"
-version = "1.1.0"
+version = "1.1.1"
 description = "From pose estimation to pose classification - Creation of datasets & real-time visualization"
 authors = ["ArthurFDLR <arthfind@gmail.com>"]
 keywords = ["pose classification", "OpenPose", "pose estimation"]
@@ -9,7 +9,21 @@ license = "MIT"
 homepage = "https://github.com/ArthurFDLR/pose-classification-kit"
 repository = "https://github.com/ArthurFDLR/pose-classification-kit"
 include = [
-    "LICENSE",
+    "LICENSE", "README.md"
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: X11 Applications :: Qt",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3 :: Only",
 ]
 
 [tool.poetry.dependencies]
