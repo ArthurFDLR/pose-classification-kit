@@ -160,15 +160,17 @@ class VideoAnalysisThread(QtCore.QThread):
             )
 
             # Mean of non-zero values
-            scaleFactor = np.mean(normalizedPartsLength[normalizedPartsLength > 0.0])
-            if scaleFactor == 0:
-                print("Scaling error")
+            normalizedPartsLength = normalizedPartsLength[normalizedPartsLength > 0.0]
+            if len(normalizedPartsLength)>0:
+                scaleFactor = np.mean(normalizedPartsLength)
+            else:
+                #print("Scaling error")
                 return None, 0.0
 
             np.divide(outputArray[:, 0:2], scaleFactor, out=outputArray[:, 0:2])
 
             if np.any((outputArray > 1.0) | (outputArray < -1.0)):
-                print("Scaling error")
+                #print("Scaling error")
                 return None, 0.0
 
             outputArray = outputArray.T

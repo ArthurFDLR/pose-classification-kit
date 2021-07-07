@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "pose-classification-kit"
-version = "1.1.1"
+version = "1.1.3"
 description = "From pose estimation to pose classification - Creation of datasets & real-time visualization"
 authors = ["ArthurFDLR <arthfind@gmail.com>"]
-keywords = ["pose classification", "OpenPose", "pose estimation"]
+keywords = ["pose-classification", "OpenPose", "pose-estimation", "machine-learning", "deep-learning", "keypoints", "keypoints-detection", "gesture"]
 readme = "README.md"
 license = "MIT"
 homepage = "https://github.com/ArthurFDLR/pose-classification-kit"
@@ -20,6 +20,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Recognition",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -27,7 +28,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.7, <4.0"   # <3.9 - Python 3.9 not currently supported by OpenPose
+python = ">=3.6.2, <4.0"   # <3.9 - Python 3.9 not currently supported by OpenPose
 opencv-python = "^4.4.0"
 pyqt5 = "^5.15.1"       # Can be replaced by: pyside2 = "^5.15.1"
 matplotlib = "^3.3.2"
