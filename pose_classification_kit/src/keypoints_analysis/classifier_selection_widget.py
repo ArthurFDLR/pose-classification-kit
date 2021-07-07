@@ -1,3 +1,4 @@
+from pose_classification_kit.datasets.body_models import BODY18
 from ..imports.qt import QtWidgets, QtCore, pyqtSignal
 
 import os
@@ -57,35 +58,39 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                     with open(urlClass, "r") as file:
                         first_line = file.readline()
                     self.classOutputs = first_line.split(",")
-                    print("Class model loaded.")
+                    print("Class model loaded:", self.classOutputs)
 
                 if self.bodyClassification:
-                    pathBody = pathFolder / (name + "_body.h5")
-                    if pathBody.is_file():
+                    availableModels = list(pathFolder.glob('*_body25.h5'))
+                    if len(availableModels)>0:
                         self.newClassifierModel_Signal.emit(
-                            str(pathBody), self.classOutputs, 2
+                            str(availableModels[0]), self.classOutputs, 2
                         )
                         print("Body model loaded.")
                     else:
+                        print("No BODY25 model found (BODY18 models currently not supported).")
                         self.newClassifierModel_Signal.emit("None", [], 2)
                 else:
-                    pathRight = pathFolder / (name + "_right.h5")
-                    if pathRight.is_file():
+                    availableModels = list(pathFolder.glob('*_right.h5'))
+                    if len(availableModels)>0:
                         self.newClassifierModel_Signal.emit(
-                            str(pathRight), self.classOutputs, 1
+                            str(availableModels[0]), self.classOutputs, 1
                         )
                         print("Right hand model loaded.")
                     else:
+                        print("No right hand model found.")
                         self.newClassifierModel_Signal.emit("None", [], 1)
-
-                    pathLeft = pathFolder / (name + "_left.h5")
-                    if pathLeft.is_file():
+                    
+                    availableModels = list(pathFolder.glob('*_left.h5'))
+                    if len(availableModels)>0:
                         self.newClassifierModel_Signal.emit(
-                            str(pathLeft), self.classOutputs, 0
+                            str(availableModels[0]), self.classOutputs, 0
                         )
                         print("Left hand model loaded.")
                     else:
+                        print("No left hand model found.")
                         self.newClassifierModel_Signal.emit("None", [], 0)
+
         else:
             print("None")
             self.modelRight = None
