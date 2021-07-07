@@ -151,9 +151,7 @@ class VideoViewerWidget(QtWidgets.QWidget):
         ## Widgets initialisation
         self.cameraFeed = ImageWidget(self)
 
-        self.infoLabel = QtWidgets.QLabel(
-            "No info"
-        )
+        self.infoLabel = QtWidgets.QLabel("No info")
 
         self.refreshButton = QtWidgets.QPushButton(
             "Refresh camera list",
@@ -176,7 +174,9 @@ class VideoViewerWidget(QtWidgets.QWidget):
             self.layout.addWidget(self.infoLabel, 1, 0, 1, 3)
         else:
             label = QtWidgets.QLabel(
-                "Video analysis impossible:\nCannot import OpenPose from " + str(OPENPOSE_PATH) + ",\nchange path in pose_classification_kit\config.py if needed."
+                "Video analysis impossible:\nCannot import OpenPose from "
+                + str(OPENPOSE_PATH)
+                + ",\nchange path in pose_classification_kit\config.py if needed."
             )
             self.layout.addWidget(label, 0, 0, 1, 1)
 

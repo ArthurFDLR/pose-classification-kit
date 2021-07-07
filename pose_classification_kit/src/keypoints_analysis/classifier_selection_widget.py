@@ -61,18 +61,20 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                     print("Class model loaded:", self.classOutputs)
 
                 if self.bodyClassification:
-                    availableModels = list(pathFolder.glob('*_body25.h5'))
-                    if len(availableModels)>0:
+                    availableModels = list(pathFolder.glob("*_body25.h5"))
+                    if len(availableModels) > 0:
                         self.newClassifierModel_Signal.emit(
                             str(availableModels[0]), self.classOutputs, 2
                         )
                         print("Body model loaded.")
                     else:
-                        print("No BODY25 model found (BODY18 models currently not supported).")
+                        print(
+                            "No BODY25 model found (BODY18 models currently not supported)."
+                        )
                         self.newClassifierModel_Signal.emit("None", [], 2)
                 else:
-                    availableModels = list(pathFolder.glob('*_right.h5'))
-                    if len(availableModels)>0:
+                    availableModels = list(pathFolder.glob("*_right.h5"))
+                    if len(availableModels) > 0:
                         self.newClassifierModel_Signal.emit(
                             str(availableModels[0]), self.classOutputs, 1
                         )
@@ -80,9 +82,9 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                     else:
                         print("No right hand model found.")
                         self.newClassifierModel_Signal.emit("None", [], 1)
-                    
-                    availableModels = list(pathFolder.glob('*_left.h5'))
-                    if len(availableModels)>0:
+
+                    availableModels = list(pathFolder.glob("*_left.h5"))
+                    if len(availableModels) > 0:
                         self.newClassifierModel_Signal.emit(
                             str(availableModels[0]), self.classOutputs, 0
                         )

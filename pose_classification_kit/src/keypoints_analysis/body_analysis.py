@@ -1,6 +1,7 @@
 from ..imports.qt import QtWidgets, QtCore
 from ..imports.tensorflow import tf, TF_LOADED
 from ..imports.openpose import OPENPOSE_LOADED
+
 if OPENPOSE_LOADED:
     from ..imports.openpose import op
 from .dynamic_bar_graph_widget import BarGraphWidget

@@ -7,6 +7,7 @@ import json
 
 from .imports.qt import QtWidgets, QtCore, QtGui, pyqtSignal, pyqtSlot
 from .imports.openpose import OPENPOSE_LOADED
+
 if OPENPOSE_LOADED:
     from .imports.openpose import op
 from ..config import DATASETS_PATH
