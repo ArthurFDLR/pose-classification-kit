@@ -13,7 +13,7 @@ def bodyDataset(
     as numpy arrays.
 
     Args:
-        testSplit (float, optional): Percent of the dataset reserved for testing. Defaults to 0.15. Must be between 0.0 and 1.0.
+        testSplit (float, optional): Percentage of the dataset reserved for testing. Defaults to 0.15. Must be between 0.0 and 1.0.
         shuffle (bool, optional): Shuffle the whole dataset. Defaults to True.
         bodyModel (BodyModel, optional): Select the keypoint format of the dataset. BODY25 or BODY18. Defaults to BODY25.
 

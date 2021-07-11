@@ -1,0 +1,1 @@
+Seated,Stand_RightArmRaised,standing,T,Tree_left,Tree_right,UpwardSalute,Warrior2_left,Warrior2_right

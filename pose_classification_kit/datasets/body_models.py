@@ -111,71 +111,21 @@ BODY25 = BodyModel(
     ],
 )
 
-BODY25_to_BODY18_indices = [
-    0,
-    16,
-    15,
-    18,
-    17,
-    5,
-    2,
-    6,
-    3,
-    7,
-    4,
-    12,
-    9,
-    13,
-    10,
-    14,
-    11,
-    1,
-]
-BODY25flat_to_BODY18flat_indices = [
-    0,
-    1,
-    16,
-    17,
-    15,
-    16,
-    18,
-    19,
-    17,
-    18,
-    5,
-    6,
-    2,
-    3,
-    6,
-    7,
-    3,
-    4,
-    7,
-    8,
-    4,
-    5,
-    12,
-    13,
-    9,
-    10,
-    13,
-    14,
-    10,
-    11,
-    14,
-    15,
-    11,
-    12,
-    1,
-    2,
-]
+BODY25_to_BODY18_indices = [0, 16, 15, 18, 17, 5, 2, 6, 3, 7, 4, 12, 9, 13, 10, 14, 11, 1]
+BODY25flat_to_BODY18flat_indices = [0, 1, 32, 33, 30, 31, 36, 37, 34, 35, 10, 11, 4, 5, 12, 13, 6, 7, 14, 15, 8, 9, 24, 25, 18, 19, 26, 27, 20, 21, 28, 29, 22, 23, 2, 3]
 
-# for obj in BODY18.mapping:
-#     BODY25_to_BODY18_indices.append(BODY25.mapping.index(obj))
-# for i in BODY25_to_BODY18_indices:
-#     BODY25flat_to_BODY18flat_indices.append(i)
-#     BODY25flat_to_BODY18flat_indices.append(i+1)
+'''
+BODY25_to_BODY18_indices = []
+for obj in BODY18.mapping:
+    BODY25_to_BODY18_indices.append(BODY25.mapping.index(obj))
+BODY25flat_to_BODY18flat_indices = []
+for i in BODY25_to_BODY18_indices:
+    BODY25flat_to_BODY18flat_indices.append(i*2)
+    BODY25flat_to_BODY18flat_indices.append(i*2+1)
 
+print(BODY25_to_BODY18_indices)
+print(BODY25flat_to_BODY18flat_indices)
+'''
 
 def BODY25_to_BODY18(body25_keypoints: np.ndarray):
     assert body25_keypoints.shape == 25
