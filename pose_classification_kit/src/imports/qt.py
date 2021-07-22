@@ -1,3 +1,5 @@
+import sys 
+
 PYSIDE2_LOADED = False
 PYQT5_LOADED = False
 
@@ -20,3 +22,8 @@ if not PYQT5_LOADED:
         print("Use PySide2")
     except:
         pass
+
+x = 50
+ 
+if not PYQT5_LOADED and not PYSIDE2_LOADED: 
+    sys.exit("Missing application dependancies, try:\n\tpip install pose-classification-kit[app]") 
