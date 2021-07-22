@@ -150,7 +150,11 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
             inputData = np.array(inputData)
 
             if self.modelClassifier is not None:
-                prediction = self.modelClassifier.predict(np.array([inputData]))[0]
+                try:
+                    prediction = self.modelClassifier.predict(np.array([inputData]))[0]
+                    # prediction = self.modelClassifier.predict(np.array([keypoints.T[:,:2]]))[0]
+                except ValueError:
+                    print("Model input shape not supported")
                 self.currentPrediction = self.classOutputs[np.argmax(prediction)]
                 title = self.currentPrediction
 
