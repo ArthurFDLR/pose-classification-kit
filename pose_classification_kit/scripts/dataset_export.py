@@ -106,20 +106,25 @@ def run():
 
     bodyLabels = [
         "Seated",
+        "Stand",
         "Stand_RightArmRaised",
         "Stand_LeftArmRaised",
-        "standing",
         "T",
-        "Tree_left",
-        "Tree_right",
-        "UpwardSalute",
-        "Warrior2_left",
-        "Warrior2_right",
+        "MilitarySalute",
+        "PushUp_Low",
         "Squat",
-        "Traffic_All_Stop",
-        "Traffic_Back_Stop",
-        "Traffic_Front_Stop",
-        "Traffic_BackFront_Stop"
+        "Plank",
+        "Yoga_Tree_left",
+        "Yoga_Tree_right",
+        "Yoga_UpwardSalute",
+        "Yoga_Warrior2_left",
+        "Yoga_Warrior2_right",
+        "Traffic_AllStop",
+        "Traffic_BackStop",
+        "Traffic_FrontStop",
+        "Traffic_BackFrontStop",
+        "Traffic_LeftTurn",
+        "Traffic_RightTurn",
     ]
 
     datasetHands = pd.DataFrame(generateBodyDataset(bodyLabels, DATASETS_PATH / "Body"))
