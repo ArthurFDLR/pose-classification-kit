@@ -107,6 +107,7 @@ def run():
     bodyLabels = [
         "Seated",
         "Stand_RightArmRaised",
+        "Stand_LeftArmRaised",
         "standing",
         "T",
         "Tree_left",
@@ -114,6 +115,11 @@ def run():
         "UpwardSalute",
         "Warrior2_left",
         "Warrior2_right",
+        "Squat",
+        "Traffic_All_Stop",
+        "Traffic_Back_Stop",
+        "Traffic_Front_Stop",
+        "Traffic_BackFront_Stop"
     ]
 
     datasetHands = pd.DataFrame(generateBodyDataset(bodyLabels, DATASETS_PATH / "Body"))
