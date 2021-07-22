@@ -1,6 +1,6 @@
 {
     "info": {
-        "label": "Traffic_Front_Stop",
+        "label": "Traffic_FrontStop",
         "focus": "body",
         "nbr_entries": 528,
         "threshold_value": 10.0,

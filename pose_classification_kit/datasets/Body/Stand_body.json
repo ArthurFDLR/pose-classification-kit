@@ -1,6 +1,6 @@
 {
     "info": {
-        "label": "standing",
+        "label": "Stand",
         "focus": "body",
         "nbr_entries": 521,
         "threshold_value": 15.0,

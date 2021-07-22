@@ -1,6 +1,6 @@
 {
     "info": {
-        "label": "MilitarySaluate",
+        "label": "MilitarySalute",
         "focus": "body",
         "nbr_entries": 524,
         "threshold_value": 10.0,
