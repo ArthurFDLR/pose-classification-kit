@@ -1,6 +1,6 @@
 # <h1 align = "center"> OpenHand
 
-[![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8-blue?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
+[![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
 [![PyPI](https://img.shields.io/pypi/v/pose-classification-kit?style=for-the-badge)](https://pypi.org/project/pose-classification-kit/)
 [![Linting](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
 [![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
@@ -12,6 +12,8 @@
 The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab** to ease hand keypoints datasets creation and real-time pose classification.
 
   - [Installation](#installation)
+    - [Using PyPi](#using-pypi)
+    - [From source](#from-source)
   - [Under the hood](#under-the-hood)
     - [Features extraction](#features-extraction)
     - [Keypoints normalization](#keypoints-normalization)
@@ -22,6 +24,17 @@ The OpenHand application uses the excellent full-body pose estimator [**OpenPose
 
 ## Installation
 
+### Using PyPi
+Simply run the following command to install the whole package in the desired Python environment:
+
+`pip install pose-classification-kit[app]`
+
+If you don't plan to use the application but just want access to the datasets and pre-trained models:
+
+`pip install pose-classification-kit`
+
+
+### From source
 Ensure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
 
 1. Git clone the repository - `git clone https://github.com/ArthurFDLR/pose-classification-kit.git`

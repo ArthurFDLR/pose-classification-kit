@@ -28,22 +28,21 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.6.2, <4.0"   # <3.9 - Python 3.9 not currently supported by OpenPose
-opencv-python = "^4.4.0"
-pyqt5 = "^5.15.1"       # Can be replaced by: pyside2 = "^5.15.1"
-matplotlib = "^3.3.2"
-qimage2ndarray = "^1.8.3"
-tensorflow = "^2.4.0"
+python = ">=3.6.2, <4.0"
+tensorflow = "*"
 numpy = ">=1.19.0,<1.19.4"
 pandas = "^1.1.5"
-rsa = "^4.7.2"
-urllib3 = "^1.26.5"
-Pillow = "^8.2.0"
+opencv-python = {version = "^4.4.0", optional = true}
+matplotlib = {version = "^3.3.2", optional = true}
+PyQt5 = {version = "^5.15.4", optional = true}
+qimage2ndarray = {version = "^1.8.3", optional = true}
+
+[tool.poetry.extras]
+app = ["PyQt5", "matplotlib", "opencv-python", "qimage2ndarray"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 black = "^20.8b1"
-jupyterlab = "^3.0.16"
 
 [tool.poetry.scripts]
 export-datasets = "pose_classification_kit.scripts.dataset_export:run"

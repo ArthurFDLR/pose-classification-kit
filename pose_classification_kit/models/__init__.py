@@ -1,4 +1,3 @@
-from pathlib import Path
 from ..config import MODELS_PATH
 from ..src.imports.tensorflow import tf
 
