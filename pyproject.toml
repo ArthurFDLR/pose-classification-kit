@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pose-classification-kit"
-version = "1.1.3"
+version = "1.1.4"
 description = "From pose estimation to pose classification - Creation of datasets & real-time visualization"
 authors = ["ArthurFDLR <arthfind@gmail.com>"]
 keywords = ["pose-classification", "OpenPose", "pose-estimation", "machine-learning", "deep-learning", "keypoints", "keypoints-detection", "gesture"]

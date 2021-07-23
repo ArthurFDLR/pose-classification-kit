@@ -61,6 +61,7 @@ def importBodyCSVDataset(testSplit):
 
     return x_train, x_test, y_train, y_test, labels
 
+
 def bodyDataset(
     testSplit: float = 0.15, shuffle: bool = True, bodyModel: BodyModel = BODY25
 ):
@@ -95,7 +96,7 @@ def bodyDataset(
         y_train = y_train[shuffler_train]
         y_test = y_test[shuffler_test]
 
-    ''' # Data augmentation
+    """ # Data augmentation
     print(x_train.shape)
     x_scale, y_scale = dataAugmentation(x_train, y_train, augmentation_ratio=.3, scaling_factor_standard_deviation=1.08, random_noise_standard_deviation=.03)
     x_rotate, y_rotate = dataAugmentation(x_train, y_train, augmentation_ratio=.3, rotation_angle_standard_deviation=10, random_noise_standard_deviation=.03)
@@ -105,7 +106,7 @@ def bodyDataset(
 
     x_train = np.concatenate((x_train, x_scale, x_rotate, x_noLegs, x_partial), axis=0)
     y_train = np.concatenate((y_train, y_scale, y_rotate, y_noLegs, y_partial), axis=0)
-    '''
+    """
 
     # Format to requested body model
     assert bodyModel in [BODY18, BODY25]
