@@ -126,7 +126,7 @@ def data_augmentation(x: np.ndarray,
         index_dataset = (index_dataset + 1) % size_dataset
 
         number_entries_to_create -= 1
+
     ret = np.array(new_dataset)
-    np.random.shuffle(ret)
 
     return (ret,y)
