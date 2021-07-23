@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def data_augmentation(x: np.ndarray,
                       y: np.ndarray,
                       augmentation_ratio: float = .5,
@@ -12,6 +11,7 @@ def data_augmentation(x: np.ndarray,
                       scaling_factor_standard_deviation: float = None,
                       rotation_angle_standard_deviation: float = None
                       ):
+
     """This function adds entries in the dataset by applying several data augmentation techniques
     depending on the arguments that are given.
 
@@ -56,7 +56,7 @@ def data_augmentation(x: np.ndarray,
     # Go through each entry one by one
     while number_entries_to_create != 0:
 
-        keypoints = []
+        entry = []
 
         # The scaling factor that will be used for this entry
         if type(scaling_factor_standard_deviation) != type(None):
@@ -117,8 +117,9 @@ def data_augmentation(x: np.ndarray,
                     keypoint_x = 0
                     keypoint_y = 0
             # Add additionnal augmentation features
-            keypoints.append([keypoint_x, keypoint_y])
-        new_dataset.append(keypoints)
+            entry.append([keypoint_x, keypoint_y])
+
+        new_dataset.append(entry)
 
         # If the augmentation_ratio is more than 1, after going through the whole
         # dataset, it will start over 
