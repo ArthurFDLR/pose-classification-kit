@@ -1,6 +1,6 @@
 import numpy as np
 
-def data_augmentation(x: np.ndarray,
+def dataAugmentation(x: np.ndarray,
                       y: np.ndarray,
                       augmentation_ratio: float = .5,
                       remove_specific_keypoints: list = None,
