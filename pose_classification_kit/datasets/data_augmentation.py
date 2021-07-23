@@ -44,7 +44,8 @@ def data_augmentation(x: np.ndarray,
     number_entries_to_create = size_dataset*augmentation_ratio
 
     # Where is stored newly created entries
-    new_dataset = []
+    new_x = []
+    new_y = []
 
     # Shuffle the entries
     shuffler = np.random.permutation(size_dataset)
@@ -119,7 +120,8 @@ def data_augmentation(x: np.ndarray,
             # Add additionnal augmentation features
             entry.append([keypoint_x, keypoint_y])
 
-        new_dataset.append(entry)
+        new_x.append(entry)
+        new_y.append(y[index_dataset])
 
         # If the augmentation_ratio is more than 1, after going through the whole
         # dataset, it will start over 
@@ -127,6 +129,7 @@ def data_augmentation(x: np.ndarray,
 
         number_entries_to_create -= 1
 
-    ret = np.array(new_dataset)
+    new_x = np.array(new_x)
+    new_y = np.array(new_y)
 
-    return (ret,y)
+    return (new_x,new_y)
