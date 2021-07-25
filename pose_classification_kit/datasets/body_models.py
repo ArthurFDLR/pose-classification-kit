@@ -174,6 +174,34 @@ BODY25 = BodyModel(
         [11, 24],
     ],
 )
+''' #BODY25 annotated
+    pairs_annotated={
+        "Torso":[1, 8], 
+        "Shoulder (right)":[1, 2],
+        "Shoulder (left)":[1, 5],
+        "Arm (right)":[2, 3],
+        "Forearm (right)":[3, 4],
+        "Arm (left)":[5, 6],
+        "Forearm (left)":[6, 7],
+        "Hip (right)":[8, 9],
+        "Thigh (right)":[9, 10],
+        "Leg (right)":[10, 11],
+        "Hip (left)":[8, 12],
+        "Thigh (left)":[12, 13],
+        "Leg (left)":[13, 14],
+        "Neck":[1, 0],
+        "Eye (right)":[0, 15],
+        "Ear (right)":[15, 17],
+        "Eye (left)":[0, 16],
+        "Ear (left)":[16, 18],
+        "Foot (left)":[14, 19],
+        "Toe (left)":[19, 20],
+        "Heel (left)":[14, 21],
+        "Foot (right)":[11, 22],
+        "Toe (right)":[22, 23],
+        "Heel (right)":[11, 24],
+    }
+'''
 
 BODY25_FLAT = BodyModel(
     mapping=[

@@ -37,10 +37,7 @@ def dataAugmentation(
         tuple(np.ndarray, np.ndarray): returns all the created entries and the labels associated
     """
 
-    size_dataset = len(x)
-
-    # Works with BODY18 or BODY25
-    number_keypoints = len(x[1])
+    size_dataset, number_keypoints, *_ = x.shape
 
     # Number of entries that will be created
     number_entries_to_create = size_dataset * augmentation_ratio
@@ -119,12 +116,12 @@ def dataAugmentation(
             # Remove the points
             if type(remove_rand_keypoints_nbr) != type(None):
                 if i in list_random_keypoints:
-                    keypoint_x = 0
-                    keypoint_y = 0
+                    keypoint_x = 0.
+                    keypoint_y = 0.
             if type(remove_specific_keypoints) != type(None):
                 if i in remove_specific_keypoints:
-                    keypoint_x = 0
-                    keypoint_y = 0
+                    keypoint_x = 0.
+                    keypoint_y = 0.
             # Add additionnal augmentation features
             entry.append([keypoint_x, keypoint_y])
 

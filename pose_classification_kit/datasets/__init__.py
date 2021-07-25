@@ -96,18 +96,6 @@ def bodyDataset(
         y_train = y_train[shuffler_train]
         y_test = y_test[shuffler_test]
 
-    """ # Data augmentation
-    print(x_train.shape)
-    x_scale, y_scale = dataAugmentation(x_train, y_train, augmentation_ratio=.3, scaling_factor_standard_deviation=1.08, random_noise_standard_deviation=.03)
-    x_rotate, y_rotate = dataAugmentation(x_train, y_train, augmentation_ratio=.3, rotation_angle_standard_deviation=10, random_noise_standard_deviation=.03)
-    lowerBody_keypoints = [10, 11, 13, 14, 19, 20, 21, 22, 23, 24]
-    x_noLegs, y_noLegs = dataAugmentation(x_train, y_train, augmentation_ratio=.3, remove_specific_keypoints=lowerBody_keypoints, random_noise_standard_deviation=.03)
-    x_partial, y_partial = dataAugmentation(x_train, y_train, augmentation_ratio=.3, remove_rand_keypoints_nbr=4, random_noise_standard_deviation=.03)
-
-    x_train = np.concatenate((x_train, x_scale, x_rotate, x_noLegs, x_partial), axis=0)
-    y_train = np.concatenate((y_train, y_scale, y_rotate, y_noLegs, y_partial), axis=0)
-    """
-
     # Format to requested body model
     assert bodyModel in [BODY18, BODY25]
     if bodyModel == BODY18:
