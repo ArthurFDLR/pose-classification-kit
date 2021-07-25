@@ -179,13 +179,19 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         self.classGraphWidget.updateValues(np.array(prediction))
         self.setPredictionText(title)
 
-    def newModelLoaded(self, urlModel: str, classOutputs: list, bodyID: int):
+    def newModelLoaded(self, urlModel: str, modelInfo: dict, bodyID: int):
         if TF_LOADED:
             if urlModel == "None":
                 self.setClassifierModel(None, [])
             else:
                 if bodyID == 2:  # Check if classifier for body poses (not hands)
-                    self.setClassifierModel(tf.keras.models.load_model(urlModel), classOutputs)
+                    model = tf.keras.models.load_model(urlModel)
+                    nbrClass = model.layers[-1].output_shape[1]
+                    if modelInfo and modelInfo.get('labels') and len(modelInfo.get('labels')) == nbrClass:
+                        classOutputs = modelInfo.get('labels')
+                    else:
+                        classOutputs = [str(i) for i in range(1,nbrClass+1)]
+                    self.setClassifierModel(model, classOutputs)
 
     def getCurrentPrediction(self) -> str:
         return self.currentPrediction

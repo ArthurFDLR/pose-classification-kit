@@ -1,13 +1,12 @@
 from pose_classification_kit.datasets.body_models import BODY18
 from ..imports.qt import QtWidgets, QtCore, pyqtSignal
-
-import os
 from ...config import MODELS_PATH
 
+import json
 
 class ClassifierSelectionWidget(QtWidgets.QWidget):
-    # newClassifierModel_Signal: url to load classifier model, output labels, handID
-    newClassifierModel_Signal = pyqtSignal(str, list, int)
+    # newClassifierModel_Signal: url to load classifier model, model infos from JSON, handID
+    newClassifierModel_Signal = pyqtSignal(str, object, int)
 
     def __init__(self, parent=None, bodyClassification: bool = False):
         super().__init__()
@@ -17,7 +16,7 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
         self.modelsPath = MODELS_PATH / ("Body" if bodyClassification else "Hands")
         self.bodyClassification = bodyClassification
 
-        self.classOutputs = []
+        #self.classOutputs = []
         self.leftWidget = QtWidgets.QWidget()
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
@@ -53,60 +52,63 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
             pathFolder = self.modelsPath / name
             print(pathFolder)
             if pathFolder.is_dir():
-                urlClass = pathFolder / "class.txt"
-                if urlClass.is_file():
-                    with open(urlClass, "r") as file:
-                        first_line = file.readline()
-                    self.classOutputs = first_line.split(",")
-                    print("Class model loaded:", self.classOutputs)
+                
+                ModelInfoPath = next(pathFolder.glob("*.json"), None)
+                modelInfo = None
+                if ModelInfoPath:
+                    with open(ModelInfoPath, "r") as f:
+                        try:
+                            modelInfo = json.load(f)
+                        except:
+                            modelInfo = None
+                    #self.classOutputs = first_line.split(",")
+                    #print("Class model loaded:", self.classOutputs)
 
                 if self.bodyClassification:
-                    availableModels = list(pathFolder.glob("*.h5"))
-                    if len(availableModels) > 0:
+                    availableModelPath = next(pathFolder.glob("*.h5"), None)
+                    if availableModelPath:
                         self.newClassifierModel_Signal.emit(
-                            str(availableModels[0]), self.classOutputs, 2
+                            str(availableModelPath), modelInfo, 2
                         )
-                        print(availableModels[0], "loaded.")
+                        print(str(availableModelPath), "loaded.")
                     else:
                         print(
                             "No model found."
                         )
-                        self.newClassifierModel_Signal.emit("None", [], 2)
+                        self.newClassifierModel_Signal.emit("None", {}, 2)
+                
                 else:
                     availableModels = list(pathFolder.glob("*_right.h5"))
                     if len(availableModels) > 0:
                         self.newClassifierModel_Signal.emit(
-                            str(availableModels[0]), self.classOutputs, 1
+                            str(availableModels[0]), modelInfo, 1
                         )
                         print("Right hand model loaded.")
                     else:
                         print("No right hand model found.")
-                        self.newClassifierModel_Signal.emit("None", [], 1)
+                        self.newClassifierModel_Signal.emit("None", {}, 1)
 
                     availableModels = list(pathFolder.glob("*_left.h5"))
                     if len(availableModels) > 0:
                         self.newClassifierModel_Signal.emit(
-                            str(availableModels[0]), self.classOutputs, 0
+                            str(availableModels[0]), modelInfo, 0
                         )
                         print("Left hand model loaded.")
                     else:
                         print("No left hand model found.")
-                        self.newClassifierModel_Signal.emit("None", [], 0)
+                        self.newClassifierModel_Signal.emit("None", {}, 0)
 
         else:
             print("None")
-            self.modelRight = None
-            self.modelLeft = None
-            self.classOutputs = []
-            self.newClassifierModel_Signal.emit("None", [], -1)
+#            self.modelRight = None
+#            self.modelLeft = None
+#            self.classOutputs = []
+            self.newClassifierModel_Signal.emit("None", {}, -1)
 
     def getAvailableClassifiers(self):
         listOut = ["None"]
-        listOut += [
-            name
-            for name in os.listdir(str(self.modelsPath))
-            if (self.modelsPath / name).is_dir()
-        ]
+        # Get all directory that contains an h5 file.
+        listOut += [x.stem for x in self.modelsPath.glob('*') if x.is_dir() and next(x.glob('*.h5'), None)]
         return listOut
 
     def updateClassifier(self):

@@ -112,6 +112,7 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
     def setClassifierModel(self, model, classOutputs):  # model:tf.keras.models
         self.modelClassifier = model
         self.classOutputs = classOutputs
+        self.classGraphWidget.changeCategories(self.classOutputs)
 
     def drawHand(self, handKeypoints: np.ndarray, accuracy: float):
         """Draw keypoints of a hand pose in the widget if showInput==True.
@@ -149,18 +150,20 @@ class HandAnalysisWidget(QtWidgets.QGroupBox):
         self.classGraphWidget.updateValues(np.array(prediction))
         self.setPredictionText(title)
 
-    def newModelLoaded(self, urlModel: str, classOutputs: list, handID: int):
+    def newModelLoaded(self, urlModel: str, modelInfo: list, handID: int):
         if TF_LOADED:
             if urlModel == "None":
-                self.modelClassifier = None
-                self.classOutputs = []
-                self.classGraphWidget.changeCategories(self.classOutputs)
+                self.setClassifierModel(None, [])
             else:
                 if handID == self.handID:
-                    self.modelClassifier = tf.keras.models.load_model(urlModel)
-                    self.classOutputs = classOutputs
-                    self.classGraphWidget.changeCategories(self.classOutputs)
-
+                    model = tf.keras.models.load_model(urlModel)
+                    nbrClass = model.layers[-1].output_shape[1]
+                    if modelInfo and modelInfo.get('labels') and len(modelInfo.get('labels')) == nbrClass:
+                        classOutputs = modelInfo.get('labels')
+                    else:
+                        classOutputs = [str(i) for i in range(1,nbrClass+1)]
+                    self.setClassifierModel(model, classOutputs)
+    
     def getCurrentPrediction(self) -> str:
         return self.currentPrediction
 
