@@ -116,12 +116,12 @@ def dataAugmentation(
             # Remove the points
             if type(remove_rand_keypoints_nbr) != type(None):
                 if i in list_random_keypoints:
-                    keypoint_x = 0.
-                    keypoint_y = 0.
+                    keypoint_x = 0.0
+                    keypoint_y = 0.0
             if type(remove_specific_keypoints) != type(None):
                 if i in remove_specific_keypoints:
-                    keypoint_x = 0.
-                    keypoint_y = 0.
+                    keypoint_x = 0.0
+                    keypoint_y = 0.0
             # Add additionnal augmentation features
             entry.append([keypoint_x, keypoint_y])
 
@@ -137,4 +137,4 @@ def dataAugmentation(
     new_x = np.array(new_x)
     new_y = np.array(new_y)
 
-    return (new_x,new_y)
+    return (new_x, new_y)

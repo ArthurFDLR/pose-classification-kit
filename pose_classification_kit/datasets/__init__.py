@@ -7,25 +7,21 @@ from .body_models import BodyModel, BODY25, BODY18, BODY25_to_BODY18_indices
 from .data_augmentation import dataAugmentation
 
 
-def importBodyCSVDataset(testSplit):
+def importBodyCSVDataset(testSplit: float, local_import: bool):
     """Import body dataset as numpy arrays from GitHub if available, or local dataset otherwise.
 
     Args:
         testSplit (float, optional): Percentage of the dataset reserved for testing. Defaults to 0.15. Must be between 0.0 and 1.0.
     """
+    assert 0.0 <= testSplit <= 1.0
+
     datasetPath = DATASETS_PATH / "BodyPose_Dataset.csv"
     datasetURL = "https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/pose_classification_kit/datasets/BodyPose_Dataset.csv"
 
-    assert 0.0 <= testSplit <= 1.0
-
-    # Try to fetch the most recent dataset, load local file otherwise.
-    try:
-        dataset_df = pd.read_csv(datasetURL)
-        print("Dataset loaded from", datasetURL)
-    except:
-        assert datasetPath.is_file(), "No local dataset found."
+    if local_import:
         dataset_df = pd.read_csv(datasetPath)
-        print("Dataset loaded from", str(datasetPath))
+    else:
+        dataset_df = pd.read_csv(datasetURL)
 
     bodyLabels_df = dataset_df.groupby("label")
     labels = list(dataset_df.label.unique())
@@ -63,7 +59,10 @@ def importBodyCSVDataset(testSplit):
 
 
 def bodyDataset(
-    testSplit: float = 0.15, shuffle: bool = True, bodyModel: BodyModel = BODY25
+    testSplit: float = 0.15,
+    shuffle: bool = True,
+    bodyModel: BodyModel = BODY25,
+    local_import: bool = False,
 ):
     """Return the dataset of body keypoints (see pose_classification_kit/datasets/BodyPose_Dataset.csv)
     as numpy arrays.
@@ -72,6 +71,7 @@ def bodyDataset(
         testSplit (float, optional): Percentage of the dataset reserved for testing. Defaults to 0.15. Must be between 0.0 and 1.0.
         shuffle (bool, optional): Shuffle the whole dataset. Defaults to True.
         bodyModel (BodyModel, optional): Select the keypoint format of the dataset. BODY25 or BODY18. Defaults to BODY25.
+        local_import (bool, optional): Choose to use local dataset or fetch online dataset (global repository). Default False.
 
     Returns:
         dict: {
@@ -85,7 +85,9 @@ def bodyDataset(
     }
     """
 
-    x_train, x_test, y_train, y_test, labels = importBodyCSVDataset(testSplit)
+    x_train, x_test, y_train, y_test, labels = importBodyCSVDataset(
+        testSplit, local_import
+    )
 
     # Shuffle in unison
     if shuffle:
@@ -121,7 +123,12 @@ def bodyDataset(
     }
 
 
-def handDataset(testSplit: float = 0.15, shuffle: bool = True, handID: int = 0):
+def handDataset(
+    testSplit: float = 0.15,
+    shuffle: bool = True,
+    handID: int = 0,
+    local_import: bool = False,
+):
     """Return the dataset of hand keypoints (see pose_classification_kit/datasets/HandPose_Dataset.csv)
     as numpy arrays.
 
@@ -129,6 +136,7 @@ def handDataset(testSplit: float = 0.15, shuffle: bool = True, handID: int = 0):
         testSplit (float, optional): Percent of the dataset reserved for testing. Defaults to 0.15. Must be between 0.0 and 1.0.
         shuffle (bool, optional): Shuffle the whole dataset. Defaults to True.
         handID (int, optional): Select hand side - 0:left, 1:right. Default to 0.
+        local_import (bool, optional): Choose to use local dataset or fetch online dataset (global repository). Default False.
 
     Returns:
         dict: {
@@ -141,19 +149,15 @@ def handDataset(testSplit: float = 0.15, shuffle: bool = True, handID: int = 0):
         'labels': list of labels
     }
     """
+    assert 0.0 <= testSplit <= 1.0
+
     datasetPath = DATASETS_PATH / "HandPose_Dataset.csv"
     datasetURL = "https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/pose_classification_kit/datasets/HandPose_Dataset.csv"
 
-    assert 0.0 <= testSplit <= 1.0
-
-    # Try to fetch the most recent dataset, load local file otherwise.
-    try:
-        dataset_df = pd.read_csv(datasetURL)
-        print("Dataset loaded from", datasetURL)
-    except:
-        assert datasetPath.is_file(), "No local dataset found."
+    if local_import:
         dataset_df = pd.read_csv(datasetPath)
-        print("Dataset loaded from", str(datasetPath))
+    else:
+        dataset_df = pd.read_csv(datasetURL)
 
     hand_label = "right" if handID else "left"
     handLabels_df = {

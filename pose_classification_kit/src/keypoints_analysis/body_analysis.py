@@ -6,7 +6,13 @@ if OPENPOSE_LOADED:
     from ..imports.openpose import op
 from .dynamic_bar_graph_widget import BarGraphWidget
 from .classifier_selection_widget import ClassifierSelectionWidget
-from ...datasets.body_models import BODY18, BODY18_FLAT, BODY25, BODY25_FLAT, BODY25_to_BODY18_indices
+from ...datasets.body_models import (
+    BODY18,
+    BODY18_FLAT,
+    BODY25,
+    BODY25_FLAT,
+    BODY25_to_BODY18_indices,
+)
 
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
@@ -162,16 +168,18 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         title = ""
         if type(keypoints) != type(None):
             if self.modelClassifier is not None:
-                
+
                 if self.currentBodyModel == BODY25:
                     inputData = keypoints[:2].T
                 elif self.currentBodyModel == BODY25_FLAT:
                     inputData = np.concatenate(keypoints[:2].T, axis=0)
                 elif self.currentBodyModel == BODY18:
-                    inputData = keypoints.T[BODY25_to_BODY18_indices][:,:2]
+                    inputData = keypoints.T[BODY25_to_BODY18_indices][:, :2]
                 elif self.currentBodyModel == BODY18_FLAT:
-                    inputData = np.concatenate(keypoints.T[BODY25_to_BODY18_indices][:,:2], axis=0)
-                
+                    inputData = np.concatenate(
+                        keypoints.T[BODY25_to_BODY18_indices][:, :2], axis=0
+                    )
+
                 prediction = self.modelClassifier.predict(np.array([inputData]))[0]
                 self.currentPrediction = self.classOutputs[np.argmax(prediction)]
                 title = self.currentPrediction
@@ -187,10 +195,14 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
                 if bodyID == 2:  # Check if classifier for body poses (not hands)
                     model = tf.keras.models.load_model(urlModel)
                     nbrClass = model.layers[-1].output_shape[1]
-                    if modelInfo and modelInfo.get('labels') and len(modelInfo.get('labels')) == nbrClass:
-                        classOutputs = modelInfo.get('labels')
+                    if (
+                        modelInfo
+                        and modelInfo.get("labels")
+                        and len(modelInfo.get("labels")) == nbrClass
+                    ):
+                        classOutputs = modelInfo.get("labels")
                     else:
-                        classOutputs = [str(i) for i in range(1,nbrClass+1)]
+                        classOutputs = [str(i) for i in range(1, nbrClass + 1)]
                     self.setClassifierModel(model, classOutputs)
 
     def getCurrentPrediction(self) -> str:

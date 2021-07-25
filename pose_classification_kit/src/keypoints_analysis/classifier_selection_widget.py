@@ -4,6 +4,7 @@ from ...config import MODELS_PATH
 
 import json
 
+
 class ClassifierSelectionWidget(QtWidgets.QWidget):
     # newClassifierModel_Signal: url to load classifier model, model infos from JSON, handID
     newClassifierModel_Signal = pyqtSignal(str, object, int)
@@ -16,7 +17,6 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
         self.modelsPath = MODELS_PATH / ("Body" if bodyClassification else "Hands")
         self.bodyClassification = bodyClassification
 
-        #self.classOutputs = []
         self.leftWidget = QtWidgets.QWidget()
         self.layout = QtWidgets.QGridLayout(self)
         self.setLayout(self.layout)
@@ -50,9 +50,8 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
         """
         if name != "None":
             pathFolder = self.modelsPath / name
-            print(pathFolder)
             if pathFolder.is_dir():
-                
+
                 ModelInfoPath = next(pathFolder.glob("*.json"), None)
                 modelInfo = None
                 if ModelInfoPath:
@@ -61,8 +60,6 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                             modelInfo = json.load(f)
                         except:
                             modelInfo = None
-                    #self.classOutputs = first_line.split(",")
-                    #print("Class model loaded:", self.classOutputs)
 
                 if self.bodyClassification:
                     availableModelPath = next(pathFolder.glob("*.h5"), None)
@@ -70,22 +67,16 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                         self.newClassifierModel_Signal.emit(
                             str(availableModelPath), modelInfo, 2
                         )
-                        print(str(availableModelPath), "loaded.")
                     else:
-                        print(
-                            "No model found."
-                        )
                         self.newClassifierModel_Signal.emit("None", {}, 2)
-                
+
                 else:
                     availableModels = list(pathFolder.glob("*_right.h5"))
                     if len(availableModels) > 0:
                         self.newClassifierModel_Signal.emit(
                             str(availableModels[0]), modelInfo, 1
                         )
-                        print("Right hand model loaded.")
                     else:
-                        print("No right hand model found.")
                         self.newClassifierModel_Signal.emit("None", {}, 1)
 
                     availableModels = list(pathFolder.glob("*_left.h5"))
@@ -93,22 +84,20 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                         self.newClassifierModel_Signal.emit(
                             str(availableModels[0]), modelInfo, 0
                         )
-                        print("Left hand model loaded.")
                     else:
-                        print("No left hand model found.")
                         self.newClassifierModel_Signal.emit("None", {}, 0)
 
         else:
-            print("None")
-#            self.modelRight = None
-#            self.modelLeft = None
-#            self.classOutputs = []
             self.newClassifierModel_Signal.emit("None", {}, -1)
 
     def getAvailableClassifiers(self):
         listOut = ["None"]
         # Get all directory that contains an h5 file.
-        listOut += [x.stem for x in self.modelsPath.glob('*') if x.is_dir() and next(x.glob('*.h5'), None)]
+        listOut += [
+            x.stem
+            for x in self.modelsPath.glob("*")
+            if x.is_dir() and next(x.glob("*.h5"), None)
+        ]
         return listOut
 
     def updateClassifier(self):

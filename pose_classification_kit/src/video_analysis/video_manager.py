@@ -74,31 +74,30 @@ class CameraInput:
         mat = cv2.imread(self.tmpUrl)
         return mat
 
-    def qImageToMat_alt(self,incomingImage):
-        '''  Converts a QImage into an opencv MAT format  '''
+    def qImageToMat_alt(self, incomingImage):
+        """  Converts a QImage into an opencv MAT format  """
 
         # Convert to 32-bit RGBA with solid opaque alpha
         # and get the pointer numpy will want.
-        # 
+        #
         # Cautions:
         # 1. I think I remember reading that PyQt5 only has
         # constBits() and PySide2 only has bits(), so you may
         # need to do something like `if hasattr(...)` for
         # portability.
-        # 
-        # 2. Format_RGBX8888 is native-endian for your 
+        #
+        # 2. Format_RGBX8888 is native-endian for your
         # platform and I suspect this code, as-is,
         # would break on a big-endian system.
         im_in = incomingImage.convertToFormat(QtGui.QImage.Format_RGBX8888)
         ptr = im_in.constBits()
         ptr.setsize(im_in.byteCount())
 
-        # Convert the image into a numpy array in the 
+        # Convert the image into a numpy array in the
         # format PyOpenCV expects to operate on, explicitly
         # copying to avoid potential lifetime bugs when it
         # hasn't yet proven a performance issue for my uses.
-        cv_im_in = np.array(ptr, copy=True).reshape(
-            im_in.height(), im_in.width(), 4)
+        cv_im_in = np.array(ptr, copy=True).reshape(im_in.height(), im_in.width(), 4)
         cv_im_in = cv2.cvtColor(cv_im_in, cv2.COLOR_BGRA2RGB)
 
         return cv_im_in
