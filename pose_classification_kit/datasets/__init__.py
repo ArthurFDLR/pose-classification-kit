@@ -3,7 +3,7 @@ import numpy as np
 
 from ..config import DATASETS_PATH
 from ..src.imports.tensorflow import tf
-from .body_models import BodyModel, BODY25, BODY18, BODY25flat_to_BODY18flat_indices
+from .body_models import BodyModel, BODY25, BODY18, BODY25_to_BODY18_indices
 from .data_augmentation import dataAugmentation
 
 
@@ -111,8 +111,8 @@ def bodyDataset(
     # Format to requested body model
     assert bodyModel in [BODY18, BODY25]
     if bodyModel == BODY18:
-        x_train = x_train[:, BODY25flat_to_BODY18flat_indices]
-        x_test = x_test[:, BODY25flat_to_BODY18flat_indices]
+        x_train = x_train[:, BODY25_to_BODY18_indices]
+        x_test = x_test[:, BODY25_to_BODY18_indices]
 
     # One-hot encoding
     y_train_onehot = tf.keras.utils.to_categorical(

@@ -61,15 +61,15 @@ class ClassifierSelectionWidget(QtWidgets.QWidget):
                     print("Class model loaded:", self.classOutputs)
 
                 if self.bodyClassification:
-                    availableModels = list(pathFolder.glob("*_body25.h5"))
+                    availableModels = list(pathFolder.glob("*.h5"))
                     if len(availableModels) > 0:
                         self.newClassifierModel_Signal.emit(
                             str(availableModels[0]), self.classOutputs, 2
                         )
-                        print("Body model loaded.")
+                        print(availableModels[0], "loaded.")
                     else:
                         print(
-                            "No BODY25 model found (BODY18 models currently not supported)."
+                            "No model found."
                         )
                         self.newClassifierModel_Signal.emit("None", [], 2)
                 else:

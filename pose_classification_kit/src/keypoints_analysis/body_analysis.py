@@ -6,7 +6,7 @@ if OPENPOSE_LOADED:
     from ..imports.openpose import op
 from .dynamic_bar_graph_widget import BarGraphWidget
 from .classifier_selection_widget import ClassifierSelectionWidget
-from ...datasets.body_models import BODY25
+from ...datasets.body_models import BODY18, BODY18_FLAT, BODY25, BODY25_FLAT, BODY25_to_BODY18_indices
 
 import numpy as np
 from matplotlib.backends.backend_qt5agg import FigureCanvas
@@ -42,7 +42,7 @@ class BodyPlotWidget(QtWidgets.QWidget):
                 keypoints_1, keypoints_2 = BODY25.pairs[i]
                 if (
                     bodyKeypoints[2][keypoints_1] == 0.0
-                    or bodyKeypoints[2][keypoints_2] == 0
+                    or bodyKeypoints[2][keypoints_2] == 0.0
                 ):
                     line.set_data([], [])
                 else:
@@ -93,6 +93,7 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         self.showInput = True
         self.classOutputs = []
         self.modelClassifier = None
+        self.currentBodyModel = None
         self.currentPrediction = ""
 
         self.layout = QtWidgets.QVBoxLayout(self)
@@ -119,7 +120,24 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
 
     def setClassifierModel(self, model, classOutputs):  # model:tf.keras.models
         self.modelClassifier = model
+        if model != None:
+            self.modelInputShape = model.layers[0].input_shape[1:]
+            if self.modelInputShape[0] == 25:
+                self.currentBodyModel = BODY25
+            elif self.modelInputShape[0] == 18:
+                self.currentBodyModel = BODY18
+            elif self.modelInputShape[0] == 50:
+                self.currentBodyModel = BODY25_FLAT
+            elif self.modelInputShape[0] == 36:
+                self.currentBodyModel = BODY18_FLAT
+            else:
+                self.currentBodyModel = None
+        else:
+            self.modelInputShape = None
+            self.currentBodyModel = None
+        print(self.modelInputShape)
         self.classOutputs = classOutputs
+        self.classGraphWidget.changeCategories(self.classOutputs)
 
     def drawBody(self, bodyKeypoints: np.ndarray, accuracy: float):
         """Draw keypoints of a body pose in the widget if showInput==True.
@@ -143,18 +161,18 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
         prediction = [0 for i in self.classOutputs]
         title = ""
         if type(keypoints) != type(None):
-            inputData = []
-            for i in range(keypoints.shape[1]):
-                inputData.append(keypoints[0, i])  # add x
-                inputData.append(keypoints[1, i])  # add y
-            inputData = np.array(inputData)
-
             if self.modelClassifier is not None:
-                try:
-                    #prediction = self.modelClassifier.predict(np.array([inputData]))[0]
-                    prediction = self.modelClassifier.predict(np.array([keypoints.T[:,:2]]))[0]
-                except ValueError:
-                    print("Model input shape not supported")
+                
+                if self.currentBodyModel == BODY25:
+                    inputData = keypoints[:2].T
+                elif self.currentBodyModel == BODY25_FLAT:
+                    inputData = np.concatenate(keypoints[:2].T, axis=0)
+                elif self.currentBodyModel == BODY18:
+                    inputData = keypoints.T[BODY25_to_BODY18_indices][:,:2]
+                elif self.currentBodyModel == BODY18_FLAT:
+                    inputData = np.concatenate(keypoints.T[BODY25_to_BODY18_indices][:,:2], axis=0)
+                
+                prediction = self.modelClassifier.predict(np.array([inputData]))[0]
                 self.currentPrediction = self.classOutputs[np.argmax(prediction)]
                 title = self.currentPrediction
 
@@ -164,14 +182,10 @@ class BodyAnalysisWidget(QtWidgets.QGroupBox):
     def newModelLoaded(self, urlModel: str, classOutputs: list, bodyID: int):
         if TF_LOADED:
             if urlModel == "None":
-                self.modelClassifier = None
-                self.classOutputs = []
-                self.classGraphWidget.changeCategories(self.classOutputs)
+                self.setClassifierModel(None, [])
             else:
                 if bodyID == 2:  # Check if classifier for body poses (not hands)
-                    self.modelClassifier = tf.keras.models.load_model(urlModel)
-                    self.classOutputs = classOutputs
-                    self.classGraphWidget.changeCategories(self.classOutputs)
+                    self.setClassifierModel(tf.keras.models.load_model(urlModel), classOutputs)
 
     def getCurrentPrediction(self) -> str:
         return self.currentPrediction

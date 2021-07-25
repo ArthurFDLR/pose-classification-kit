@@ -53,6 +53,70 @@ BODY18 = BodyModel(
     ],
 )
 
+BODY18_FLAT = BodyModel(
+    mapping=[
+        "nose_x",
+        "nose_y",
+        "left_eye_x",
+        "left_eye_y",
+        "right_eye_x",
+        "right_eye_y",
+        "left_ear_x",
+        "left_ear_y",
+        "right_ear_x",
+        "right_ear_y",
+        "left_shoulder_x",
+        "left_shoulder_y",
+        "right_shoulder_x",
+        "right_shoulder_y",
+        "left_elbow_x",
+        "left_elbow_y",
+        "right_elbow_x",
+        "right_elbow_y",
+        "left_wrist_x",
+        "left_wrist_y",
+        "right_wrist_x",
+        "right_wrist_y",
+        "left_hip_x",
+        "left_hip_y",
+        "right_hip_x",
+        "right_hip_y",
+        "left_knee_x",
+        "left_knee_y",
+        "right_knee_x",
+        "right_knee_y",
+        "left_ankle_x",
+        "left_ankle_y",
+        "right_ankle_x",
+        "right_ankle_y",
+        "neck_x",
+        "neck_y",
+    ],
+    pairs=[
+        [(30,31), (26,27)],
+        [(26,27), (22,23)],
+        [(32,33), (28,29)],
+        [(28,29), (24,25)],
+        [(22,23), (24,25)],
+        [(10,11), (14,15)],
+        [(12,13), (16,17)],
+        [(14,15), (18,19)],
+        [(16,17), (20,21)],
+        [(2,3), (4,5)],
+        [(0,1), (2,3)],
+        [(0,1), (4,5)],
+        [(2,3), (6,7)],
+        [(4,5), (8,9)],
+        [(6,7), (10,11)],
+        [(8,9), (12,13)],
+        [(34,35), (0,1)],
+        [(34,35), (10,11)],
+        [(34,35), (12,13)],
+        [(34,35), (22,23)],
+        [(34,35), (24,25)],
+    ],
+)
+
 BODY25 = BodyModel(
     mapping=[
         "nose",
@@ -111,24 +175,93 @@ BODY25 = BodyModel(
     ],
 )
 
+BODY25_FLAT = BodyModel(
+    mapping=[
+        "nose_x",
+        "nose_y",
+        "neck_x",
+        "neck_y",
+        "right_shoulder_x",
+        "right_shoulder_y",
+        "right_elbow_x",
+        "right_elbow_y",
+        "right_wrist_x",
+        "right_wrist_y",
+        "left_shoulder_x",
+        "left_shoulder_y",
+        "left_elbow_x",
+        "left_elbow_y",
+        "left_wrist_x",
+        "left_wrist_y",
+        "mid_hip_x",
+        "mid_hip_y",
+        "right_hip_x",
+        "right_hip_y",
+        "right_knee_x",
+        "right_knee_y",
+        "right_ankle_x",
+        "right_ankle_y",
+        "left_hip_x",
+        "left_hip_y",
+        "left_knee_x",
+        "left_knee_y",
+        "left_ankle_x",
+        "left_ankle_y",
+        "right_eye_x",
+        "right_eye_y",
+        "left_eye_x",
+        "left_eye_y",
+        "right_ear_x",
+        "right_ear_y",
+        "left_ear_x",
+        "left_ear_y",
+        "left_bigtoe_x",
+        "left_bigtoe_y",
+        "left_smalltoe_x",
+        "left_smalltoe_y",
+        "left_heel_x",
+        "left_heel_y",
+        "right_bigtoe_x",
+        "right_bigtoe_y",
+        "right_smalltoe_x",
+        "right_smalltoe_y",
+        "right_heel_x",
+        "right_heel_y",
+    ],
+    pairs=[
+        [(2,3), (16,17)],
+        [(2,3), (4,5)],
+        [(2,3), (10,11)],
+        [(4,5), (6,7)],
+        [(6,7), (8,9)],
+        [(10,11), (12,13)],
+        [(12,13), (14,15)],
+        [(16,17), (18,19)],
+        [(18,19), (20,21)],
+        [(20,21), (22,23)],
+        [(16,17), (24,25)],
+        [(24,25), (26,27)],
+        [(26,27), (28,29)],
+        [(2,3), (0,1)],
+        [(0,1), (30,31)],
+        [(30,31), (34,35)],
+        [(0,1), (32,33)],
+        [(32,33), (36,37)],
+        [(4,5), (34,35)],
+        [(10,11), (36,37)],
+        [(28,29), (38,39)],
+        [(38,39), (40,41)],
+        [(28,29), (42,43)],
+        [(22,23), (44,45)],
+        [(44,45), (46,47)],
+        [(22,23), (48,49)],
+    ],
+)
+
 # fmt: off
 BODY25_to_BODY18_indices = [0, 16, 15, 18, 17, 5, 2, 6, 3, 7, 4, 12, 9, 13, 10, 14, 11, 1]
 BODY25flat_to_BODY18flat_indices = [0, 1, 32, 33, 30, 31, 36, 37, 34, 35, 10, 11, 4, 5, 12, 13, 6, 7, 14, 15, 8, 9, 24, 25, 18, 19, 26, 27, 20, 21, 28, 29, 22, 23, 2, 3]
 # fmt: on
-
-"""
-BODY25_to_BODY18_indices = []
-for obj in BODY18.mapping:
-    BODY25_to_BODY18_indices.append(BODY25.mapping.index(obj))
-BODY25flat_to_BODY18flat_indices = []
-for i in BODY25_to_BODY18_indices:
-    BODY25flat_to_BODY18flat_indices.append(i*2)
-    BODY25flat_to_BODY18flat_indices.append(i*2+1)
-
-print(BODY25_to_BODY18_indices)
-print(BODY25flat_to_BODY18flat_indices)
-"""
-
 
 def BODY25_to_BODY18(body25_keypoints: np.ndarray):
     assert body25_keypoints.shape == 25
