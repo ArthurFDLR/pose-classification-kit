@@ -24,9 +24,11 @@ class BodyPlotWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.canvas = FigureCanvas(figure.Figure(figsize=(5, 3)))
         layout.addWidget(self.canvas)
-        self.setMinimumHeight(50)
+        self.setMinimumHeight(620)
+        self.setMinimumWidth(560)
 
         self.ax = self.canvas.figure.subplots()
         self.ax.set_xlim([-1.0, 1.0])
@@ -38,6 +40,20 @@ class BodyPlotWidget(QtWidgets.QWidget):
         self.pairLines = [
             lines.Line2D([], [], color=color_map(i)) for i in range(numPartPairs)
         ]
+
+        handles = [
+            lines.Line2D([0], [0], color=color_map(i), lw=1, ls="-", label=l)
+            for i, l in enumerate(['Torso', 'Shoulder (right)', 'Shoulder (left)', 'Arm (right)', 'Forearm (right)', 'Arm (left)', 'Forearm (left)', 'Hip (right)', 'Thigh (right)', 'Leg (right)', 'Hip (left)', 'Thigh (left)', 'Leg (left)', 'Neck', 'Eye (right)', 'Ear (right)', 'Eye (left)', 'Ear (left)', 'Foot (left)', 'Toe (left)', 'Heel (left)', 'Foot (right)', 'Toe (right)', 'Heel (right)'])
+        ]
+        self.ax.legend(
+            handles=handles,
+            loc="lower center",
+            bbox_to_anchor=(0.5, -0.3),
+            prop={"size": 7},
+            borderaxespad=1,
+            ncol=4
+        )
+        self.canvas.figure.subplots_adjust(bottom=0.2)
 
         for line in self.pairLines:
             self.ax.add_line(line)
