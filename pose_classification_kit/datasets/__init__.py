@@ -2,9 +2,12 @@ import pandas as pd
 import numpy as np
 
 from ..config import DATASETS_PATH
-from ..src.imports.tensorflow import tf
 from .body_models import BodyModel, BODY25, BODY18, BODY25_to_BODY18_indices
-from .data_augmentation import dataAugmentation
+
+
+def get_one_hot(targets: np.ndarray, nb_classes: int):
+    res = np.eye(nb_classes)[np.array(targets).reshape(-1)]
+    return res.reshape(list(targets.shape) + [nb_classes])
 
 
 def importBodyCSVDataset(testSplit: float, local_import: bool):
@@ -105,11 +108,11 @@ def bodyDataset(
         x_test = x_test[:, BODY25_to_BODY18_indices]
 
     # One-hot encoding
-    y_train_onehot = tf.keras.utils.to_categorical(
-        [list(labels).index(sample) for sample in y_train]
+    y_train_onehot = get_one_hot(
+        np.array([labels.index(sample) for sample in y_train]), len(labels)
     )
-    y_test_onehot = tf.keras.utils.to_categorical(
-        [list(labels).index(sample) for sample in y_test]
+    y_test_onehot = get_one_hot(
+        np.array([labels.index(sample) for sample in y_test]), len(labels)
     )
 
     return {
@@ -203,11 +206,11 @@ def handDataset(
         y_test = y_test[shuffler_test]
 
     # One-hot encoding
-    y_train_onehot = tf.keras.utils.to_categorical(
-        [list(labels).index(sample) for sample in y_train]
+    y_train_onehot = get_one_hot(
+        np.array([labels.index(sample) for sample in y_train]), len(labels)
     )
-    y_test_onehot = tf.keras.utils.to_categorical(
-        [list(labels).index(sample) for sample in y_test]
+    y_test_onehot = get_one_hot(
+        np.array([labels.index(sample) for sample in y_test]), len(labels)
     )
 
     return {
