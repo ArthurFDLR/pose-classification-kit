@@ -1,4 +1,4 @@
-# <h1 align = "center"> OpenHand
+# <h1 align = "center"> Pose Classification Kit
 
 [![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
 [![PyPI](https://img.shields.io/pypi/v/pose-classification-kit?style=for-the-badge)](https://pypi.org/project/pose-classification-kit/)
@@ -9,6 +9,9 @@
     <img src="https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/.github/markdown/openhand_view.png" alt="OpenHand app view" width="80%" style="border-radius: 5px;">
 </p>
 
+🚧 Documentation still in progress 🚧
+
+<!--
 The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab** to ease hand keypoints datasets creation and real-time pose classification.
 
   - [Installation](#installation)
@@ -21,8 +24,15 @@ The OpenHand application uses the excellent full-body pose estimator [**OpenPose
     - [Pose classifier models](#pose-classifier-models)
   - [User guide](#user-guide)
     - [Additional scripts](#additional-scripts)
+-->
 
 ## Installation
+
+Even if **OpenHand classifier** can run without [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose), it must be installed on your system to allow real-time hand gesture classification.
+
+1.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/tree/master/doc/installation).
+
+2. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\pose-classification-kit\config.py`](https://github.com/ArthurFDLR/pose-classification-kit/blob/master/pose_classification_kit/config.py)) to the location of the OpenPose installation folder on your system.
 
 ### Using PyPi
 Simply run the following command to install the whole package in the desired Python environment:
@@ -43,14 +53,8 @@ Ensure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 a
 
 3. You should now be able to run the application - `poetry run pose-classification-app`
 
-Even if **OpenHand classifier** can run without [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose), it must be installed on your system to allow real-time hand gesture classification.
 
-4.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/tree/master/doc/installation).
-
-5. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\pose-classification-kit\config.py`](https://github.com/ArthurFDLR/pose-classification-kit/blob/master/pose_classification_kit/config.py)) to the location of the OpenPose installation folder on your system.
-
-_Note:_ TensorFlow 2.4.0 is installed by default (can be changed through `Poetry`). GPU support thus requires CUDA 11.0, which might conflict with **OpenPose** requirements. However, classification models available in the application are relatively light. Modern CPUs will handle these models' inference process flawlessly.
-
+<!--
 ## Under the hood
 
 ### Features extraction
@@ -95,8 +99,6 @@ outputArray = np.array([(handKeypoints.T[0] - handCenterX)/normMax,
 <img src="https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/.github/markdown/formated_hand.png" width="400">
 
 ### Dataset creation - [*11090 samples for 27 categories*](https://github.com/ArthurFDLR/OpenHand-Classifier/tree/master/Datasets)
-
-🚧 Out-dated section, will be updated soon 🚧
 
 The dataset is composed of several classes consisting of two text files, one for each hand. The dataset is structured as follow:
 
@@ -173,8 +175,6 @@ See [**OpenHand-Models** repository](https://github.com/ArthurFDLR/OpenHand-Mode
 
 ## User guide
 
-🚧 Out-dated section, will be updated soon 🚧
-
 ### Real-time pose classification
 
 The video feed of the selected camera is fed to OpenPose at all times. The analysis results are displayed on the left side of the application. You have to choose one of the available models in the drop-down at the bottom of the hand-analysis window. Hand keypoints extracted from the video feed by OpenPose are automatically normalized and fed to the classifier.
@@ -190,3 +190,4 @@ Now that a set is loaded in the application, you can record new samples from you
 Some functionalities  are currently unavailable through the GUI:
 - You can export all dataset samples from [`.\Dataset`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/Dataset) in a single CSV file - `make dataset-csv` (or `poetry run python .\pose-classification-kit\scripts\dataset_export.py`)
 - You can generate videos similar to [this one](https://youtu.be/FK-1G749cIo) ([`.\pose-classification-kit\scripts\video_creation.py`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/pose-classification-kit/scripts/video_creation.py) might need some modification to fit your use case) - `make video-overlay` (or `poetry run python .\pose-classification-kit\scripts\video_creation.py`)
+-->

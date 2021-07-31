@@ -43,7 +43,34 @@ class BodyPlotWidget(QtWidgets.QWidget):
 
         handles = [
             lines.Line2D([0], [0], color=color_map(i), lw=1, ls="-", label=l)
-            for i, l in enumerate(['Torso', 'Shoulder (right)', 'Shoulder (left)', 'Arm (right)', 'Forearm (right)', 'Arm (left)', 'Forearm (left)', 'Hip (right)', 'Thigh (right)', 'Leg (right)', 'Hip (left)', 'Thigh (left)', 'Leg (left)', 'Neck', 'Eye (right)', 'Ear (right)', 'Eye (left)', 'Ear (left)', 'Foot (left)', 'Toe (left)', 'Heel (left)', 'Foot (right)', 'Toe (right)', 'Heel (right)'])
+            for i, l in enumerate(
+                [
+                    "Torso",
+                    "Shoulder (right)",
+                    "Shoulder (left)",
+                    "Arm (right)",
+                    "Forearm (right)",
+                    "Arm (left)",
+                    "Forearm (left)",
+                    "Hip (right)",
+                    "Thigh (right)",
+                    "Leg (right)",
+                    "Hip (left)",
+                    "Thigh (left)",
+                    "Leg (left)",
+                    "Neck",
+                    "Eye (right)",
+                    "Ear (right)",
+                    "Eye (left)",
+                    "Ear (left)",
+                    "Foot (left)",
+                    "Toe (left)",
+                    "Heel (left)",
+                    "Foot (right)",
+                    "Toe (right)",
+                    "Heel (right)",
+                ]
+            )
         ]
         self.ax.legend(
             handles=handles,
@@ -51,7 +78,7 @@ class BodyPlotWidget(QtWidgets.QWidget):
             bbox_to_anchor=(0.5, -0.3),
             prop={"size": 7},
             borderaxespad=1,
-            ncol=4
+            ncol=4,
         )
         self.canvas.figure.subplots_adjust(bottom=0.2)
 
