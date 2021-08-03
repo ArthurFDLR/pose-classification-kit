@@ -3,7 +3,7 @@ import numpy as np
 
 from ..config import DATASETS_PATH
 from .body_models import BodyModel, BODY25, BODY18, BODY25_to_BODY18_indices
-
+from .data_augmentation import dataAugmentation
 
 def get_one_hot(targets: np.ndarray, nb_classes: int):
     res = np.eye(nb_classes)[np.array(targets).reshape(-1)]
@@ -122,7 +122,7 @@ def bodyDataset(
         "x_test": x_test,
         "y_test": y_test,
         "y_test_onehot": y_test_onehot,
-        "labels": labels,
+        "labels": np.array(labels),
     }
 
 
@@ -220,5 +220,5 @@ def handDataset(
         "x_test": x_test,
         "y_test": y_test,
         "y_test_onehot": y_test_onehot,
-        "labels": labels,
+        "labels": np.array(labels),
     }
