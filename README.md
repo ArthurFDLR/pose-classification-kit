@@ -6,7 +6,7 @@
 [![linkedin][linkedin-shield]][linkedin-url]
 
 <p align="center">
-    <img src="https://github.com/ArthurFDLR/drone-gesture-control/blob/main/.github/markdown/pck-app.PNG?raw=true" alt="Banner" width="100%" style="border-radius: 5px;">
+    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/master/.github/markdown/pck-app.PNG?raw=true" alt="Banner" width="100%" style="border-radius: 5px;">
 </p>
 
 This Python package focus on the deployment of gesture control systems. It ease dataset creation, models evaluation, and processing pipeline deployment. The critical element in the proposed processing architecture is the intermediate representation of human bodies as key points to perform efficient classification. In addition to the main application, the package contains two datasets for body/hands pose classificaiton, several classification models, and data augmentation tools that can be accessed through an API. Feel free to check-out the [**drone-gesture-control repository**](https://github.com/ArthurFDLR/drone-gesture-control) for a deployment example on Jetson Nano using this package.
@@ -19,6 +19,7 @@ This Python package focus on the deployment of gesture control systems. It ease 
   - [Step 2 - Install OpenPose](#step-2---install-openpose)
   - [Step 3 - Launch application](#step-3---launch-application)
   - [Step 4 - Create new classification models](#step-4---create-new-classification-models)
+- [Demonstrations](#demonstrations)
 - [User guide](#user-guide)
   - [Real-time pose classification](#real-time-pose-classification)
   - [Create and manipulate datasets](#create-and-manipulate-datasets)
@@ -79,7 +80,16 @@ pose-classification-app
 
 The [`.\examples`](https://github.com/ArthurFDLR/pose-classification-kit/blob/master/examples) folder contains Jupyter Notebook detailing the use of the API to create new classification models. Note that these Notebooks can be executed on Google Colab.
 
-<!-- USAGE EXAMPLES -->
+## Demonstrations
+
+<a href="https://youtu.be/FK-1G749cIo"><p align="center">
+    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/main/.github/video_embed_1.PNG?raw=true" alt="Demonstration video 1" width="70%" style="border-radius: 5px;">
+</p></a>
+
+<a href="https://youtu.be/FZAUPmKiSXg"><p align="center">
+    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/main/.github/video_embed_2.PNG?raw=true" alt="Demonstration video 2" width="70%" style="border-radius: 5px;">
+</p></a>
+
 ## User guide
 
 ### Real-time pose classification
