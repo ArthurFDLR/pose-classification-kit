@@ -5,6 +5,7 @@ from ..config import DATASETS_PATH
 from .body_models import BodyModel, BODY25, BODY18, BODY25_to_BODY18_indices
 from .data_augmentation import dataAugmentation
 
+
 def get_one_hot(targets: np.ndarray, nb_classes: int):
     res = np.eye(nb_classes)[np.array(targets).reshape(-1)]
     return res.reshape(list(targets.shape) + [nb_classes])

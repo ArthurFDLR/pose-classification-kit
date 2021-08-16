@@ -1,4 +1,4 @@
-<h1 align = "center"> Gesture Controlled Drone </h1>
+<h1 align = "center"> Pose Classification Kit </h1>
 
 [![PyPI][PyPI-shield]][PyPI-url]
 [![PyV][PyV-shield]][PyV-url]
