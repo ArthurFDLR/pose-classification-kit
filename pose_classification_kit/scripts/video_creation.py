@@ -163,8 +163,7 @@ def create_plot(classifier_labels, prediction_probabilities, save_url):
     fig.savefig(save_url, transparent=True, dpi=108, pad_inches=0.0)
     plt.close(fig)
 
-
-if __name__ == "__main__" and OPENPOSE_LOADED:
+def run():
     current_path = Path.cwd()
 
     # Load Keras model
@@ -303,3 +302,6 @@ if __name__ == "__main__" and OPENPOSE_LOADED:
     video_in.release()
     video_out.release()
     cv2.destroyAllWindows()
+
+if __name__ == "__main__" and OPENPOSE_LOADED:
+    run()

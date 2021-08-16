@@ -1,15 +1,118 @@
-# <h1 align = "center"> Pose Classification Kit
+<h1 align = "center"> Gesture Controlled Drone </h1>
 
-[![PyV](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-App/blob/master/pyproject.toml)
-[![PyPI](https://img.shields.io/pypi/v/pose-classification-kit?style=for-the-badge)](https://pypi.org/project/pose-classification-kit/)
-[![Linting](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
-[![GitHub](https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier?style=for-the-badge)](https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE)
+[![PyPI][PyPI-shield]][PyPI-url]
+[![PyV][PyV-shield]][PyV-url]
+[![lint][lint-shield]][lint-url]
+[![linkedin][linkedin-shield]][linkedin-url]
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/ArthurFDLR/pose-classification-kit/master/.github/markdown/openhand_view.png" alt="OpenHand app view" width="80%" style="border-radius: 5px;">
+    <img src="https://github.com/ArthurFDLR/drone-gesture-control/blob/main/.github/markdown/pck-app.PNG?raw=true" alt="Banner" width="100%" style="border-radius: 5px;">
 </p>
 
-🚧 Documentation still in progress 🚧
+This Python package focus on the deployment of gesture control systems. It ease dataset creation, models evaluation, and processing pipeline deployment. The critical element in the proposed processing architecture is the intermediate representation of human bodies as key points to perform efficient classification. In addition to the main application, the package contains two datasets for body/hands pose classificaiton, several classification models, and data augmentation tools that can be accessed through an API. Feel free to check-out the [**drone-gesture-control repository**](https://github.com/ArthurFDLR/drone-gesture-control) for a deployment example on Jetson Nano using this package.
+
+
+- [Getting Started](#getting-started)
+  - [Step 1 - Install the package](#step-1---install-the-package)
+    - [Using PyPi](#using-pypi)
+    - [From source](#from-source)
+  - [Step 2 - Install OpenPose](#step-2---install-openpose)
+  - [Step 3 - Launch application](#step-3---launch-application)
+  - [Step 4 - Create new classification models](#step-4---create-new-classification-models)
+- [User guide](#user-guide)
+  - [Real-time pose classification](#real-time-pose-classification)
+  - [Create and manipulate datasets](#create-and-manipulate-datasets)
+  - [Additional scripts](#additional-scripts)
+- [License](#license)
+
+## Getting Started
+
+### Step 1 - Install the package
+
+#### Using PyPi
+
+Run the following command to install the whole package in the desired Python environment:
+  
+  ```
+  pip install pose-classification-kit[app]
+  ```
+
+If you don't plan to use the application but just want access to the datasets and pre-trained models:
+
+  ```
+  pip install pose-classification-kit
+  ```
+
+#### From source
+
+Ensure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
+
+1. Git clone the repository
+   
+    ```
+    git clone https://github.com/ArthurFDLR/pose-classification-kit.git
+    cd pose-classification-kit
+    ```
+
+2. Create an adequate `venv` virtual environment
+   
+    ```
+    python -m poetry install
+    ```
+
+### Step 2 - Install OpenPose
+
+The dataset creation and real-time model evaluation application heavily rely on the pose estimation system [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose). It must be installed on your system to allow real-time gesture classification. This step is not requiered if you don't plan to use the application.
+
+1.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/tree/master/doc/installation).
+
+2. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\pose-classification-kit\config.py`](https://github.com/ArthurFDLR/pose-classification-kit/blob/master/pose_classification_kit/config.py)) to the location of the OpenPose installation folder on your system.
+
+### Step 3 - Launch application
+
+You should now be able to run the application if you installed all optionnal dependancies. See the usage section about how to use the app.
+```
+pose-classification-app
+```
+
+### Step 4 - Create new classification models
+
+The [`.\examples`](https://github.com/ArthurFDLR/pose-classification-kit/blob/master/examples) folder contains Jupyter Notebook detailing the use of the API to create new classification models. Note that these Notebooks can be executed on Google Colab.
+
+<!-- USAGE EXAMPLES -->
+## User guide
+
+### Real-time pose classification
+
+The video stream of the selected camera is fed to OpenPose at all times. The analysis results are displayed on the left side of the application. You have to choose one of the available models in the drop-down at the bottom of the analysis pannel. Keypoints extracted from the video by OpenPose are automatically normalized and fed to the classifier.
+
+### Create and manipulate datasets
+
+First, you either have to load or create a new set of samples for a specific label and hand side. To do so, respectively choose *Open (Ctrl+O)* or *Create new (Ctrl+N)* in *Dataset* of the menu bar. You have to specify the hand side, the label, and the newly created samples set' accuracy threshold. A configuration window will ask for the label and the newly created samples set's accuracy threshold in case of creating a new class. The accuracy threshold defines the minimum accuracy of hand keypoints detection from OpenPose of any sample in the set. This accuracy is displayed on top of the keypoints graph.
+
+Now that a set is loaded in the application, you can record new samples from your video feed or inspect the set and delete inadequate samples. When your done, save the set through *Dataset -> Save (Ctrl+S)*.
+
+### Additional scripts
+
+Some functionalities  are currently unavailable through the GUI:
+- You can export all dataset samples from [`.\pose_classification_kit\datasets\Body`](https://github.com/ArthurFDLR/pose-classification-kit/tree/master/pose_classification_kit/datasets/Body) and [`.\pose_classification_kit\datasets\Hands`](https://github.com/ArthurFDLR/pose-classification-kit/tree/master/pose_classification_kit/datasets/Hands) in two respective CSV files. 
+  ```
+  export-datasets
+  ```
+- You can generate videos similar to [this one](https://youtu.be/FK-1G749cIo) ([`.\pose-classification-kit\scripts\video_creation.py`](https://github.com/ArthurFDLR/OpenHand-App/tree/master/pose-classification-kit/scripts/video_creation.py) might need some modification to fit your use case).
+  
+  🚧 Currently not functional 🚧
+  
+  ```
+  video-overlay
+  ```
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See [`LICENSE`](https://github.com/ArthurFDLR/pose-classification-kit/blob/main/LICENSE) for more information.
+
+
 
 <!--
 The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab** to ease hand keypoints datasets creation and real-time pose classification.
@@ -26,33 +129,21 @@ The OpenHand application uses the excellent full-body pose estimator [**OpenPose
     - [Additional scripts](#additional-scripts)
 -->
 
-## Installation
+<!-- MARKDOWN LINKS & IMAGES -->
+[PyPI-shield]: https://img.shields.io/pypi/v/pose-classification-kit?style=for-the-badge
+[PyPI-url]: https://pypi.org/project/pose-classification-kit/
 
-Even if **OpenHand classifier** can run without [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose), it must be installed on your system to allow real-time hand gesture classification.
+[PyV-shield]: https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue?style=for-the-badge
+[PyV-url]: https://github.com/ArthurFDLR/pose-classification-kit/blob/master/pyproject.toml
 
-1.  Follow [OpenPose installation instructions](https://github.com/CMU-Perceptual-Computing-Lab/openpose/tree/master/doc/installation).
+[lint-shield]: https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge
+[lint-url]: https://github.com/psf/black
 
-2. Once the installation is completed, change the variable `OPENPOSE_PATH` ( [`.\pose-classification-kit\config.py`](https://github.com/ArthurFDLR/pose-classification-kit/blob/master/pose_classification_kit/config.py)) to the location of the OpenPose installation folder on your system.
+[license-shield]: https://img.shields.io/github/license/ArthurFDLR/OpenHand-Classifier?style=for-the-badge
+[license-url]: https://github.com/ArthurFDLR/OpenHand-Classifier/blob/master/LICENSE
 
-### Using PyPi
-Simply run the following command to install the whole package in the desired Python environment:
-
-`pip install pose-classification-kit[app]`
-
-If you don't plan to use the application but just want access to the datasets and pre-trained models:
-
-`pip install pose-classification-kit`
-
-
-### From source
-Ensure that [`Poetry`](https://poetry.eustace.io/) is installed for Python 3.7 and above on your system.
-
-1. Git clone the repository - `git clone https://github.com/ArthurFDLR/pose-classification-kit.git`
-
-2. Create an adequate `venv` virtual environment - `python -m poetry install`
-
-3. You should now be able to run the application - `poetry run pose-classification-app`
-
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/arthurfdlr/
 
 <!--
 ## Under the hood
