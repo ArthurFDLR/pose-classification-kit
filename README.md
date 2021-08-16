@@ -24,6 +24,9 @@ This Python package focus on the deployment of gesture control systems. It ease 
   - [Real-time pose classification](#real-time-pose-classification)
   - [Create and manipulate datasets](#create-and-manipulate-datasets)
   - [Additional scripts](#additional-scripts)
+- [Documentation](#documentation)
+  - [Body datasets](#body-datasets)
+  - [Data augmentation](#data-augmentation)
 - [License](#license)
 
 ## Getting Started
@@ -83,11 +86,11 @@ The [`.\examples`](https://github.com/ArthurFDLR/pose-classification-kit/blob/ma
 ## Demonstrations
 
 <a href="https://youtu.be/FK-1G749cIo"><p align="center">
-    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/main/.github/video_embed_1.PNG?raw=true" alt="Demonstration video 1" width="70%" style="border-radius: 5px;">
+    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/master/.github/markdown/video_embed_1.PNG?raw=true" alt="Demonstration video 1" width="70%" style="border-radius: 5px;">
 </p></a>
 
 <a href="https://youtu.be/FZAUPmKiSXg"><p align="center">
-    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/main/.github/video_embed_2.PNG?raw=true" alt="Demonstration video 2" width="70%" style="border-radius: 5px;">
+    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/master/.github/markdown/video_embed_2.PNG?raw=true" alt="Demonstration video 2" width="70%" style="border-radius: 5px;">
 </p></a>
 
 ## User guide
@@ -117,27 +120,140 @@ Some functionalities  are currently unavailable through the GUI:
   video-overlay
   ```
 
+## Documentation
+
+### Body datasets
+
+There is a total of 20 body dataset classes which contains between 500 and $600$ samples each for a total of 10680 entries. Even if the number of samples from one class to the other varies in the raw dataset, the API yields a balanced dataset of 503 samples per class. Also, by default, 20% of these are reserved for final testing of the model. Each entry in the dataset is an array of 25 2D coordinates. The mapping of these keypoints follows the BODY25 body model. We created the dataset using the BODY25 representation as it is one of the most comprehensive standard body models. However, some pose estimation models, such as the one used on the Jetson Nano, use an 18 keypoints representation (BODY18). The seven missing keypoints do not strongly influence classification as 6 of them are used for feet representation, and the last one is a central hip keypoint. Still, the dataset must be converted to the BODY18 representation. This is done by reindexing the samples based on the comparison of the mapping of both body models. You can choose which body model to use when importing the dataset with the API.
+
+<p align="center">
+    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/master/.github/markdown/class_body.png?raw=true" alt="Full body classes" width="80%" style="border-radius: 5px;">
+</p>
+
+<p align="center">
+    <img src="https://github.com/ArthurFDLR/pose-classification-kit/blob/master/.github/markdown/body_models.png?raw=true" alt="Body models" width="80%" style="border-radius: 5px;">
+</p>
+
+### Data augmentation
+
+The data augmentation tool currently support the following operations:
+
+- **Scaling**: a random scaling factor drawn from a normal distribution of mean 0 and standard deviation σₛ is applied to all sample coordinates.
+- **Rotation**: a rotation of an angle randomly drawn from a normal distribution of mean 0 and standard deviation σᵣ is applied to the sample.
+- **Noise**: Gaussian noise of standard deviation σₙ is added to coordinates of the sample.
+- **Remove keypoints**: a pre-defined or random list of keypoints are removed (coordinates set to 0) from the sample.
+
+<details><summary>See example</summary>
+<p>
+
+
+<table>
+    <tr>
+        <td>Augmentation Ratio</td>
+        <td>σₛ</td>
+        <td>σᵣ</td>
+        <td>σₙ</td>
+        <td>Remove keypoints</td>
+    </tr>
+    <tr>
+        <td>10%</td>
+        <td>0.08</td>
+        <td>0.0</td>
+        <td>0.0</td>
+        <td>None</td>
+    </tr>
+    <tr>
+        <td>10%</td>
+        <td>0.0</td>
+        <td>10.0</td>
+        <td>0.0</td>
+        <td>None</td>
+    </tr>
+    <tr>
+        <td>15%</td>
+        <td>0.0</td>
+        <td>0.0</td>
+        <td>0.03</td>
+        <td>Legs</td>
+    </tr>
+    <tr>
+        <td>15%</td>
+        <td>0.0</td>
+        <td>0.0</td>
+        <td>0.03</td>
+        <td>Legs & Hip</td>
+    </tr>
+    <tr>
+        <td>20%</td>
+        <td>0.0</td>
+        <td>0.0</td>
+        <td>0.03</td>
+        <td>2 random</td>
+    </tr>
+</table>
+
+```python
+from pose_classification_kit.datasets import BODY18, bodyDataset, dataAugmentation
+
+dataset = bodyDataset(testSplit=.2, shuffle=True, bodyModel=BODY18)
+x_train = dataset['x_train']
+y_train = dataset['y_train_onehot']
+x, y = [x_train], [y_train]
+
+# Scaling augmentation
+x[len(x):],y[len(y):] = tuple(zip(dataAugmentation(
+    x_train, y_train,
+    augmentation_ratio=.1,
+    scaling_factor_standard_deviation=.08,
+)))
+
+# Rotation augmentation
+x[len(x):],y[len(y):] = tuple(zip(dataAugmentation(
+    x_train, y_train,
+    augmentation_ratio=.1,
+    rotation_angle_standard_deviation=10,
+)))
+
+# Upper-body augmentation
+lowerBody_keypoints = np.where(np.isin(BODY18.mapping,[
+    "left_knee", "right_knee", "left_ankle", "right_ankle"
+]))[0]
+x[len(x):],y[len(y):] = tuple(zip(dataAugmentation(
+    x_train, y_train,
+    augmentation_ratio=.15,
+    remove_specific_keypoints=lowerBody_keypoints,
+    random_noise_standard_deviation=.03
+)))
+lowerBody_keypoints = np.where(np.isin(BODY18.mapping,[
+    "left_knee", "right_knee", "left_ankle", "right_ankle", "left_hip", "right_hip",
+]))[0]
+x[len(x):],y[len(y):] = tuple(zip(dataAugmentation(
+    x_train, y_train,
+    augmentation_ratio=.15,
+    remove_specific_keypoints=lowerBody_keypoints,
+    random_noise_standard_deviation=.03
+)))        
+
+# Random partial input augmentation
+x[len(x):],y[len(y):] = tuple(zip(dataAugmentation(
+    x_train, y_train,
+    augmentation_ratio=.2,
+    remove_rand_keypoints_nbr=2,
+    random_noise_standard_deviation=.03
+)))
+
+x_train_augmented = np.concatenate(x, axis=0)
+y_train_augmented = np.concatenate(y, axis=0)
+```
+</p>
+</details>
+
+
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See [`LICENSE`](https://github.com/ArthurFDLR/pose-classification-kit/blob/main/LICENSE) for more information.
 
-
-
-<!--
-The OpenHand application uses the excellent full-body pose estimator [**OpenPose**](https://github.com/CMU-Perceptual-Computing-Lab/openpose) from **CMU Perceptual Computing Lab** to ease hand keypoints datasets creation and real-time pose classification.
-
-  - [Installation](#installation)
-    - [Using PyPi](#using-pypi)
-    - [From source](#from-source)
-  - [Under the hood](#under-the-hood)
-    - [Features extraction](#features-extraction)
-    - [Keypoints normalization](#keypoints-normalization)
-    - [Dataset creation - *11090 samples for 27 categories*](#dataset-creation---11090-samples-for-27-categories)
-    - [Pose classifier models](#pose-classifier-models)
-  - [User guide](#user-guide)
-    - [Additional scripts](#additional-scripts)
--->
 
 <!-- MARKDOWN LINKS & IMAGES -->
 [PyPI-shield]: https://img.shields.io/pypi/v/pose-classification-kit?style=for-the-badge
